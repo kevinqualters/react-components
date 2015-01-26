@@ -1,0 +1,13 @@
+{
+    "name": "dataminr-react-components",
+    "version": "0.0.1",
+    "devDependencies": {
+        "jasmine-expect": "1.22.3"
+    },
+    "dependencies": {
+        "lodash": "2.4.1",
+        "requirejs": "2.1.15",
+        "react": "0.12.2",
+        "jquery": "2.1.3"
+    }
+}
