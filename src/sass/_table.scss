@@ -1,0 +1,171 @@
+@import 'vars';
+
+.table-component {
+  .data-container{
+    min-height: 100px;
+  }
+
+  .pagination-controls {
+    display: inline-block;
+    float: right;
+    margin-top: -40px;
+
+    .left-control, .right-control {
+      color: $light-blue;
+      cursor: pointer;
+      padding: 3px 5px;
+
+      &:hover{
+        color: $off-white;
+      }
+    }
+
+    .left-control {
+      margin-left: 5px;
+    }
+
+    .disabled {
+      color: $grey;
+      cursor: default;
+
+      &:hover{
+        color: $grey;
+      }
+    }
+  }
+
+  table {
+    border-bottom: solid 1px $dark-grey;
+    border-collapse: separate;
+    font-size: 12pt;
+    margin-top: 7px;
+    table-layout: fixed;
+    width: 100%;
+
+    th, td {
+      border-left: solid 1px $grey;
+      box-sizing: border-box;
+      overflow: hidden;
+      padding: 0 10px;
+      position: relative;
+      white-space: nowrap;
+    }
+    th {
+      border-bottom: solid 1px $light-blue;
+      cursor: default;
+      padding-bottom: 7px;
+    }
+    th:first-child {
+      padding-left: 0;
+    }
+    th:first-child, td:first-child {
+      border-left: none;
+    }
+    tr:nth-child(odd) td {
+      background-color: $dark-grey;
+      border-top: solid 5px $dark-grey;
+      border-bottom: solid 5px $dark-grey;
+    }
+    tr:nth-child(even) td {
+      border-top: solid 5px $darker-grey;
+      border-bottom: solid 5px $darker-grey;
+    }
+
+    tr.hover-enabled:hover {
+      background-color: $grey;
+      cursor: pointer;
+
+      td {
+        background-color: $grey;
+        border-color: $grey;
+      }
+    }
+    tr.error-row {
+      color: $error-dark-red;
+      font-weight: bold;
+    }
+  }
+
+  .sorting-indicator {
+    color: $grey;
+  }
+
+  th.indicator {
+    &:hover {
+      color: $light-blue;
+      cursor: pointer;
+    }
+  }
+
+  tr.sub-action {
+    color: grey;
+    display: none;
+  }
+
+  .expanded-row-indicator.inactive {
+    color: $light-blue;
+  }
+
+  .sorting-indicator.active {
+    color: $light-blue;
+  }
+
+  .before-icon {
+    float: left;
+  }
+
+  .group-date {
+    position: absolute;
+    top: 0;
+    left: 45px;
+  }
+
+  .wrap-inner {
+    display: none;
+  }
+
+  td .content {
+    display: inline-block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-transform: capitalize;
+    white-space: nowrap;
+  }
+
+  td .icon {
+    font-size: 9pt;
+    padding: 0 4px;
+  }
+
+  .after-icon {
+    float: right;
+  }
+
+  .fa-sort-asc {
+    &:before {
+      position: relative;
+      top: 4px;
+    }
+  }
+  .fa-sort-desc {
+    &:before {
+      position: relative;
+      bottom: 3px;
+    }
+  }
+  .fa-circle {
+    color: $green;
+  }
+  .fa-circle-o {
+    color: rgba(88, 201, 158, 0.50);
+  }
+
+  .no-results {
+    color: $lighter-grey;
+    display: inline-block;
+    text-align: center;
+    margin-top: 50px;
+    width: 100%;
+  }
+}

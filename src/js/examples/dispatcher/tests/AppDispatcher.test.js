@@ -1,5 +1,5 @@
 define(function(require) {
-    var AppDispatcher = require('dispatcher/AppDispatcher');
+    var AppDispatcher = require('AppDispatcher');
     var PayloadSources = {
         SERVER_ACTION: 'SERVER_ACTION',
         VIEW_ACTION: 'VIEW_ACTION'

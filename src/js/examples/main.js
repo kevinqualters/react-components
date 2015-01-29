@@ -1,10 +1,10 @@
 define(function(require) {
     'use strict';
 
-    var App = require('components/App');
+    var App = require('examples/App');
     var React = require('react');
 
-    React.renderComponent(
+    React.render(
         <App />, document.getElementById('app')
     );
 });
