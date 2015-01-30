@@ -7,31 +7,32 @@ module.exports = function(grunt, options) {
          * Jasmine client side JS test tasks
          */
         jasmine: {
-            src: ['app/compiled/**/*.js', '!app/compiled/third-party/*',
-                '!app/compiled/main.js', '!app/compiled/**/tests/*.js'],
+            src: ['src/compiled/**/*.js', '!src/compiled/third-party/*',
+                '!src/compiled/examples/main.js', '!src/compiled/**/tests/*.js'],
             options: {
-                specs: ['app/compiled/**/*.test.js'],
+                specs: ['src/compiled/**/*.test.js'],
                 helpers: [
-                    'app/compiled/tests/bind-polyfill.js',
-                    'app/compiled/tests/mock-ajax.js',
+                    'src/compiled/tests/bind-polyfill.js',
+                    'src/compiled/tests/mock-ajax.js',
                     //Expanded Jasmine assertions - https://github.com/JamieMason/Jasmine-Matchers
                     'bower_components/jasmine-expect/dist/jasmine-matchers.js'
                 ],
                 template: require('grunt-template-jasmine-istanbul'),
                 templateOptions: {
-                    coverage: 'bin/coverage/app/coverage.json',
-                    report: 'bin/coverage/app',
+                    coverage: 'bin/coverage/src/coverage.json',
+                    report: 'bin/coverage/src',
                     template: require('grunt-template-jasmine-requirejs'),
                     templateOptions: {
-                        requireConfigFile: 'app/require.config.js',
+                        requireConfigFile: 'src/require.config.js',
                         requireConfig: {
-                            baseUrl: 'app/compiled/',
+                            baseUrl: 'src/compiled/',
                             paths: {
                                 'jquery': '../../../bower_components/jquery/dist/jquery',
                                 'lodash': '../../../bower_components/lodash/dist/lodash',
+                                moment: '../../../bower_components/moment/moment',
                                 'react': '../../../bower_components/react/react-with-addons',
-                                'third-party': '../../../app/compiled/third-party',
-                                'testUtil': '../../../app/compiled/tests/util'
+                                'third-party': '../../../src/compiled/third-party',
+                                'testUtil': '../../../src/compiled/tests/util'
                             },
                             callback: function () {
                                 define('instrumented', ['module'], function (module) {
@@ -41,16 +42,16 @@ module.exports = function(grunt, options) {
                                     var oldLoad = requirejs.load;
                                     requirejs.load = function (context, moduleName, url) {
                                         // normalize paths
-                                        // changes app/compiled/../../../bower_components/* to bower_components/*
-                                        if (url.indexOf('app/compiled/../../../') === 0) {
+                                        // changes src/compiled/../../../bower_components/* to bower_components/*
+                                        if (url.indexOf('src/compiled/../../../') === 0) {
                                             url = url.substring(22);
                                         }
-                                        // changes app/compiled/../../.grunt/grunt-contrib-jasmine/app/compiled/* to grunt/grunt-contrib-jasmine/app/compiled/*
-                                        else if (url.indexOf('app/compiled/../../.') === 0) {
+                                        // changes src/compiled/../../.grunt/grunt-contrib-jasmine/src/compiled/* to grunt/grunt-contrib-jasmine/src/compiled/*
+                                        else if (url.indexOf('src/compiled/../../.') === 0) {
                                             url = url.substring(19);
                                         }
-                                        // changes app/compiled/* to .grunt/grunt-contrib-jasmine/app/compiled/* without altering test files
-                                        else if (url.indexOf('app/compiled/') === 0 && url.indexOf('test') === -1) {
+                                        // changes src/compiled/* to .grunt/grunt-contrib-jasmine/src/compiled/* without altering test files
+                                        else if (url.indexOf('src/compiled/') === 0 && url.indexOf('test') === -1) {
                                             url = '.grunt/grunt-contrib-jasmine/' + url;
                                         }
                                         return oldLoad.apply(this, [context, moduleName, url]);
@@ -71,11 +72,11 @@ module.exports = function(grunt, options) {
                 newcap: false
             },
             src: [
-                'app/**/*.js',
-                '!app/js/**/*.js', //We scan the /compiled versions, not the source since JSX hoses things
-                '!app/compiled/third-party/*.js',
-                '!app/compiled/tests/*.js',
-                '!app/**/*.test.js'
+                'src/**/*.js',
+                '!src/js/**/*.js', //We scan the /compiled versions, not the source since JSX hoses things
+                '!src/compiled/third-party/*.js',
+                '!src/compiled/tests/*.js',
+                '!src/**/*.test.js'
             ]
         },
 
@@ -84,11 +85,11 @@ module.exports = function(grunt, options) {
          */
         jscs: {
             src: [
-                'app/**/*.js',
-                '!app/js/**/*.js', //We scan the /compiled versions, not the source since JSX hoses things
-                '!app/compiled/third-party/*.js',
-                '!app/compiled/tests/*.js',
-                '!app/**/*.test.js'
+                'src/**/*.js',
+                '!src/js/**/*.js', //We scan the /compiled versions, not the source since JSX hoses things
+                '!src/compiled/third-party/*.js',
+                '!src/compiled/tests/*.js',
+                '!src/**/*.test.js'
             ],
             options: {
                 // http://jscs.info/rules.html

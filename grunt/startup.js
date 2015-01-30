@@ -4,8 +4,15 @@ module.exports.tasks = {
     compass: {
         dist: {
             options: {
-                cssDir: 'app/dist',
-                sassDir: 'app/sass',
+                cssDir: 'dist',
+                sassDir: 'src/sass',
+                environment: 'production'
+            }
+        },
+        dev: {
+            options: {
+                cssDir: 'src/js/examples/css',
+                sassDir: 'src/js/examples/sass',
                 environment: 'production'
             }
         }
@@ -13,14 +20,14 @@ module.exports.tasks = {
 
     watch: {
         scripts: {
-            files: ['app/sass/**/*.scss'],
-            tasks: ['compass']
+            files: ['src/**/*.scss'],
+            tasks: ['compass:dist', 'compass:dev']
         }
     },
 
     shell: {
         cleanCompiledDirectory: {
-            command: 'rm -rf app/compiled',
+            command: 'rm -rf src/compiled',
             options: {
                 async: true
             }
@@ -38,13 +45,13 @@ module.exports.tasks = {
             }
         },
         jsxCompile: {
-            command: 'jsx app/js/ app/compiled/',
+            command: 'jsx src/js/ src/compiled/',
             options: {
                 async: false
             }
         },
         jsxWatcher: {
-            command: 'jsx --watch app/js/ app/compiled/',
+            command: 'jsx --watch src/js/ src/compiled/',
             options: {
                 async: false
             }

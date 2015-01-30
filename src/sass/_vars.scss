@@ -1,0 +1,26 @@
+// Application Colors
+$off-white: #ECECEC;
+$lighter-grey: #989898;
+$light-grey: #676E75;
+$grey: #454E56;
+$dark-grey: #343B44;
+$darker-grey: #222A34;
+$green: #58C99E;
+$light-blue: #00B0F1;
+
+@function light-blue-rgba($opacity){
+  @return rgba(0, 176, 241, $opacity);
+}
+
+// Error Colors
+$error-red: #FBE6F2;
+$error-dark-red: #FF9494;
+$error-red-border: #D893A1;
+
+// Fonts
+$font-light: 'ClearSans-Light';
+$font-regular: 'ClearSans-Regular';
+$font-bold: 'ClearSans-Bold';
+
+// Sizes
+$min-page-width: 1000px;
