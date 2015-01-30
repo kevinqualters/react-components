@@ -36,7 +36,7 @@ define(function(require) {
         getInitialState: function() {
             return {
                 calculateTimeString: calculateTimeString
-            }
+            };
         },
 
         getTableRowItem: function(rowData, index) {
