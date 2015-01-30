@@ -21,7 +21,7 @@ define(function(require) {
         requestData: function(id, filters, callback) {
             var requestModel = this.collection[id];
 
-            RequestHandler.request('/query/' + requestModel.url, filters, function(data, responseResult) {
+            RequestHandler.request(requestModel.url, filters, function(data, responseResult) {
                 requestModel.onDataReceived(data);
                 callback();
             }, function(){

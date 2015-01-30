@@ -7,38 +7,10 @@ define(function(require) {
     var Table = require('Table');
 
     /**
-     * Get formatted time string given the start and end times
-     * @param  {int} start        Start timestamp
-     * @param  {int} end          End timestamp
-     * @param  {bool} includeDate Whether time should include date
-     * @return {String}           Formatted time optionally prepended by date
-     */
-    function calculateTimeString(start, end, includeDate) {
-        var format = 'h:mm A',
-            startTime = Moment(start).format(format),
-            endTime = Moment(end).format(format);
-
-        var date = includeDate ? Moment(start).format('MMM Do,') : '';
-
-        //If all actions occured at the same minute, just show a single minute, not a range
-        if(startTime === endTime){
-            return date + " " + startTime;
-        }
-
-        return date + " " + startTime + ' - ' + endTime;
-    }
-
-    /**
      * Table that groups flow actions by day. Selecting day row expands
      * the specific actions below that occurred on that day.
      */
     var GroupedActionsTable = _.extend(Table.Base, {
-        getInitialState: function() {
-            return {
-                calculateTimeString: calculateTimeString
-            };
-        },
-
         getTableRowItem: function(rowData, index) {
             var rows = [];
 
@@ -126,7 +98,7 @@ define(function(require) {
 
             if (action.start && action.end) {
                 if (meta.dataProperty === 'groupDate') {
-                    val = calculateTimeString(action.start, action.end);
+                    val = Utils.calculateTimeString(action.start, action.end);
                     return (
                         <td key={'tableData' + Utils.guid()}>
                             <span className="content group-date" title={val}>{val}</span>
