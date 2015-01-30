@@ -22,7 +22,7 @@ define(function(require) {
                 StoreBase.requestData('test', {foo: 'bar'}, callbackSpy);
 
                 expect(RequestHandler.request).toHaveBeenCalled();
-                expect(RequestHandler.request.calls.first().args[0]).toEqual('/query/requestUrl');
+                expect(RequestHandler.request.calls.first().args[0]).toEqual('requestUrl');
                 expect(RequestHandler.request.calls.first().args[1]).toEqual({foo: 'bar'});
 
                 var onSuccessMethod = RequestHandler.request.calls.first().args[2],
