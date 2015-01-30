@@ -2,8 +2,6 @@ define(function(require) {
     var Utils = require('Utils');
     var Moment = require('moment');
     var React = require('react');
-    // TODO
-    // var TabActions = require('actions/TabActions');
     var Table = require('Table');
     var TableActions = require('TableActions');
     var TableStore = require('TableStore');
@@ -54,12 +52,10 @@ define(function(require) {
         pagination: {
             cursor: 0,
             size: 10
+        },
+        rowClick: {
+            callback: function() {}
         }
-        // TODO
-//        rowClick: {
-//            gridType: BeaconConstants.InteractiveGridTypes.COMPANY,
-//            filterKey: 'companyID'
-//        }
     };
 
     function spyOnTableGetCalls(data, count, colDef, sortIdx, rowClick, pagination) {
@@ -87,6 +83,7 @@ define(function(require) {
             {
                 dataProperty: 'string',
                 dataType: 'string',
+                hoverProperty: 'string',
                 sortDirection: 'ascending'
             },
             {
@@ -115,14 +112,12 @@ define(function(require) {
             }
         ];
         var sortColIndex = 0;
-        // TODO
-//        var rowClick = {
-//            gridType: BeaconConstants.InteractiveGridTypes.COMPANY,
-//            filterKey: 'companyID'
-//        };
         var paginationData = {
             cursor: 0,
             size: 2
+        };
+        var rowClick = {
+            callback: function() {}
         };
 
         function getLoaderClasses(loading) {
@@ -366,8 +361,7 @@ define(function(require) {
                 expect(tableRowComponent.props.className).toEqual('text-select');
             });
 
-            // TODO
-            xit('should have an onClick function if row clicks are defined', function() {
+            it('should have an onClick function if row clicks are defined', function() {
                 table.state.rowClick = true;
                 var tableRowComponent = table.getTableRowItem(rowData, index);
 
@@ -586,9 +580,8 @@ define(function(require) {
             });
         });
 
-        // TODO
-        xdescribe('handleRowClick function', function() {
-            it('should open a new tab if the row click action was to open a tab', function() {
+        describe('handleRowClick function', function() {
+            it('should open a new tab if the row click action was to open a tab.', function() {
                 spyOnTableGetCalls(tableData, dataCount, colDefinitions, undefined, rowClick, undefined);
                 var e = {
                     currentTarget: {
@@ -597,13 +590,13 @@ define(function(require) {
                 };
                 table.onDataReceived();
 
-                spyOn(TabActions, 'openTab');
+                spyOn(rowClick, 'callback');
                 table.handleRowClick(e);
 
-                expect(TabActions.openTab).toHaveBeenCalled();
+                expect(rowClick.callback).toHaveBeenCalled();
             });
 
-            it('should not open a tab if the row click action was not set to do so', function() {
+            it('should not throw an error or execute the callback if a rowClick was not defined.', function() {
                 spyOnTableGetCalls(tableData, dataCount, colDefinitions, undefined, undefined, undefined);
                 var e = {
                     currentTarget: {
@@ -612,10 +605,26 @@ define(function(require) {
                 };
                 table.onDataReceived();
 
-                spyOn(TabActions, 'openTab');
+                spyOn(rowClick, 'callback');
                 table.handleRowClick(e);
 
-                expect(TabActions.openTab).not.toHaveBeenCalled();
+                expect(function() {table.handleRowClick();}).not.toThrow();
+                expect(rowClick.callback).not.toHaveBeenCalled();
+            });
+
+            it('should throw an error if the callback is not a function.', function() {
+                spyOnTableGetCalls(tableData, dataCount, colDefinitions, undefined, 'error', undefined);
+                var e = {
+                    currentTarget: {
+                        rowIndex: 0
+                    }
+                };
+                table.onDataReceived();
+
+                spyOn(rowClick, 'callback');
+
+                expect(function() {table.handleRowClick();}).toThrow();
+                expect(rowClick.callback).not.toHaveBeenCalled();
             });
         });
     });

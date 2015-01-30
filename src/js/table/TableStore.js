@@ -297,7 +297,9 @@ define(function(require) {
                 default:
                 // Do nothing.
             }
-        }
+        },
+
+        Table: Table
     }, StoreBase);
 
     AppDispatcher.register(_.bind(TableStore.dispatchRegister, TableStore));
