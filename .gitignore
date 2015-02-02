@@ -3,7 +3,6 @@
 .jshintrc
 .sass-cache/
 .grunt/
-**/compiled
-**/dist
 _SpecRunner.html
+**/.module-cache
 **/coverage

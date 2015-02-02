@@ -1,6 +1,6 @@
 {
   "name": "dataminr-react-components",
-  "version": "0.0.1",
+  "version": "0.0.0",
   "main": "dist/dataminr-react-components.css",
   "ignore": [
     "**/*.txt"

@@ -12,7 +12,7 @@ require.config({
         TableActions: '../../src/compiled/table/TableActions',
         TableStore: '../../src/compiled/table/TableStore',
         StoreBase: '../../src/compiled/lib/StoreBase',
-        Utils: '../../src/compiled/utils/Utils',
+        Utils: '../../src/compiled/utils/utils',
 
         // Third Party
         jquery: '../../bower_components/jquery/dist/jquery',
