@@ -8,6 +8,9 @@ require.config({
 
         DataMixins: '../../src/compiled/mixins/DataMixins',
         GroupedActionsTable: '../../src/compiled/table/GroupedActionsTable',
+        PieChart: '../../src/compiled/pie-chart/PieChart',
+        PieChartActions: '../../src/compiled/pie-chart/PieChartActions',
+        PieChartStore: '../../src/compiled/pie-chart/PieChartStore',
         Table: '../../src/compiled/table/Table',
         TableActions: '../../src/compiled/table/TableActions',
         TableStore: '../../src/compiled/table/TableStore',
@@ -18,6 +21,7 @@ require.config({
         Utils: '../../src/compiled/utils/utils',
 
         // Third Party
+        d3: '../../bower_components/d3/d3',
         jquery: '../../bower_components/jquery/dist/jquery',
         lodash: '../../bower_components/lodash/dist/lodash',
         moment: '../../bower_components/moment/moment',

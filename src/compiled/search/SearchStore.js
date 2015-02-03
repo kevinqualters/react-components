@@ -3,7 +3,7 @@ define(function(require) {
 
     var AppDispatcher = require('AppDispatcher');
     var _ = require('lodash');
-    var RequestHandler = require('utils/RequestHandler');
+    var RequestHandler = require('RequestHandler');
     var StoreBase = require('StoreBase');
 
     var SearchStore = _.merge({

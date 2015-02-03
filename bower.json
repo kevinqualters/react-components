@@ -9,6 +9,7 @@
     "jasmine-expect": "1.22.3"
   },
   "dependencies": {
+    "d3": "3.5.3",
     "lodash": "2.4.1",
     "requirejs": "2.1.15",
     "react": "0.12.2",

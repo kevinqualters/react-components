@@ -1,6 +1,6 @@
 define(function(require) {
     var SearchStore = require('SearchStore');
-    var RequestHandler = require('utils/RequestHandler');
+    var RequestHandler = require('RequestHandler');
 
     describe('SearchStore', function() {
 
