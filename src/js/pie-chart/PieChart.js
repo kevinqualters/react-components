@@ -9,8 +9,7 @@ define(function(require) {
     var React = require('react');
     var Utils = require('Utils');
 
-    // TODO: make these default and allow colors to be passed in
-    var colors = [
+    var defaultColors = [
         '#00B0F1', //dark blue
         '#6DD2F7', //light blue
         '#58C99E', //light green
@@ -59,7 +58,15 @@ define(function(require) {
          * @return {Object} Initial state of chart
          */
         getInitialState: function() {
+            var colors;
+            if (this.props.colors && Object.prototype.toString.call(this.props.colors) === '[object Array]') {
+                colors = this.props.colors
+            }
+            else {
+                colors = defaultColors;
+            }
             return {
+                colors: colors,
                 loading: true,
                 svgID: 'pieChart' + this.props.componentId,
                 dataStack: [],
@@ -98,7 +105,7 @@ define(function(require) {
             var group = g.append('path');
 
             group
-                .style("fill", function() { return colors[colorCounter++];})
+                .style("fill", function() { return this.state.colors[colorCounter++];}.bind(this))
                 .style("cursor", function(dataNode){ if(_.isArray(dataNode.data.children) && dataNode.data.children.length) return "pointer";})
                 .transition()
                 .delay(function(dataNode, index) { return index * delay; })
@@ -287,9 +294,9 @@ define(function(require) {
 
             for(i = 0; i < dataList.length; i++){
                 var data = dataList[i],
-                    color = {backgroundColor: colors[i]},
+                    color = {backgroundColor: this.state.colors[i]},
                     isSelected = this.state.selectedRowName === data.name,
-                    rowBackground = isSelected ? {'borderLeft': "solid 6px " + colors[i]} : {},
+                    rowBackground = isSelected ? {'borderLeft': "solid 6px " + this.state.colors[i]} : {},
                     rowClasses = React.addons.classSet({
                         'table-even': i % 2,
                         'table-odd': i % 2 === 0,
