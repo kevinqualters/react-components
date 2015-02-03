@@ -16,16 +16,16 @@ define(function(require) {
          * @type {Object}
          */
         listKeyCodeHandlers: {
-            38: 'focusPrev',           //Up arrow
-            40: 'focusNext',           //Down arrow
-            27: 'clearList',           //Esc
-            13: 'selectCompanyOnEnter' //Enter
+            38: 'focusPrev',        //Up arrow
+            40: 'focusNext',        //Down arrow
+            27: 'clearList',        //Esc
+            13: 'selectItemOnEnter' //Enter
         },
         getInitialState: function(){
             return {
                 placeholder: 'Loading...',
                 disabled: true,
-                companyList: [],
+                itemList: [],
                 shownList: [],
                 inputValue: '',
                 inputFocused: false
@@ -39,7 +39,7 @@ define(function(require) {
         componentDidMount: function(){
             SearchStore.on('change', this.onDataReceived);
             SearchStore.on('fail', this.onError);
-            SearchActions.requestData();
+            SearchActions.requestData(this.props.url);
 
             //Hook up page click event to close list when user clicks outside search component
             $(document).mouseup(_.bind(function(e){
@@ -72,26 +72,32 @@ define(function(require) {
          */
         onDataReceived: function() {
             var data = SearchStore.getData();
+            var placeholder = 'Search';
 
             if(!data){
                 this.onError();
                 return;
             }
-            this.setState({companyList: data, disabled: false, placeholder: 'Search Companies'});
+
+            if (this.props.placeholder && typeof this.props.placeholder === 'string') {
+                placeholder = this.props.placeholder;
+            }
+
+            this.setState({itemList: data, disabled: false, placeholder: placeholder});
         },
 
         /**
-         * Given a search term culls the company list to the list of closely matching company names. Search
+         * Given a search term culls the item list to the list of closely matching item names. Search
          * will be case insensitive and ignore spaces.
          * @param  {String} searchTerm Term to search on
-         * @return {Array}             List of matching companies
+         * @return {Array}             List of matching items
          */
         getListOfMatchesForQuery: function(searchTerm){
             var matches = [];
             searchTerm = searchTerm.toLowerCase().split(" ").join("");
-            _.forEach(this.state.companyList, function(item){
-                var companyName = item.name.toLowerCase().split(" ").join(""),
-                    containsLocation = companyName.indexOf(searchTerm);
+            _.forEach(this.state.itemList, function(item){
+                var itemName = item.name.toLowerCase().split(" ").join(""),
+                    containsLocation = itemName.indexOf(searchTerm);
                 if(containsLocation > -1){
                     item.matchIndex = containsLocation;
                     matches.push(item);
@@ -104,8 +110,7 @@ define(function(require) {
         },
 
         /**
-         * Sorts matching company results from search to better find the closest
-         * match
+         * Sorts matching item results from search to better find the closest match.
          * @param  {String} a First match
          * @param  {String} b Second match
          * @return {Number}   Sort order, either -1, 0, or 1
@@ -136,7 +141,7 @@ define(function(require) {
         },
 
         /**
-         * Change handler for input element. Causes company list to update
+         * Change handler for input element. Causes item list to update
          * and display
          * @param  {Object} event Input change event
          */
@@ -271,10 +276,10 @@ define(function(require) {
         },
 
         /**
-         * Selects the company and fires off the event to create a new tab. Also
+         * Selects the item and fires off the event to create a new tab. Also
          * clears all content in the search input
          */
-        selectCompanyOnEnter: function(){
+        selectItemOnEnter: function(){
             var selectedItem = this.refs.list.getDOMNode().childNodes[this.focusedIndex];
             this.itemSelect({target: selectedItem});
         },
@@ -341,21 +346,28 @@ define(function(require) {
                 <div className="search-component">
                     <div className="input-group">
                         <i className={searchIconClasses}/>
-                        <input ref="searchInput" value={this.state.inputValue} type="text" autoComplete="off" placeholder={this.state.placeholder} disabled={this.state.disabled}
-                        onChange={this.onChange}
-                        onFocus={this.onFocus}
-                        onBlur={this.onBlur}
-                        onKeyDown={this.onInputKeyPress}
+                        <input ref="searchInput"
+                               value={this.state.inputValue}
+                               type="text"
+                               autoComplete="off"
+                               placeholder={this.state.placeholder}
+                               disabled={this.state.disabled}
+                               onChange={this.onChange}
+                               onFocus={this.onFocus}
+                               onBlur={this.onBlur}
+                               onKeyDown={this.onInputKeyPress}
                         />
-                        <ul ref="list" className="autocomplete-list"
-                        onClick={this.itemSelect}
-                        onMouseLeave={this.handleListMouseLeave}
-                        onKeyDown={this.onListKeyPress}>
+                        <ul ref="list"
+                            className="autocomplete-list"
+                            onClick={this.itemSelect}
+                            onMouseLeave={this.handleListMouseLeave}
+                            onKeyDown={this.onListKeyPress}>
+
                             {autoCompleteMarkup}
                         </ul>
                     </div>
                 </div>
-                );
+            );
         }
     });
 

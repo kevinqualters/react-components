@@ -8,11 +8,11 @@ define(function(require) {
             it('toggles between enabled and disabled', function() {
                 expect(SearchStore.getData()).toEqual([]);
 
-                SearchStore.companyData = "test data";
+                SearchStore.itemData = "test data";
 
                 expect(SearchStore.getData()).toEqual('test data');
 
-                SearchStore.companyData = [];
+                SearchStore.itemData = [];
             });
         });
 
@@ -21,7 +21,7 @@ define(function(require) {
                 spyOn(RequestHandler, 'request');
                 spyOn(SearchStore, 'shouldHandleAction').and.returnValue(false);
 
-                SearchStore.dispatchRegister({action: {component: 'foo'}});
+                SearchStore.dispatchRegister({action: {component: 'foo', data: {url: '/test/url'}}});
 
                 expect(RequestHandler.request.calls.count()).toEqual(0);
                 expect(SearchStore.shouldHandleAction).toHaveBeenCalledWith('foo');
@@ -31,14 +31,14 @@ define(function(require) {
                 spyOn(RequestHandler, 'request');
                 spyOn(SearchStore, 'shouldHandleAction').and.returnValue(true);
 
-                SearchStore.dispatchRegister({action: {component: 'foo'}});
+                SearchStore.dispatchRegister({action: {component: 'foo', data: {url: '/test/url'}}});
 
                 expect(SearchStore.shouldHandleAction).toHaveBeenCalledWith('foo');
 
                 expect(RequestHandler.request).toHaveBeenCalled();
 
                 var requestArgs = RequestHandler.request.calls.allArgs()[0];
-                expect(requestArgs[0]).toEqual('/search/getCompanyList');
+                expect(requestArgs[0]).toEqual('/test/url');
                 expect(requestArgs[1]).toBeNull();
 
                 var successFunction = requestArgs[2];
@@ -51,7 +51,7 @@ define(function(require) {
 
                 successFunction('foo');
                 expect(SearchStore.emitChange).toHaveBeenCalledWith();
-                expect(SearchStore.companyData).toEqual('foo');
+                expect(SearchStore.itemData).toEqual('foo');
                 expect(SearchStore.emitFail.calls.count()).toEqual(0);
 
                 SearchStore.emitChange.calls.reset();

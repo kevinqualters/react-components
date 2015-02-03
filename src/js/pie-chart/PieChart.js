@@ -58,12 +58,9 @@ define(function(require) {
          * @return {Object} Initial state of chart
          */
         getInitialState: function() {
-            var colors;
+            var colors = defaultColors;
             if (this.props.colors && Object.prototype.toString.call(this.props.colors) === '[object Array]') {
-                colors = this.props.colors
-            }
-            else {
-                colors = defaultColors;
+                colors = this.props.colors;
             }
             return {
                 colors: colors,

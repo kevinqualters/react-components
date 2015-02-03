@@ -10,11 +10,15 @@ define(function(require) {
 
         /**
          * Action for populating pie chart data. Used both for initial and subsequent loads.
+         * @param {string} url - the endpoint to retrieve the search items from.
          */
-        requestData: function() {
+        requestData: function(url) {
             AppDispatcher.handleViewAction({
                 actionType: this.actionTypes.REQUEST_DATA,
-                component: 'Search'
+                component: 'Search',
+                data: {
+                    url: url
+                }
             });
         }
     };

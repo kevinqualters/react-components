@@ -11,7 +11,7 @@ define(function(require) {
         var searchSubmitCallback = function() {};
 
         beforeEach(function() {
-            search = TestUtils.renderIntoDocument(React.createElement(Search, {searchSubmitCallback: searchSubmitCallback}));
+            search = TestUtils.renderIntoDocument(React.createElement(Search, {searchSubmitCallback: searchSubmitCallback, url: "/test/url"}));
         });
 
         describe('getInitialState function', function() {
@@ -19,7 +19,7 @@ define(function(require) {
                 expect(search.getInitialState()).toEqual({
                     placeholder: 'Loading...',
                     disabled: true,
-                    companyList: [],
+                    itemList: [],
                     shownList: [],
                     inputValue: '',
                     inputFocused: false
@@ -35,7 +35,7 @@ define(function(require) {
                 search.componentDidMount();
 
                 expect(SearchStore.on.calls.count()).toEqual(2);
-                expect(SearchActions.requestData).toHaveBeenCalledWith();
+                expect(SearchActions.requestData).toHaveBeenCalledWith(search.props.url);
             });
         });
 
@@ -83,62 +83,62 @@ define(function(require) {
                 expect(search.onError.calls.count()).toEqual(0);
                 expect(search.setState.calls.count()).toEqual(1);
                 expect(search.setState.calls.allArgs()[0][0]).toBeObject();
-                expect(search.setState.calls.allArgs()[0][0].companyList).toEqual('foo');
+                expect(search.setState.calls.allArgs()[0][0].itemList).toEqual('foo');
             });
         });
 
         describe('getListOfMatchesForQuery function', function(){
-            it('returns an empty array if no companies are present', function(){
-                search.state.companyList = [];
+            it('returns an empty array if no items are present', function(){
+                search.state.itemList = [];
                 expect(search.getListOfMatchesForQuery('')).toEqual([]);
             });
 
             it('returns empty array if no matches were found', function(){
-                search.state.companyList = [{
+                search.state.itemList = [{
                     name: 'ACME'
                 }];
 
-                expect(search.getListOfMatchesForQuery('company A')).toEqual([]);
+                expect(search.getListOfMatchesForQuery('item A')).toEqual([]);
             });
 
             it('returns matches if found and sorts results', function(){
                 spyOn(search, 'sortMatchingEntries');
 
-                search.state.companyList = [{
+                search.state.itemList = [{
                     name: 'ACME'
                 }];
 
                 expect(search.getListOfMatchesForQuery('ME')).toEqual([{name: 'ACME', matchIndex: 2}]);
                 expect(search.sortMatchingEntries.calls.count()).toEqual(0); //Sort won't get called with a single item
 
-                search.state.companyList = [{
+                search.state.itemList = [{
                     name: 'ACME'
                 }, {
-                    name: 'ME Company'
+                    name: 'ME Item'
                 }];
 
-                expect(search.getListOfMatchesForQuery('ME')).toEqual([{name: 'ACME', matchIndex: 2}, {name: 'ME Company', matchIndex: 0}]);
+                expect(search.getListOfMatchesForQuery('ME')).toEqual([{name: 'ACME', matchIndex: 2}, {name: 'ME Item', matchIndex: 0}]);
                 expect(search.sortMatchingEntries).toHaveBeenCalled();
             });
 
             it('lowercases and replaces spaces in search terms to find matches', function(){
                 spyOn(search, 'sortMatchingEntries');
-                search.state.companyList = [{
+                search.state.itemList = [{
                     name: 'ACME'
                 }];
 
                 expect(search.getListOfMatchesForQuery('me')).toEqual([{name: 'ACME', matchIndex: 2}]);
                 expect(search.getListOfMatchesForQuery('mE')).toEqual([{name: 'ACME', matchIndex: 2}]);
 
-                search.state.companyList = [{
-                    name: 'Company with spaces'
+                search.state.itemList = [{
+                    name: 'Item with spaces'
                 }];
 
-                expect(search.getListOfMatchesForQuery('with')).toEqual([{name: 'Company with spaces', matchIndex: 7}]);
-                expect(search.getListOfMatchesForQuery('company with')).toEqual([{name: 'Company with spaces', matchIndex: 0}]);
-                expect(search.getListOfMatchesForQuery('company            with')).toEqual([{name: 'Company with spaces', matchIndex: 0}]);
+                expect(search.getListOfMatchesForQuery('with')).toEqual([{name: 'Item with spaces', matchIndex: 4}]);
+                expect(search.getListOfMatchesForQuery('item with')).toEqual([{name: 'Item with spaces', matchIndex: 0}]);
+                expect(search.getListOfMatchesForQuery('item            with')).toEqual([{name: 'Item with spaces', matchIndex: 0}]);
 
-                search.state.companyList = [];
+                search.state.itemList = [];
             });
         });
 
@@ -153,10 +153,10 @@ define(function(require) {
 
             it('sorts based on name if match index is the same', function(){
                 expect(search.sortMatchingEntries({matchIndex: 1, name: 'abcd'}, {matchIndex: 1, name: 'abc'})).toEqual(1);
-                expect(search.sortMatchingEntries({matchIndex: 1, name: 'longer company'}, {matchIndex: 1, name: 'short company'})).toEqual(1);
+                expect(search.sortMatchingEntries({matchIndex: 1, name: 'longer item'}, {matchIndex: 1, name: 'short item'})).toEqual(1);
 
                 expect(search.sortMatchingEntries({matchIndex: 1, name: 'abc'}, {matchIndex: 1, name: 'abcd'})).toEqual(-1);
-                expect(search.sortMatchingEntries({matchIndex: 1, name: 'short company'}, {matchIndex: 1, name: 'longer company'})).toEqual(-1);
+                expect(search.sortMatchingEntries({matchIndex: 1, name: 'short item'}, {matchIndex: 1, name: 'longer item'})).toEqual(-1);
             });
 
             it('sorts alphabetically if all others are the same', function(){
@@ -363,11 +363,11 @@ define(function(require) {
             });
         });
 
-        describe('selectCompanyOnEnter function', function(){
+        describe('selectItemOnEnter function', function(){
             it('calls itemSelect', function(){
                 spyOn(search, 'itemSelect');
 
-                search.selectCompanyOnEnter();
+                search.selectItemOnEnter();
                 expect(search.itemSelect).toHaveBeenCalledWith({target: undefined});
             });
         });
@@ -377,7 +377,7 @@ define(function(require) {
                 var getAttrSpy = jasmine.createSpy().and.returnValue(null);
                 var eventObj = {
                     target: {
-                        innerText: 'company Name',
+                        innerText: 'item Name',
                         getAttribute: getAttrSpy
                     }
                 };
@@ -392,7 +392,7 @@ define(function(require) {
                 var getAttrSpy = jasmine.createSpy().and.returnValue("10");
                 var eventObj = {
                     target: {
-                        innerText: 'company Name',
+                        innerText: 'item Name',
                         getAttribute: getAttrSpy
                     }
                 };
@@ -442,19 +442,19 @@ define(function(require) {
                 var list = search.getAutocompleteComponents();
                 expect(list).toBeArrayOfSize(2);
 
-                var firstCompanyItem = TestUtils.renderIntoDocument(list[0]),
-                    secondCompanyItem = TestUtils.renderIntoDocument(list[1]);
+                var firstItemItem = TestUtils.renderIntoDocument(list[0]),
+                    secondItemItem = TestUtils.renderIntoDocument(list[1]);
 
-                expect(TestUtils.isDOMComponent(firstCompanyItem)).toBeTrue();
-                expect(TestUtils.isDOMComponent(secondCompanyItem)).toBeTrue();
+                expect(TestUtils.isDOMComponent(firstItemItem)).toBeTrue();
+                expect(TestUtils.isDOMComponent(secondItemItem)).toBeTrue();
 
-                expect(firstCompanyItem.props['data-id']).toEqual(10);
-                expect(firstCompanyItem.props.tabIndex).toEqual('-1');
-                expect(firstCompanyItem.props.children).toEqual('acme');
+                expect(firstItemItem.props['data-id']).toEqual(10);
+                expect(firstItemItem.props.tabIndex).toEqual('-1');
+                expect(firstItemItem.props.children).toEqual('acme');
 
-                expect(secondCompanyItem.props['data-id']).toEqual(20);
-                expect(secondCompanyItem.props.tabIndex).toEqual('-1');
-                expect(secondCompanyItem.props.children).toEqual('Apl');
+                expect(secondItemItem.props['data-id']).toEqual(20);
+                expect(secondItemItem.props.tabIndex).toEqual('-1');
+                expect(secondItemItem.props.children).toEqual('Apl');
 
                 search.state.shownList = [];
             });
