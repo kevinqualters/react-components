@@ -77,7 +77,7 @@ define(function(require) {
          * @param {Object} data Data to display in pie chart
          */
         createVisualization: function(data){
-            var colorCounter = 0;
+            var colorCounter = 0,
             //For animation delays, only do a delay if we have a handful of elements. We don't want the chart to take 10 seconds to render
                 delay = (data.length > 5) ? (data.length > 8) ? 25 : 50 : 75;
 
