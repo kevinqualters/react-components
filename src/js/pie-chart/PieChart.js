@@ -176,6 +176,7 @@ define(function(require) {
          * Handles leaving a segment. Shinks radius back to normal size
          */
         mouseout: function(dataNode){
+            var mouseover = this.mouseover;
             this.setState({selectedRowName: null});
             this.chart.selectAll("path").on("mouseover", null);
 
@@ -185,8 +186,8 @@ define(function(require) {
                 .duration(100)
                 .attr("d", this.arc)
                 .each(function() {
-                    d3.select(this).on("mouseover", this.mouseover);
-                }.bind(this));
+                    d3.select(this).on("mouseover", mouseover);
+                });
         },
 
         /**
