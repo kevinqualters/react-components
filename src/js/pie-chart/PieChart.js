@@ -107,7 +107,7 @@ define(function(require) {
                     return function(time) {
                         dataNode.endAngle = interpolate(time);
                         return this.arc(dataNode);
-                    };
+                    }.bind(this);
                 }.bind(this))
                 //Add mouse events only after animation is complete.
                 .each("end", function(){
