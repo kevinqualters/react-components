@@ -1,12 +1,12 @@
 define(function(require) {
     'use strict';
 
-    var DataMixins = require('DataMixins');
+    var DataMixins = require('drc/mixins/DataMixins');
     var Moment = require('moment');
     var React = require('react');
-    var TableActions = require('TableActions');
-    var TableStore = require('TableStore');
-    var Utils = require('Utils');
+    var TableActions = require('drc/table/TableActions');
+    var TableStore = require('drc/table/TableStore');
+    var Utils = require('drc/utils/Utils');
 
     var Table = {};
 

@@ -1,5 +1,5 @@
 define(function(require) {
-    var StoreBase = require('StoreBase');
+    var StoreBase = require('drc/lib/StoreBase');
     var RequestHandler = require('RequestHandler');
 
     describe('StoreBase', function() {

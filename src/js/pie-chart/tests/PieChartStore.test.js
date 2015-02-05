@@ -1,6 +1,6 @@
 define(function(require) {
-    var PieChartStore = require('PieChartStore');
-    var Utils = require('Utils');
+    var PieChartStore = require('drc/pie-chart/PieChartStore');
+    var Utils = require('drc/utils/Utils');
 
     describe('PieChartStore', function() {
         var definition = {

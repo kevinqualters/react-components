@@ -2,13 +2,13 @@ define(function(require) {
     'use strict';
 
     var d3 = require('d3');
-    var DataMixins = require('DataMixins');
+    var DataMixins = require('drc/mixins/DataMixins');
     var $ = require('jquery');
     var _ = require('lodash');
-    var PieChartActions = require('PieChartActions');
-    var PieChartStore = require('PieChartStore');
+    var PieChartActions = require('drc/pie-chart/PieChartActions');
+    var PieChartStore = require('drc/pie-chart/PieChartStore');
     var React = require('react');
-    var Utils = require('Utils');
+    var Utils = require('drc/utils/Utils');
 
     var defaultColors = [
         '#00B0F1', //dark blue

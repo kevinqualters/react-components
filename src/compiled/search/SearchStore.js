@@ -4,7 +4,7 @@ define(function(require) {
     var AppDispatcher = require('AppDispatcher');
     var _ = require('lodash');
     var RequestHandler = require('RequestHandler');
-    var StoreBase = require('StoreBase');
+    var StoreBase = require('drc/lib/StoreBase');
 
     var SearchStore = _.merge({
         itemData: [],

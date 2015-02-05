@@ -1,11 +1,11 @@
 define(function(require) {
     'use strict';
 
-    var PieChart = require('PieChart');
+    var PieChart = require('drc/pie-chart/PieChart');
     var React = require('react');
-    var Search = require('Search');
-    var Table = require('Table');
-    var Utils = require('Utils');
+    var Search = require('drc/search/Search');
+    var Table = require('drc/table/Table');
+    var Utils = require('drc/utils/Utils');
 
     var tableDefinition = {
         url: '/test/table',

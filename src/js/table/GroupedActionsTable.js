@@ -1,10 +1,10 @@
 define(function(require) {
     'use strict';
 
-    var Utils = require('Utils');
+    var Utils = require('drc/utils/Utils');
     var Moment = require('moment');
     var React = require('react');
-    var Table = require('Table');
+    var Table = require('drc/table/Table');
 
     /**
      * Table that groups flow actions by day. Selecting day row expands
