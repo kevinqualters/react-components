@@ -1,12 +1,12 @@
 define(function(require) {
     'use strict';
 
-    var Utils = require('Utils');
     var DataMixins = require('DataMixins');
     var Moment = require('moment');
     var React = require('react');
     var TableActions = require('TableActions');
     var TableStore = require('TableStore');
+    var Utils = require('Utils');
 
     var Table = {};
 
@@ -46,7 +46,7 @@ define(function(require) {
             return (
                 <div className="data-component table-component">
                     <div className={containerClasses}>
-                        <i className={this.props.getLoaderClasses(this.state.loading)}></i>
+                        <i className={Utils.getLoaderClasses(this.state.loading, this.props.loadingIconClasses)}></i>
                         {paginationControls}
                         <table>
                             <thead>{thead}</thead>
@@ -55,15 +55,15 @@ define(function(require) {
                         {noResults}
                     </div>
                 </div>
-                );
+            );
         },
 
         requestData: function() {
-            TableActions.requestData(this.props.componentId, this.props.definition, this.props.filters);
             this.setState({
                 loading: true,
                 dataError: false
             });
+            TableActions.requestData(this.props.componentId, this.props.definition, this.props.filters);
         },
 
         /**
@@ -97,7 +97,7 @@ define(function(require) {
         /**
          * Handle request error.
          */
-        onError: function(){
+        onError: function() {
             this.setState({loading: false, dataError: true});
         },
 
@@ -150,7 +150,7 @@ define(function(require) {
                     <i className={leftControl} onClick={handlePageLeftClick} />
                     <i className={rightControl} onClick={handlePageRightClick} />
                 </div>
-                );
+            );
         },
 
         getColSortDirections: function(colDefinitions) {
@@ -189,8 +189,7 @@ define(function(require) {
                 }
             }
 
-            var cx = React.addons.classSet;
-            headerClasses = cx({
+            headerClasses = React.addons.classSet({
                 'indicator': !!icon,
                 'no-select': true
             });
@@ -201,13 +200,14 @@ define(function(require) {
 
             return (
                 <th className={headerClasses}
-                key={'tableHeader' + Utils.guid()}
-                style={thStyle}
-                onClick={handleSortClick ? handleSortClick.bind(this, index) : undefined}>{colData.headerLabel} {icon}</th>
-                );
+                    key={'tableHeader' + Utils.guid()}
+                    style={thStyle}
+                    onClick={handleSortClick ? handleSortClick.bind(this, index) : undefined}>{colData.headerLabel} {icon}
+                </th>
+            );
         },
 
-        getTableRowItem: function(rowData, index) {
+        getTableRowItem: function(rowData) {
             var handleRowClick;
             var row = [];
 
@@ -218,16 +218,14 @@ define(function(require) {
                 'error-row': rowData.isError
             });
 
-            _.forIn(this.state.colDefinitions, function(val, key) {
+            _.forIn(this.state.colDefinitions, function(val) {
                 row.push(this.getTableData(rowData[val.dataProperty], val, val.hoverProperty ? rowData[val.hoverProperty] : null));
             }.bind(this));
 
             if (this.state.rowClick) {
                 handleRowClick = this.handleRowClick;
             }
-            return (
-                <tr key={'tableRow' + Utils.guid()} className={hoverClass} onClick={handleRowClick}>{row}</tr>
-                );
+            return <tr key={'tableRow' + Utils.guid()} className={hoverClass} onClick={handleRowClick}>{row}</tr>;
         },
 
         /**
@@ -269,12 +267,11 @@ define(function(require) {
                     <span className="content" title={hoverValue}>{val}</span>
                     {afterIcon}
                 </td>
-                );
+            );
         },
 
         getIcon: function(direction, sortActive) {
-            var cx = React.addons.classSet;
-            var iconClasses = cx({
+            var iconClasses = React.addons.classSet({
                 'sorting-indicator': true,
                 'fa': true,
                 'fa-sort-asc': direction === 'ascending',
@@ -282,9 +279,7 @@ define(function(require) {
                 'active': sortActive
             });
 
-            return (
-                <i className={iconClasses}></i>
-                );
+            return <i className={iconClasses}></i>;
         },
 
         handlePageLeftClick: function() {

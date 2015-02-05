@@ -1,2 +1,13 @@
 @import 'vars';
+@import 'pie-chart';
+@import 'search';
 @import 'table';
+
+.loader {
+  color: $light-blue;
+  padding: 25px 0;
+  font-size: 45px;
+  z-index: 200;
+  position: absolute;
+  left: 48%;
+}

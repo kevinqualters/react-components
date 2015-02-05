@@ -294,8 +294,6 @@ define(function(require) {
                 case ActionTypes.DESTROY_INSTANCE:
                     this.destroyInstance(action.id);
                     break;
-                default:
-                // Do nothing.
             }
         },
 

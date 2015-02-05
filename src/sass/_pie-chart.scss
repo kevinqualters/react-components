@@ -1,0 +1,83 @@
+@import 'vars';
+
+.pie-chart{
+  .data-container{
+    min-height: 250px;
+  }
+  .pie-chart-data{
+    background-color: $dark-grey;
+    border-bottom: solid $light-blue 1px;
+    border-top: solid $light-blue 1px;
+    display: table;
+    margin-top: 3px;
+    text-align: center;
+    width: 100%;
+    position: relative;
+
+    .breadCrumb {
+      cursor: pointer;
+      padding: 10px 5px 0;
+      position: absolute;
+      left: 0;
+
+      i {
+        margin-right: 5px;
+      }
+    }
+  }
+
+  .pie-chart-wrapper{
+    padding-top: 15px;
+  }
+
+  .table-container {
+    max-height: 200px;
+    overflow-y: auto;
+  }
+
+  table{
+    width: 100%;
+  }
+
+  tr {
+    height: 30px;
+  }
+
+  tr.selected .row-container {
+    .color-legend{
+      margin-left: -6px;
+    }
+  }
+
+  .row-container {
+    padding: 10px 20px;
+  }
+
+  .table-even {
+    background-color: $dark-grey;
+  }
+
+  .table-odd {
+    border-bottom: 1px solid $dark-grey;
+  }
+
+  .color-legend {
+    display: inline-block;
+    height: 20px;
+    width: 20px;
+    border-radius: 10px;
+    margin-right: 10px;
+  }
+
+  .table-val {
+    float: right;
+  }
+
+  .no-results {
+    color: $lighter-grey;
+    display: inline-block;
+    text-align: center;
+    margin-top: 50px;
+    width: 100%;
+  }
+}
