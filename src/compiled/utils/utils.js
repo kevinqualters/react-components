@@ -42,7 +42,7 @@ define(function(require) {
     /**
      * Retrieves the loader classes for a component.
      * @param {Bool} loading - The loading state of a component.
-     * @param {Array} iconClasses - The classes to add to the loader when loading.
+     * @param {Array|String} iconClasses - The classes to add to the loader when loading.
      * @returns {Object} React.addons.classSet
      */
     function getLoaderClasses(loading, iconClasses) {
