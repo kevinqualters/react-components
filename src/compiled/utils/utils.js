@@ -50,9 +50,6 @@ define(function(require) {
             if (iconClasses.indexOf(' ') !== -1) {
                 iconClasses = iconClasses.split(' ');
             }
-            else {
-                iconClasses = [iconClasses];
-            }
         }
         if (!iconClasses || !_.isArray(iconClasses || _.isEmpty(iconClasses))) {
             iconClasses = ['icon', 'ion-loading-c'];
