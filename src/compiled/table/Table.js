@@ -55,15 +55,15 @@ define(function(require) {
                         noResults
                     )
                 )
-                );
+            );
         },
 
         requestData: function() {
-            TableActions.requestData(this.props.componentId, this.props.definition, this.props.filters);
             this.setState({
                 loading: true,
                 dataError: false
             });
+            TableActions.requestData(this.props.componentId, this.props.definition, this.props.filters);
         },
 
         /**
@@ -97,7 +97,7 @@ define(function(require) {
         /**
          * Handle request error.
          */
-        onError: function(){
+        onError: function() {
             this.setState({loading: false, dataError: true});
         },
 
@@ -150,7 +150,7 @@ define(function(require) {
                     React.createElement("i", {className: leftControl, onClick: handlePageLeftClick}), 
                     React.createElement("i", {className: rightControl, onClick: handlePageRightClick})
                 )
-                );
+            );
         },
 
         getColSortDirections: function(colDefinitions) {
@@ -189,8 +189,7 @@ define(function(require) {
                 }
             }
 
-            var cx = React.addons.classSet;
-            headerClasses = cx({
+            headerClasses = React.addons.classSet({
                 'indicator': !!icon,
                 'no-select': true
             });
@@ -201,13 +200,14 @@ define(function(require) {
 
             return (
                 React.createElement("th", {className: headerClasses, 
-                key: 'tableHeader' + Utils.guid(), 
-                style: thStyle, 
-                onClick: handleSortClick ? handleSortClick.bind(this, index) : undefined}, colData.headerLabel, " ", icon)
-                );
+                    key: 'tableHeader' + Utils.guid(), 
+                    style: thStyle, 
+                    onClick: handleSortClick ? handleSortClick.bind(this, index) : undefined}, colData.headerLabel, " ", icon
+                )
+            );
         },
 
-        getTableRowItem: function(rowData, index) {
+        getTableRowItem: function(rowData) {
             var handleRowClick;
             var row = [];
 
@@ -218,16 +218,14 @@ define(function(require) {
                 'error-row': rowData.isError
             });
 
-            _.forIn(this.state.colDefinitions, function(val, key) {
+            _.forIn(this.state.colDefinitions, function(val) {
                 row.push(this.getTableData(rowData[val.dataProperty], val, val.hoverProperty ? rowData[val.hoverProperty] : null));
             }.bind(this));
 
             if (this.state.rowClick) {
                 handleRowClick = this.handleRowClick;
             }
-            return (
-                React.createElement("tr", {key: 'tableRow' + Utils.guid(), className: hoverClass, onClick: handleRowClick}, row)
-                );
+            return React.createElement("tr", {key: 'tableRow' + Utils.guid(), className: hoverClass, onClick: handleRowClick}, row);
         },
 
         /**
@@ -269,12 +267,11 @@ define(function(require) {
                     React.createElement("span", {className: "content", title: hoverValue}, val), 
                     afterIcon
                 )
-                );
+            );
         },
 
         getIcon: function(direction, sortActive) {
-            var cx = React.addons.classSet;
-            var iconClasses = cx({
+            var iconClasses = React.addons.classSet({
                 'sorting-indicator': true,
                 'fa': true,
                 'fa-sort-asc': direction === 'ascending',
@@ -282,9 +279,7 @@ define(function(require) {
                 'active': sortActive
             });
 
-            return (
-                React.createElement("i", {className: iconClasses})
-                );
+            return React.createElement("i", {className: iconClasses});
         },
 
         handlePageLeftClick: function() {

@@ -2,6 +2,7 @@ define(function(require) {
     'use strict';
 
     var Moment = require('moment');
+    var React = require('react');
 
     var guid = (function() {
         function s4() {
@@ -37,8 +38,23 @@ define(function(require) {
         return date + " " + startTime + ' - ' + endTime;
     }
 
+    /**
+     * Retrieves the loader classes for a component.
+     * @param loading
+     * @returns {*}
+     */
+    function getLoaderClasses(loading) {
+        return React.addons.classSet({
+            'loader': true,
+            'hide': !loading,
+            'icon': loading,
+            'ion-loading-c': loading
+        });
+    }
+
     return {
         guid: guid,
+        getLoaderClasses: getLoaderClasses,
         calculateTimeString: calculateTimeString
     };
 });

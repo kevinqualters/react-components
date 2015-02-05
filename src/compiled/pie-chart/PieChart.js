@@ -3,6 +3,7 @@ define(function(require) {
 
     var d3 = require('d3');
     var DataMixins = require('DataMixins');
+    var $ = require('jquery');
     var _ = require('lodash');
     var PieChartActions = require('PieChartActions');
     var PieChartStore = require('PieChartStore');
@@ -244,8 +245,8 @@ define(function(require) {
          * Send a request for data
          */
         requestData: function() {
-            PieChartActions.requestData(this.props.componentId, this.props.definition, this.props.filters);
             this.setState({loading: true, dataError: false});
+            PieChartActions.requestData(this.props.componentId, this.props.definition, this.props.filters);
         },
 
         /**

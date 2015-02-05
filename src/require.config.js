@@ -4,7 +4,7 @@ require.config({
         main: 'examples/main',
 
         AppDispatcher: '../../src/compiled/examples/dispatcher/AppDispatcher',
-        RequestHandler: '../../src/compiled/utils/RequestHandler',
+        RequestHandler: '../../src/compiled/examples/utils/RequestHandler',
 
         DataMixins: '../../src/compiled/mixins/DataMixins',
         GroupedActionsTable: '../../src/compiled/table/GroupedActionsTable',
