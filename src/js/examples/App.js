@@ -13,15 +13,31 @@ define(function(require) {
             {
                 headerLabel: 'NAME',
                 dataProperty: 'name',
+                hoverProperty: 'username',
                 sortDirection: 'ascending',
                 dataType: 'string',
-                width: '100%'
+                width: '35%'
+            },
+            {
+                headerLabel: 'MESSAGES',
+                dataProperty: 'messages',
+                sortDirection: 'descending',
+                dataType: 'number',
+                width: '20%'
+            },
+            {
+                headerLabel: 'LAST MESSAGE',
+                dataProperty: 'lastMessage',
+                sortDirection: 'descending',
+                dataType: 'status',
+                timeFormat: 'MMM Do, h:mm A',
+                width: '35%'
             }
         ],
         sortColIndex: 0,
         pagination: {
             cursor: 0,
-            size: 2
+            size: 12
         },
         rowClick: {
             callback: function(event, props, state) {
@@ -40,7 +56,7 @@ define(function(require) {
 
     var pieChartDefinition = {
         url: '/test/piechart',
-        label: 'Pie Chart'
+        label: 'BROWSERS'
     };
 
     var searchSubmitCallback = function(event) {

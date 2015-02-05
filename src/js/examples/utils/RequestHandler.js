@@ -1,19 +1,58 @@
 define(function(require) {
     'use strict';
 
+    var Moment = require('moment');
+
     var testTableData = [
-        {
-            name: 'Jim Bob'
-        },
-        {
-            name: 'Betty Sue'
-        },
-        {
-            name: 'Steve Albert'
-        },
-        {
-            name: 'Megan Rue'
-        }
+        {"name": "Jessica Lombardo", "messages": 5, "lastMessage": Moment().subtract(4, 'minutes').valueOf()},
+        {"name": "Whitney Pecoraro", "messages": 5, "lastMessage": 1423166411206},
+        {"name": "Cleta Speno", "messages": 5, "lastMessage": 1423063030181},
+        {"name": "Fransisca Lakey", "messages": 5, "lastMessage": 1423067858444},
+        {"name": "Dorie Valverde", "messages": 4, "lastMessage": 1422846137772},
+        {"name": "Kasi Tubb", "messages": 4, "lastMessage": 1423069784253},
+        {"name": "Stella Needles", "messages": 4, "lastMessage": 1422758245850},
+        {"name": "Lory Borkholder", "messages": 4, "lastMessage": 1423168675800},
+        {"name": "Ethyl Rolan", "messages": 4, "lastMessage": 1423165124993},
+        {"name": "Remona Molloy", "messages": 3, "lastMessage": 1422672380477},
+        {"name": "Trista Stricker", "messages": 3, "lastMessage": 1423023947375},
+        {"name": "Britt Portillo", "messages": 3, "lastMessage": 1423112736240},
+        {"name": "Madonna Mckernan", "messages": 3, "lastMessage": Moment().subtract(1, 'minutes').valueOf()},
+        {"name": "Yulanda Grabert", "messages": 3, "lastMessage": 1423171034736},
+        {"name": "Monnie Watterson", "messages": 3, "lastMessage": 1423171070926},
+        {"name": "Denise Kimsey", "messages": 3, "lastMessage": 1423150692634},
+        {"name": "Vinnie Traylor", "messages": 3, "lastMessage": 1423021961538},
+        {"name": "Corina Roudebush", "messages": 3, "lastMessage": 1422895853616},
+        {"name": "Doretta Do", "messages": 3, "lastMessage": 1423170951783},
+        {"name": "Andera Jarosz", "messages": 3, "lastMessage": 1423059587091},
+        {"name": "Haydee Jacobs", "messages": 2, "lastMessage": Moment().subtract(2, 'minutes').valueOf()},
+        {"name": "Brooks Richart", "messages": 2, "lastMessage": 1423008247654},
+        {"name": "Raymond Copher", "messages": 2, "lastMessage": 1423049464058},
+        {"name": "Iluminada Soria", "messages": 2, "lastMessage": 1423170548614},
+        {"name": "Cleopatra Rivera", "messages": 2, "lastMessage": 1422643034349},
+        {"name": "Camellia Liddell", "messages": 2, "lastMessage": 1423170619631},
+        {"name": "Yvette Aquilino", "messages": 2, "lastMessage": 1422999199968},
+        {"name": "Floria Montandon", "messages": 2, "lastMessage": 1422677221793},
+        {"name": "Alec Lathan", "messages": 2, "lastMessage": 1423066236386},
+        {"name": "Felipe Damm", "messages": 2, "lastMessage": 1423164007138},
+        {"name": "Abe Pennington", "messages": 2, "lastMessage": 1422996608883},
+        {"name": "Maryalice Stall", "messages": 2, "lastMessage": 1423171066898},
+        {"name": "Mitzie Padua", "messages": 2, "lastMessage": 1423005438007},
+        {"name": "Jetta Stocker", "messages": 1, "lastMessage": 1423168594746},
+        {"name": "Shela Higgenbotham", "messages": 1, "lastMessage": 1423157872749},
+        {"name": "Rashida Goettl", "messages": 1, "lastMessage": Moment().subtract(5, 'minutes').valueOf()},
+        {"name": "Louella Lamson", "messages": 1, "lastMessage": 1423169043064},
+        {"name": "Shanti Avila", "messages": 1, "lastMessage": 1422801022904},
+        {"name": "Bettyann Valazquez", "messages": 1, "lastMessage": 1423171082407},
+        {"name": "Kennith Corman", "messages": 1, "lastMessage": 1422914299877},
+        {"name": "Simon Basta", "messages": 1, "lastMessage": 1422920448815},
+        {"name": "Christeen Rudie", "messages": 1, "lastMessage": 1423170659462},
+        {"name": "Versie Osorio", "messages": 1, "lastMessage": 1423065116695},
+        {"name": "Delpha Nanez", "messages": 1, "lastMessage": 1422609488866},
+        {"name": "Kenisha Moring", "messages": 1, "lastMessage": 1422842335746},
+        {"name": "Gena Barrow", "messages": 1, "lastMessage": 1422914019246},
+        {"name": "Jana Mccuen", "messages": 1, "lastMessage": 1423000740427},
+        {"name": "Sheri Coronado", "messages": 1, "lastMessage": Moment().subtract(2, 'minutes').valueOf()},
+        {"name": "Cheryll Steves", "messages": 1, "lastMessage": 1422652089672}
     ];
 
     var pieChartData = [
