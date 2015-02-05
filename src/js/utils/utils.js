@@ -46,6 +46,14 @@ define(function(require) {
      * @returns {Object} React.addons.classSet
      */
     function getLoaderClasses(loading, iconClasses) {
+        if (typeof iconClasses === 'string') {
+            if (iconClasses.indexOf(' ') !== -1) {
+                iconClasses = iconClasses.split(' ');
+            }
+            else {
+                iconClasses = [iconClasses];
+            }
+        }
         if (!iconClasses || !_.isArray(iconClasses || _.isEmpty(iconClasses))) {
             iconClasses = ['icon', 'ion-loading-c'];
         }
