@@ -331,7 +331,7 @@ define(function(require) {
                 <div className="data-component pie-chart">
                     <span className="module-sub-heading">{PieChartStore.getLabel(this.props.componentId)}</span>
                     <div className={containerClasses}>
-                        <i className={this.props.getLoaderClasses(this.state.loading)}></i>
+                        <i className={Utils.getLoaderClasses(this.state.loading, this.props.loadingIconClasses)}></i>
                         <div className="pie-chart-data">
                             {breadCrumb}
                             {noResults}

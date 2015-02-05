@@ -63,15 +63,15 @@ define(function(require) {
                         <Search url={'/test/search'} searchSubmitCallback={searchSubmitCallback} />
                         <div className="component">
                             <Table.View definition={tableDefinition}
-                                        getLoaderClasses={Utils.getLoaderClasses}
                                         componentId={'tableId'}
-                                        key={'tableId'} />
+                                        key={'tableId'}
+                                        loadingIconClasses={['icon', 'ion-loading-c']} />
                         </div>
                         <div className="component">
                             <PieChart definition={pieChartDefinition}
-                                      getLoaderClasses={Utils.getLoaderClasses}
                                       componentId={'pieChartId'}
-                                      key={'pieChartId'} />
+                                      key={'pieChartId'}
+                                      loadingIconClasses={['icon', 'ion-loading-c']} />
                         </div>
 
                     </div>

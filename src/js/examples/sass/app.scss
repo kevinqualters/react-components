@@ -86,8 +86,6 @@ body {
 }
 
 .table-component {
-  margin-top: 48px;
-
   .table-body {
     font-family: $font-regular;
     font-size: 15pt;
@@ -105,4 +103,9 @@ body {
 .search-component {
   margin-bottom: 20px;
   width: 540px;
+}
+
+.loader {
+  position: relative !important;
+  left: 227px !important;
 }

@@ -1,12 +1,12 @@
 define(function(require) {
     'use strict';
 
-    var Utils = require('Utils');
     var DataMixins = require('DataMixins');
     var Moment = require('moment');
     var React = require('react');
     var TableActions = require('TableActions');
     var TableStore = require('TableStore');
+    var Utils = require('Utils');
 
     var Table = {};
 
@@ -46,7 +46,7 @@ define(function(require) {
             return (
                 <div className="data-component table-component">
                     <div className={containerClasses}>
-                        <i className={this.props.getLoaderClasses(this.state.loading)}></i>
+                        <i className={Utils.getLoaderClasses(this.state.loading, this.props.loadingIconClasses)}></i>
                         {paginationControls}
                         <table>
                             <thead>{thead}</thead>

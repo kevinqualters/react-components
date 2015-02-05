@@ -63,15 +63,15 @@ define(function(require) {
                         React.createElement(Search, {url: '/test/search', searchSubmitCallback: searchSubmitCallback}), 
                         React.createElement("div", {className: "component"}, 
                             React.createElement(Table.View, {definition: tableDefinition, 
-                                        getLoaderClasses: Utils.getLoaderClasses, 
                                         componentId: 'tableId', 
-                                        key: 'tableId'})
+                                        key: 'tableId', 
+                                        loadingIconClasses: ['icon', 'ion-loading-c']})
                         ), 
                         React.createElement("div", {className: "component"}, 
                             React.createElement(PieChart, {definition: pieChartDefinition, 
-                                      getLoaderClasses: Utils.getLoaderClasses, 
                                       componentId: 'pieChartId', 
-                                      key: 'pieChartId'})
+                                      key: 'pieChartId', 
+                                      loadingIconClasses: ['icon', 'ion-loading-c']})
                         )
 
                     )

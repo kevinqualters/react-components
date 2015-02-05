@@ -331,7 +331,7 @@ define(function(require) {
                 React.createElement("div", {className: "data-component pie-chart"}, 
                     React.createElement("span", {className: "module-sub-heading"}, PieChartStore.getLabel(this.props.componentId)), 
                     React.createElement("div", {className: containerClasses}, 
-                        React.createElement("i", {className: this.props.getLoaderClasses(this.state.loading)}), 
+                        React.createElement("i", {className: Utils.getLoaderClasses(this.state.loading, this.props.loadingIconClasses)}), 
                         React.createElement("div", {className: "pie-chart-data"}, 
                             breadCrumb, 
                             noResults, 
