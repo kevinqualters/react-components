@@ -5,7 +5,6 @@ define(function(require) {
     var React = require('react');
     var SearchActions = require('drc/search/SearchActions');
     var SearchStore = require('drc/search/SearchStore');
-    var Utils = require('drc/utils/Utils');
 
     var Search = React.createClass({
         focusedIndex: null,
@@ -21,7 +20,16 @@ define(function(require) {
             27: 'clearList',        //Esc
             13: 'selectItemOnEnter' //Enter
         },
-        getInitialState: function(){
+        getInitialState: function() {
+            // Prop validation
+            if (!this.props.url) {
+                throw new Error('A url property is required for the Search component.');
+            }
+            if (typeof this.props.url !== 'string') {
+                throw new Error('The url for the Search component must be a string and was received as ' +
+                    typeof this.props.url + '.');
+            }
+
             return {
                 placeholder: 'Loading...',
                 disabled: true,
