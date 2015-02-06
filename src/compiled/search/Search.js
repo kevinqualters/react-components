@@ -21,15 +21,6 @@ define(function(require) {
             13: 'selectItemOnEnter' //Enter
         },
         getInitialState: function() {
-            // Prop validation
-            if (!this.props.url) {
-                throw new Error('A url property is required for the Search component.');
-            }
-            if (typeof this.props.url !== 'string') {
-                throw new Error('The url for the Search component must be a string and was received as ' +
-                    typeof this.props.url + '.');
-            }
-
             return {
                 placeholder: 'Loading...',
                 disabled: true,

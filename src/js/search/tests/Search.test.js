@@ -10,16 +10,6 @@ define(function(require) {
         var search;
         var searchSubmitCallback = function() {};
 
-        describe('prop validation', function() {
-            it('should throw an error if you try to create a Search component without a url', function() {
-                expect(TestUtils.renderIntoDocument.bind(<Search searchSubmitCallback={searchSubmitCallback} />)).toThrow();
-            });
-
-            it('should throw an error if you try to create a Search component with a url that is not a string', function() {
-                expect(TestUtils.renderIntoDocument.bind(<Search searchSubmitCallback={searchSubmitCallback} url={42} />)).toThrow();
-            });
-        });
-
         beforeEach(function() {
             search = TestUtils.renderIntoDocument(<Search searchSubmitCallback={searchSubmitCallback} url="/test/url" />);
         });
