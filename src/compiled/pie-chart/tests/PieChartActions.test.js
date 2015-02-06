@@ -1,6 +1,6 @@
 define(function(require) {
     var AppDispatcher = require('AppDispatcher');
-    var PieChartActions = require('PieChartActions');
+    var PieChartActions = require('drc/pie-chart/PieChartActions');
 
     describe('PieChartActions', function() {
         describe('requestData function', function() {

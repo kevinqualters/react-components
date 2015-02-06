@@ -1,6 +1,6 @@
 define(function(require) {
     var AppDispatcher = require('AppDispatcher');
-    var TableActions = require('TableActions');
+    var TableActions = require('drc/table/TableActions');
 
     var ActionTypes = TableActions.actionTypes;
 

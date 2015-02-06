@@ -1,5 +1,5 @@
 define(function(require) {
-    var DataMixins = require('mixins/DataMixins');
+    var DataMixins = require('drc/mixins/DataMixins');
     var React = require('react');
 
     var TestUtils = React.addons.TestUtils;

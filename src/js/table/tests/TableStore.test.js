@@ -1,8 +1,8 @@
 define(function(require) {
     var _ = require('lodash');
-    var TableActions = require('TableActions');
-    var TableStore = require('TableStore');
-    var Utils = require('Utils');
+    var TableActions = require('drc/table/TableActions');
+    var TableStore = require('drc/table/TableStore');
+    var Utils = require('drc/utils/Utils');
 
     var ActionTypes = TableActions.actionTypes;
 

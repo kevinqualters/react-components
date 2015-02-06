@@ -3,9 +3,9 @@ define(function(require) {
 
     var _     = require('lodash');
     var React = require('react');
-    var SearchActions = require('SearchActions');
-    var SearchStore = require('SearchStore');
-    var Utils = require('Utils');
+    var SearchActions = require('drc/search/SearchActions');
+    var SearchStore = require('drc/search/SearchStore');
+    var Utils = require('drc/utils/Utils');
 
     var Search = React.createClass({
         focusedIndex: null,

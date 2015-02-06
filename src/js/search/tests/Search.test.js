@@ -1,8 +1,8 @@
 define(function(require) {
     var React = require('react');
-    var Search = require('Search');
-    var SearchActions = require('SearchActions');
-    var SearchStore = require('SearchStore');
+    var Search = require('drc/search/Search');
+    var SearchActions = require('drc/search/SearchActions');
+    var SearchStore = require('drc/search/SearchStore');
 
     var TestUtils = React.addons.TestUtils;
 

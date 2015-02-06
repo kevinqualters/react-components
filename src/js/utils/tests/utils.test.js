@@ -1,5 +1,5 @@
 define(function(require) {
-    var Utils = require('Utils');
+    var Utils = require('drc/utils/Utils');
 
     describe('Utils', function() {
         describe('guid function', function() {

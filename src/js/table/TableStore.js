@@ -3,8 +3,8 @@ define(function(require) {
 
     var AppDispatcher = require('AppDispatcher');
     var _ = require('lodash');
-    var StoreBase = require('StoreBase');
-    var TableActions = require('TableActions');
+    var StoreBase = require('drc/lib/StoreBase');
+    var TableActions = require('drc/table/TableActions');
 
     var ActionTypes = TableActions.actionTypes;
 

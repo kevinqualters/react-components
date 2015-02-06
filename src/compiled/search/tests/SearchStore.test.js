@@ -1,5 +1,5 @@
 define(function(require) {
-    var SearchStore = require('SearchStore');
+    var SearchStore = require('drc/search/SearchStore');
     var RequestHandler = require('RequestHandler');
 
     describe('SearchStore', function() {

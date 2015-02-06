@@ -1,10 +1,10 @@
 define(function(require) {
-    var Utils = require('Utils');
+    var Utils = require('drc/utils/Utils');
     var Moment = require('moment');
     var React = require('react');
-    var Table = require('Table');
-    var TableActions = require('TableActions');
-    var TableStore = require('TableStore');
+    var Table = require('drc/table/Table');
+    var TableActions = require('drc/table/TableActions');
+    var TableStore = require('drc/table/TableStore');
 
     var TestUtils = React.addons.TestUtils;
 

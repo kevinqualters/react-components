@@ -3,8 +3,8 @@ define(function(require) {
 
     var AppDispatcher = require('AppDispatcher');
     var _ = require('lodash');
-    var PieChartActions = require('PieChartActions');
-    var StoreBase = require('StoreBase');
+    var PieChartActions = require('drc/pie-chart/PieChartActions');
+    var StoreBase = require('drc/lib/StoreBase');
 
     var ActionTypes = PieChartActions.actionTypes;
 

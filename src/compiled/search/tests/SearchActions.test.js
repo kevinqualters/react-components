@@ -1,6 +1,6 @@
 define(function(require) {
     var AppDispatcher = require('AppDispatcher');
-    var SearchActions = require('SearchActions');
+    var SearchActions = require('drc/search/SearchActions');
 
     describe('SearchActions', function() {
         describe('requestData function', function() {
