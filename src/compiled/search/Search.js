@@ -5,7 +5,6 @@ define(function(require) {
     var React = require('react');
     var SearchActions = require('drc/search/SearchActions');
     var SearchStore = require('drc/search/SearchStore');
-    var Utils = require('drc/utils/Utils');
 
     var Search = React.createClass({displayName: 'Search',
         focusedIndex: null,
@@ -21,7 +20,7 @@ define(function(require) {
             27: 'clearList',        //Esc
             13: 'selectItemOnEnter' //Enter
         },
-        getInitialState: function(){
+        getInitialState: function() {
             return {
                 placeholder: 'Loading...',
                 disabled: true,
