@@ -66,7 +66,7 @@ define(function(require) {
         alert('You just clicked on ' + companyName + '. It\'s ID is ' + companyID);
     };
 
-    var App = React.createClass({
+    return React.createClass({
         render: function() {
             return (
                 <div className="app-component">
@@ -78,10 +78,10 @@ define(function(require) {
                     <div className="content-component">
                         <Search url={'/test/search'} searchSubmitCallback={searchSubmitCallback} />
                         <div className="component">
-                            <Table.View definition={tableDefinition}
-                                        componentId={'tableId'}
-                                        key={'tableId'}
-                                        loadingIconClasses={['icon', 'ion-loading-c']} />
+                            <Table definition={tableDefinition}
+                                   componentId={'tableId'}
+                                   key={'tableId'}
+                                   loadingIconClasses={['icon', 'ion-loading-c']} />
                         </div>
                         <div className="component">
                             <PieChart definition={pieChartDefinition}
@@ -95,6 +95,4 @@ define(function(require) {
             );
         }
     });
-
-    return App;
 });
