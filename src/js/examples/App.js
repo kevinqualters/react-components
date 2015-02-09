@@ -67,6 +67,7 @@ define(function(require) {
     };
 
     return React.createClass({
+        displayName: 'App',
         render: function() {
             return (
                 <div className="app-component">
@@ -89,7 +90,6 @@ define(function(require) {
                                       key={'pieChartId'}
                                       loadingIconClasses={['icon', 'ion-loading-c']} />
                         </div>
-
                     </div>
                 </div>
             );

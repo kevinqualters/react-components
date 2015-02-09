@@ -9,6 +9,8 @@ define(function(require) {
     var Utils = require('drc/utils/Utils');
 
     return {
+        displayName: 'BasicTable',
+
         mixins: [
             DataMixins.dataRequest,
             DataMixins.destroySelfOnUnmount(TableActions),

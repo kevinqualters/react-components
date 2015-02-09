@@ -1,5 +1,4 @@
 define(function(require) {
-    var _ = require('lodash');
     var TableActions = require('drc/table/TableActions');
     var TableStore = require('drc/table/TableStore');
     var Utils = require('drc/utils/Utils');
@@ -13,6 +12,7 @@ define(function(require) {
         beforeEach(function() {
             id = 'table-' + Utils.guid();
 
+            definition.url = '/test/url';
             definition.sortColIndex = 0;
             definition.cols = [
                 {
@@ -512,6 +512,7 @@ define(function(require) {
                     action: {
                         actionType: ActionTypes.TABLE_SORT,
                         component: 'Table',
+                        id: 'testId',
                         data: {
                             colIndex: 0,
                             direction: 'descending'
@@ -532,6 +533,7 @@ define(function(require) {
                     action: {
                         actionType: ActionTypes.PAGINATE,
                         component: 'Table',
+                        id: 'testId',
                         data: {
                             direction: 'right'
                         }
@@ -544,6 +546,21 @@ define(function(require) {
 
                 expect(TableStore.paginate).toHaveBeenCalledWith(payload.action.id, payload.action.data.direction);
                 expect(TableStore.emitChange).toHaveBeenCalledWith(payload.action.id);
+            });
+
+            it('should call the destroyInstance function when the action is requesting that the table be destroyed', function() {
+                var payload = {
+                    action: {
+                        actionType: ActionTypes.DESTROY_INSTANCE,
+                        component: 'Table',
+                        id: 'testId'
+                    }
+                };
+
+                spyOn(TableStore, 'destroyInstance');
+                TableStore.dispatchRegister(payload);
+
+                expect(TableStore.destroyInstance).toHaveBeenCalledWith(payload.action.id);
             });
         });
     });
