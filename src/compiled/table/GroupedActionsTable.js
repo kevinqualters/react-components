@@ -14,39 +14,38 @@ define(function(require) {
         clobberBaseTable: {
             getTableRowItem: function(rowData, index) {
                 var rows = [];
-                var hoverClass = React.addons.classSet({
-                    'hover-enabled': true,
-                    'text-select': true
-                });
+                var rowDataElements = [];
 
-                // create group row
-                var groupRowColumns = [];
+                // Build the table data elements for the table row
                 _.forIn(this.state.colDefinitions, function(val, key) {
-                    groupRowColumns.push(this.getTableData(rowData, val, index));
+                    rowDataElements.push(this.getTableData(rowData, val, index));
                 }.bind(this));
-                rows.push(React.createElement("tr", {'data-index': index, 
-                key: 'tableRow' + Utils.guid(), 
-                className: hoverClass, 
-                onClick: this.handleGroupRowClick}, groupRowColumns));
 
+                // Build the table row element
+                rows.push(
+                    React.createElement("tr", {'data-index': index, 
+                        key: 'tableRow' + Utils.guid(), 
+                        className: "hover-enabled text-select", 
+                        onClick: this.handleGroupRowClick}, rowDataElements
+                    )
+                );
+
+                // If this table row has been clicked (selected), create the nested table rows if they exist.
                 if (this.state.selectedIndex === index) {
-                    var actionClasses = React.addons.classSet({
-                        'hover-enabled': true,
-                        'text-select': true,
-                        'sub-action': true
-                    });
-
-                    // if sub actions exist, create individual rows for each
                     _.each(rowData.actions, function(action) {
-                        var actionRowColumns = [];
+                        var subRowData = [];
 
                         _.forIn(this.state.colDefinitions, function(val, key) {
-                            actionRowColumns.push(this.getActionColumn(action, val));
+                            subRowData.push(this.getNestedRowTableData(action, val));
                         }.bind(this));
 
-                        rows.push(React.createElement("tr", {'data-flowid': action.flowID, 
-                        key: 'tableRow' + Utils.guid(), 
-                        className: actionClasses, onClick: this.handleRowClick}, actionRowColumns));
+                        rows.push(
+                            React.createElement("tr", {'data-flowid': action.flowID, 
+                                key: 'tableRow' + Utils.guid(), 
+                                className: "hover-enabled text-select sub-action", 
+                                onClick: this.handleRowClick}, subRowData
+                            )
+                        );
                     }, this);
                 }
 
@@ -55,6 +54,11 @@ define(function(require) {
 
             getTableData: function(rowData, meta, index) {
                 var val = rowData[meta.dataProperty];
+                var beforeVal, statusIconClasses, expandedRowIndicatorClasses;
+                var spanClasses = React.addons.classSet({
+                    content: true,
+                    'group-date': meta.dataProperty === 'groupDate'
+                });
 
                 if (meta.dataType === 'time') {
                     val = val ? Moment(val).format(meta.timeFormat) : "--";
@@ -64,38 +68,36 @@ define(function(require) {
                     val = this.calculateDurationString(val);
                 }
                 else if (meta.dataProperty === 'groupDate') {
-                    // date has count and chevron, but not in a sep column
-                    var statusIconClasses = React.addons.classSet({
+                    // Date has count and chevron, but not in a sep column.
+                    statusIconClasses = React.addons.classSet({
                         'icon': true,
                         'ion-chevron-right': this.state.selectedIndex !== index,
                         'ion-chevron-down': this.state.selectedIndex === index
                     });
 
-                    var expandedRowIndicatorClasses = React.addons.classSet({
+                    expandedRowIndicatorClasses = React.addons.classSet({
                         'before-icon': true,
                         'expanded-row-indicator': true,
                         inactive: this.state.selectedIndex !== index
                     });
 
-                    var beforeVal = React.createElement("span", {className: expandedRowIndicatorClasses}, 
-                                        rowData.actions.length, React.createElement("i", {className: statusIconClasses})
-                                    );
-
-                    return (
-                        React.createElement("td", {key: 'tableData' + Utils.guid()}, 
-                            beforeVal, 
-                            React.createElement("span", {className: "content group-date", title: val}, val)
-                        )
-                    );
+                    beforeVal = React.createElement("span", {className: expandedRowIndicatorClasses}, 
+                                    rowData.actions.length, React.createElement("i", {className: statusIconClasses})
+                                );
                 }
 
-                return React.createElement("td", {key: 'tableData' + Utils.guid()}, React.createElement("span", {className: "content", title: val}, val));
+                return (
+                    React.createElement("td", {key: 'tableData' + Utils.guid()}, 
+                        beforeVal, 
+                        React.createElement("span", {className: spanClasses, title: val}, val)
+                    )
+                );
             }
         },
         addToBaseTable: {
             componentDidUpdate: function() {
                 if (this.state.selectedIndex > -1) {
-                    // tr's don't allow animation, must wrap to achieve, or fadeIn/out
+                    // table rows don't allow animation, must wrap to achieve, or fadeIn/out
                     $('tr.sub-action')
                         .find('td')
                         .wrapInner('<div class="wrap-inner" />')
@@ -109,27 +111,34 @@ define(function(require) {
                 }
             },
 
-            getActionColumn: function(action, meta) {
+            getNestedRowTableData: function(action, meta) {
                 var val = '--';
+                var spanClasses = React.addons.classSet({
+                    content: true,
+                    'group-date': meta.dataProperty === 'groupDate'
+                });
 
-                if (action.start && action.end) {
-                    if (meta.dataProperty === 'groupDate') {
-                        val = Utils.calculateTimeString(action.start, action.end);
-                        return (
-                            React.createElement("td", {key: 'tableData' + Utils.guid()}, 
-                                React.createElement("span", {className: "content group-date", title: val}, val)
-                            )
-                            );
-                    }
-                    else if (meta.dataProperty === 'duration') {
-                        val = this.calculateDurationString(new Date(action.end).getTime() - new Date(action.start).getTime());
-                    }
-                    else if (meta.dataProperty === 'totalCount') {
-                        val = action.actionCount;
-                    }
+                if (!action.start || !action.end) {
+                    return;
                 }
 
-                return React.createElement("td", {key: 'tableData' + Utils.guid()}, React.createElement("span", {className: "content", title: val}, val));
+                switch (meta.dataProperty) {
+                    case 'groupDate':
+                        val = Utils.calculateTimeString(action.start, action.end);
+                        break;
+                    case 'duration':
+                        val = this.calculateDurationString(new Date(action.end).getTime() - new Date(action.start).getTime());
+                        break;
+                    case 'totalCount':
+                        val = action.actionCount;
+                        break;
+                }
+
+                return (
+                    React.createElement("td", {key: 'tableData' + Utils.guid()}, 
+                        React.createElement("span", {className: spanClasses, title: val}, val)
+                    )
+                );
             },
 
             calculateDurationString: function(interval) {
@@ -137,8 +146,7 @@ define(function(require) {
             },
 
             handleGroupRowClick: function(e) {
-                // don't use e.target.rowIndex here, as it changes with nested child rows.
-                // use the hard coded data index instead
+                // Don't use e.target.rowIndex here, as it changes with nested rows. Use the hard coded data index instead.
                 var index = $(e.currentTarget).data('index');
 
                 this.setState({
