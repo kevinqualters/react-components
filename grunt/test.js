@@ -8,7 +8,8 @@ module.exports = function(grunt, options) {
          */
         jasmine: {
             src: ['src/compiled/**/*.js', '!src/compiled/third-party/*',
-                '!src/compiled/examples/main.js', '!src/compiled/**/tests/*.js'],
+                '!src/compiled/examples/main.js', '!src/compiled/**/tests/*.js',
+                '!src/compiled/examples/**/*.js'],
             options: {
                 specs: ['src/compiled/**/*.test.js'],
                 helpers: [
@@ -33,7 +34,9 @@ module.exports = function(grunt, options) {
                                 moment: '../../../bower_components/moment/moment',
                                 'react': '../../../bower_components/react/react-with-addons',
                                 'third-party': '../../../src/compiled/third-party',
-                                'testUtil': '../../../src/compiled/tests/util'
+                                'testUtil': '../../../src/compiled/tests/util',
+
+                                RequestHandler: '../../../src/compiled/utils/RequestHandler'
                             },
                             callback: function () {
                                 define('instrumented', ['module'], function (module) {

@@ -397,8 +397,6 @@ define(function(require) {
                 var meta = {dataType: 'percent'};
                 var tableDataComponent = table.getTableData(val, meta);
 
-                console.log(JSON.stringify(tableDataComponent));
-
                 expect(tableDataComponent.props.children[0].props.children).toEqual('87%');
                 expect(tableDataComponent.props.children[0].props.title).toEqual('87%');
                 expect(tableDataComponent.props.children[1]).toBeUndefined();
