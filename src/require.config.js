@@ -3,7 +3,7 @@ require.config({
     paths: {
         main: 'examples/main',
 
-        AppDispatcher: '../../src/compiled/examples/dispatcher/AppDispatcher',
+        AppDispatcher: '../../src/compiled/dispatcher/AppDispatcher',
         RequestHandler: '../../src/compiled/examples/utils/RequestHandler',
         drc: '../../src/compiled',
 

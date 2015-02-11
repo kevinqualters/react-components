@@ -66,7 +66,8 @@ define(function(require) {
         alert('You just clicked on ' + companyName + '. It\'s ID is ' + companyID);
     };
 
-    var App = React.createClass({displayName: 'App',
+    return React.createClass({
+        displayName: 'App',
         render: function() {
             return (
                 React.createElement("div", {className: "app-component"}, 
@@ -78,10 +79,10 @@ define(function(require) {
                     React.createElement("div", {className: "content-component"}, 
                         React.createElement(Search, {url: '/test/search', searchSubmitCallback: searchSubmitCallback}), 
                         React.createElement("div", {className: "component"}, 
-                            React.createElement(Table.View, {definition: tableDefinition, 
-                                        componentId: 'tableId', 
-                                        key: 'tableId', 
-                                        loadingIconClasses: ['icon', 'ion-loading-c']})
+                            React.createElement(Table, {definition: tableDefinition, 
+                                   componentId: 'tableId', 
+                                   key: 'tableId', 
+                                   loadingIconClasses: ['icon', 'ion-loading-c']})
                         ), 
                         React.createElement("div", {className: "component"}, 
                             React.createElement(PieChart, {definition: pieChartDefinition, 
@@ -89,12 +90,9 @@ define(function(require) {
                                       key: 'pieChartId', 
                                       loadingIconClasses: ['icon', 'ion-loading-c']})
                         )
-
                     )
                 )
             );
         }
     });
-
-    return App;
 });
