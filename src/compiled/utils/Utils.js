@@ -19,10 +19,10 @@ define(function(require) {
 
     /**
      * Get formatted time string given the start and end times.
-     * @param  {Int} start - Start timestamp
-     * @param  {Int} end - End timestamp
-     * @param  {Bool} includeDate - Whether time should include date
-     * @return {String} - Formatted time optionally prepended by date
+     * @param  {Int} start - Start timestamp.
+     * @param  {Int} end - End timestamp.
+     * @param  {Bool} includeDate - Whether time should include date.
+     * @return {String} - Formatted time optionally prepended by date.
      */
     function calculateTimeString(start, end, includeDate) {
         var format = 'h:mm A',
@@ -31,7 +31,7 @@ define(function(require) {
 
         var date = includeDate ? Moment(start).format('MMM Do,') : '';
 
-        // If all actions occurred at the same minute, just show a single minute, not a range.
+        // If same minute, just show a single minute, not a range.
         if(startTime === endTime){
             return date + " " + startTime;
         }
@@ -49,7 +49,7 @@ define(function(require) {
         if (typeof iconClasses === 'string') {
             iconClasses = iconClasses.split(' ');
         }
-        if (!iconClasses || !_.isArray(iconClasses || _.isEmpty(iconClasses))) {
+        if (!iconClasses || !_.isArray(iconClasses)) {
             iconClasses = ['icon', 'ion-loading-c'];
         }
         var classes = {
