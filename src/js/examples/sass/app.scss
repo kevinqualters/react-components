@@ -19,6 +19,8 @@ html{font-family:sans-serif;-ms-text-size-adjust:100%;-webkit-text-size-adjust:1
 }
 
 html {
+  min-height: 100%;
+
   font-family: $font-regular;
   -webkit-font-smoothing: antialiased;
   -moz-font-smoothing: antialiased;
@@ -27,6 +29,7 @@ html {
 
 body {
   background-color: $darker-grey;
+  min-height: 100%;
   margin: 0 auto;
 
   -webkit-touch-callout: text;
@@ -70,19 +73,103 @@ body {
     min-width: 2px;
   }
 
-  #application-description {
+  .application-description {
     cursor: default;
     float: left;
     font-size: 21px;
     margin: 17px 0 0 12px;
+
+    .react {
+      color: #00D8FF;
+
+      img {
+        height: 24px;
+        position: relative;
+        top: -3px;
+        width: 25px;
+      }
+
+      span {
+        margin-right: 15px;
+      }
+    }
+
+    .flux {
+      color: #44B74A;
+
+      img {
+        width: 30px;
+      }
+    }
+
+    a {
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    img {
+      margin-right: 5px;
+    }
+
+    span {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 24px;
+      position: relative;
+      top: -7px;
+    }
+  }
+}
+
+.sidebar {
+  border: solid 1px $light-grey;
+  border-radius: 5px;
+  box-sizing: border-box;
+  height: calc(100% - 62px);
+  left: 0;
+  margin: 15px;
+  max-height: calc(100% - 92px);
+  padding-top: 2px;
+  position: fixed;
+  top: 62px;
+  width: 250px;
+
+  .nav {
+    margin: 0;
+    padding: 0;
+
+    li {
+      border-bottom: solid 1px $dark-grey;
+      border-top: solid 1px $light-grey;
+      color: $off-white;
+      cursor: pointer;
+      font-size: 20px;
+      height: 40px;
+      list-style-type: none;
+      padding-top: 10px;
+      text-align: center;
+
+      &:hover {
+        background-color: $dark-grey;
+      }
+    }
+
+    li:first-child {
+      border-top: none;
+      padding-top: 8px;
+    }
+
+    li.active {
+      color: $light-blue;
+    }
   }
 }
 
 .content-component {
   background-color: $darker-grey;
   color: $off-white;
-  margin-top: 88px;
-  margin-left: 15px;
+  left: 280px;
+  position: absolute;
+  top: 77px;
 }
 
 .table-component {
@@ -102,6 +189,7 @@ body {
 
 .search-component {
   margin-bottom: 20px;
+  padding-top: 0 !important;
   width: 540px;
 }
 

@@ -271,7 +271,9 @@ define(function(require) {
          */
         hideList: function(){
             this.focusedIndex = null;
-            this.setState({shownList: [], inputFocused: false});
+            if (this.state.shownList.length || this.state.inputFocused) {
+                this.setState({shownList: [], inputFocused: false});
+            }
         },
 
         /**
