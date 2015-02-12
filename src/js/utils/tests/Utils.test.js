@@ -23,15 +23,10 @@ define(function(require) {
                 // lead with
                 expect(timeString.indexOf(' ')).toEqual(0);
                 // start time in range
-                expect(timeString.indexOf(':')).toEqual(2);
-                expect(timeString.indexOf('AM')).toEqual(6);
-                // delineate times in range
-                expect(timeString.indexOf('-')).toEqual(9);
+                expect(timeString.indexOf('AM')).not.toEqual(-1);
                 // end time in range
-                expect(timeString.lastIndexOf(':')).toEqual(12);
-                expect(timeString.lastIndexOf('AM')).toEqual(16);
-                // length of range string
-                expect(timeString.length).toEqual(18);
+                expect(timeString.lastIndexOf('AM')).not.toEqual(-1);
+                expect(timeString.lastIndexOf('AM')).not.toEqual(timeString.indexOf('AM'));
             });
 
             it('should not lead with a space and include a date if the date bool is true.', function() {
@@ -39,15 +34,10 @@ define(function(require) {
                 // start with a date
                 expect(timeString.indexOf('Feb 4th, ')).toEqual(0);
                 // start time in range
-                expect(timeString.indexOf(':')).toEqual(10);
-                expect(timeString.indexOf('AM')).toEqual(14);
-                // delineate times in range
-                expect(timeString.indexOf('-')).toEqual(17);
+                expect(timeString.indexOf('AM')).not.toEqual(-1);
                 // end time in range
-                expect(timeString.lastIndexOf(':')).toEqual(20);
-                expect(timeString.lastIndexOf('AM')).toEqual(24);
-                // length of range string
-                expect(timeString.length).toEqual(26);
+                expect(timeString.lastIndexOf('AM')).not.toEqual(-1);
+                expect(timeString.lastIndexOf('AM')).not.toEqual(timeString.indexOf('AM'));
             });
 
             it('should have a single time rather than a date if the start and end times are in the same minute.', function() {
@@ -55,15 +45,10 @@ define(function(require) {
                 // lead with
                 expect(timeString.indexOf(' ')).toEqual(0);
                 // start time in range
-                expect(timeString.indexOf(':')).toEqual(2);
-                expect(timeString.indexOf('AM')).toEqual(6);
-                // no delineating times in range
-                expect(timeString.indexOf('-')).toEqual(-1);
+                expect(timeString.indexOf('AM')).not.toEqual(-1);
                 // no end time in range
-                expect(timeString.lastIndexOf(':')).toEqual(2);
-                expect(timeString.lastIndexOf('AM')).toEqual(6);
-                // length of range string
-                expect(timeString.length).toEqual(8);
+                expect(timeString.lastIndexOf('AM')).not.toEqual(-1);
+                expect(timeString.lastIndexOf('AM')).toEqual(timeString.indexOf('AM'));
             });
         });
 
