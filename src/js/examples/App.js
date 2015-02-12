@@ -72,7 +72,7 @@ define(function(require) {
         getInitialState: function() {
             return {
                 selectedComponentSet: window.location.hash.split('#')[1] || 'piechart'
-            }
+            };
         },
 
         componentDidUpdate: function() {
