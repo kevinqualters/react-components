@@ -119,7 +119,7 @@ define(function(require) {
                  return null;
             }
 
-            return <input ref="filter" type="text" placeholder={this.props.quickFilterPlaceholder} onChange={this.handleQuickFilterChange} />;
+            return <input ref="filter" className="quick-filter" type="text" placeholder={this.props.quickFilterPlaceholder} onChange={this.handleQuickFilterChange} />;
         },
 
         getPaginationControls: function() {

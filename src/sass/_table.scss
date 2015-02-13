@@ -5,6 +5,23 @@
     min-height: 100px;
   }
 
+  .quick-filter {
+    background-color: $grey;
+    border: 0;
+    box-sizing: border-box;
+    color: white;
+    float: left;
+    font-family: $font-regular;
+    font-size: 12pt;
+    height: 28px;
+    margin-bottom: 30px;
+    padding-left: 5px;
+
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+  }
+
   .pagination-controls {
     display: inline-block;
     float: right;
