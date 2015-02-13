@@ -3,6 +3,7 @@ define(function(require) {
 
     var AppDispatcher = require('AppDispatcher');
     var _ = require('lodash');
+    var Moment = require('moment');
     var StoreBase = require('drc/lib/StoreBase');
     var TableActions = require('drc/table/TableActions');
 
@@ -40,10 +41,30 @@ define(function(require) {
         onDataReceived: function(data) {
             this.data = _.values(data);
             this.dataCount = data.length;
-            //Run data through definition formatter if it exists
-            if(this.dataFormatter){
+
+            // Run data through definition formatter if it exists.
+            if (this.dataFormatter) {
                 this.data = this.dataFormatter(data);
             }
+
+            // Run data through built in data formatters.
+            _.forEach(this.cols, function(col) {
+                _.forEach(data, function(item) {
+                    if (col.dataType === 'percent') {
+                        item[col.dataProperty] = item[col.dataProperty] + '%';
+                    }
+                    else if (col.dataType === 'time' || col.dataType == 'status') {
+                        var online = Moment(item[col.dataProperty]).valueOf() > Moment(Date.now()).subtract(15, 'minutes').valueOf();
+
+                        if (col.dataType === 'status' && online) {
+                            item['online'] = true;
+                        }
+
+                        item[col.dataProperty] = item[col.dataProperty] ? Moment(item[col.dataProperty]).format(col.timeFormat) : '--';
+                    }
+                });
+            });
+
             if (typeof this.sortColIndex === 'number') {
                 this.sortData(this.sortColIndex, this.cols[this.sortColIndex].sortDirection);
             }
@@ -126,11 +147,11 @@ define(function(require) {
             _.forEach(this.cols, function(col) {
                 if (col.quickFilter) {
                     matches = _.filter(data, function(item) {
-                        if (col.dataType === 'string') {
+                        if (typeof item[col.dataProperty] === 'string') {
                             return item[col.dataProperty].toLowerCase().indexOf(value.toLowerCase()) !== -1;
                         }
-                        else if (col.dataType === 'number') {
-                            return item[col.dataProperty] === (Number(value));
+                        else if (typeof item[col.dataProperty] === 'number') {
+                            return item[col.dataProperty].toString().indexOf(value.toString()) !== -1;
                         }
                     });
 

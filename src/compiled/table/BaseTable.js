@@ -11,6 +11,8 @@ define(function(require) {
     return {
         displayName: 'BasicTable',
 
+        quickFilterEnabled: false,
+
         getDefaultProps: function() {
             return {
                 quickFilterPlaceholder: 'Filter'
@@ -24,10 +26,9 @@ define(function(require) {
         ],
 
         getInitialState: function() {
-            var quickFilterEnabled = _.find(this.props.definition.cols, function(col) {return col.quickFilter === true;}) ? true : false;
+            this.quickFilterEnabled = _.find(this.props.definition.cols, function(col) {return col.quickFilter === true;}) ? true : false;
 
             return {
-                quickFilter: quickFilterEnabled,
                 loading: true,
                 data: null,
                 dataError: false
@@ -55,7 +56,7 @@ define(function(require) {
             }
 
             return (
-                React.createElement("div", {className: "data-component table-component"}, 
+                React.createElement("div", {className: "data-component table-component no-select"}, 
                     React.createElement("div", {className: containerClasses}, 
                         React.createElement("i", {className: Utils.getLoaderClasses(this.state.loading, this.props.loadingIconClasses)}), 
                         quickFilter, 
@@ -114,7 +115,7 @@ define(function(require) {
         },
 
         getQuickFilter: function() {
-            if (!this.state.quickFilter) {
+            if (!this.quickFilterEnabled) {
                  return null;
             }
 
@@ -227,7 +228,7 @@ define(function(require) {
             );
         },
 
-        getTableRowItem: function(rowData) {
+        getTableRowItem: function(rowData, index) {
             var handleRowClick;
             var row = [];
 
@@ -239,7 +240,7 @@ define(function(require) {
             });
 
             _.forIn(this.state.colDefinitions, function(val) {
-                row.push(this.getTableData(rowData[val.dataProperty], val, val.hoverProperty ? rowData[val.hoverProperty] : null));
+                row.push(this.getTableData(rowData[val.dataProperty], val, val.hoverProperty ? rowData[val.hoverProperty] : null, index));
             }.bind(this));
 
             if (this.state.rowClick) {
@@ -253,29 +254,18 @@ define(function(require) {
          * @param  {Mixed} val         The value for the current cell
          * @param  {Object} meta       Details about the value (format, type, etc)
          * @param  {Mixed=} hoverValue Optional value to show in hover state of cell
+         * @param {Number} index
          * @return {Object}            Cell markup
          */
-        getTableData: function(val, meta, hoverValue) {
+        getTableData: function(val, meta, hoverValue, index) {
             var cx = React.addons.classSet;
-            var online = false;
             var afterIcon, statusIconClasses;
 
-            if (meta.dataType === 'percent') {
-                val = val + '%';
-            }
-            else if (meta.dataType === 'time') {
-                val = val ? Moment(val).format(meta.timeFormat) : '--';
-            }
-            else if (meta.dataType == 'status') {
-                if (val && val > Moment(Date.now()).subtract(15, 'minutes').valueOf()) {
-                    online = true;
-                }
-                val = val ? Moment(val).format(meta.timeFormat) : '--';
-
+            if (meta.dataType == 'status') {
                 statusIconClasses = cx({
                     'fa': true,
-                    'fa-circle': online,
-                    'fa-circle-o': !online
+                    'fa-circle': this.state.data[index].online,
+                    'fa-circle-o': !this.state.data[index].online
                 });
 
                 afterIcon = (React.createElement("span", {className: "after-icon"}, React.createElement("i", {className: statusIconClasses})));

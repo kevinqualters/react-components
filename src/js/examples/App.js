@@ -16,7 +16,7 @@ define(function(require) {
                 hoverProperty: 'username',
                 sortDirection: 'ascending',
                 dataType: 'string',
-                width: '35%',
+                width: '25%',
                 quickFilter: true
             },
             {
@@ -24,7 +24,24 @@ define(function(require) {
                 dataProperty: 'messages',
                 sortDirection: 'descending',
                 dataType: 'number',
-                width: '20%',
+                width: '10%',
+                quickFilter: true
+            },
+            {
+                headerLabel: 'USAGE',
+                dataProperty: 'usage',
+                sortDirection: 'descending',
+                dataType: 'percent',
+                width: '10%',
+                quickFilter: true
+            },
+            {
+                headerLabel: 'LAST LOGIN',
+                dataProperty: 'lastLogin',
+                sortDirection: 'descending',
+                dataType: 'time',
+                timeFormat: 'MMM Do, h A',
+                width: '25%',
                 quickFilter: true
             },
             {
@@ -33,7 +50,8 @@ define(function(require) {
                 sortDirection: 'descending',
                 dataType: 'status',
                 timeFormat: 'MMM Do, h:mm A',
-                width: '35%'
+                width: '30%',
+                quickFilter: true
             }
         ],
         sortColIndex: 0,
