@@ -115,7 +115,7 @@ define(function(require) {
                     break;
                 case 'search':
                     componentSet = (
-                        React.createElement(Search, {url: '/test/search', searchSubmitCallback: searchSubmitCallback})
+                        React.createElement(Search, {url: '/test/search', onSelect: searchSubmitCallback, isFullDataResponse: true, minLength: 1})
                     );
                     break;
                 case 'table':

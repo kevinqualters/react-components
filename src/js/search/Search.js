@@ -3,13 +3,51 @@ define(function(require) {
 
     var _     = require('lodash');
     var React = require('react');
-    var SearchActions = require('drc/search/SearchActions');
-    var SearchStore = require('drc/search/SearchStore');
+    var RequestHandler = require('RequestHandler');
+    var $ = require('jquery');
 
     var Search = React.createClass({
+        /**
+         * Prop vaildation
+         * @type {Object}
+         */
+        propTypes: {
+            url:                React.PropTypes.string.isRequired,
+            isFullDataResponse: React.PropTypes.bool,
+            minLength:          React.PropTypes.number,
+            additionalFilters:  React.PropTypes.object,
+            searchFilterName:   React.PropTypes.string,
+            placeholder:        React.PropTypes.string,
+            onDataReceived:     React.PropTypes.func,
+            onSelect:           React.PropTypes.func,
+            rowFormatter:       React.PropTypes.func
+        },
+
+        /**
+         * Index of focused item in dropdown list
+         * @type {Number}
+         */
         focusedIndex: null,
+
+        /**
+         * Denotes if user action (up/down arrows) occurred over the dropdown list
+         * @type {Boolean}
+         */
         actionOverList: false,
+
+        /**
+         * List of current filtered items. Mainly used when this.props.isFullDataResponse is true
+         * @type {Array}
+         */
         currentFilteredList: [],
+
+        /**
+         * Key for existing outstanding ajax request when searching against an endpoint. We
+         * keep track of this so that we can abort() it when another request comes in.
+         * @type {Object}
+         */
+        outstandingRequest: null,
+
         /**
          * Map of keycodes to handler functions when focused on a autocomplete item
          * @type {Object}
@@ -20,10 +58,29 @@ define(function(require) {
             27: 'clearList',        //Esc
             13: 'selectItemOnEnter' //Enter
         },
+
+        /**
+         * Object to store response data when isFullDataResponse is false. Halts outgoing
+         * requests for previously views search terms.
+         * @type {Object}
+         */
+        cache: {},
+
+        /**
+         * Sets default props for search component
+         * @return {Object} Default props
+         */
+        getDefaultProps: function(){
+            return {
+                isFullDataResponse: false,
+                minLength: 2,
+                placeholder: 'Search'
+            };
+        },
+
         getInitialState: function() {
             return {
-                placeholder: 'Loading...',
-                disabled: true,
+                disabled: this.props.isFullDataResponse,
                 itemList: [],
                 shownList: [],
                 inputValue: '',
@@ -36,9 +93,9 @@ define(function(require) {
          * data population
          */
         componentDidMount: function(){
-            SearchStore.on('change', this.onDataReceived);
-            SearchStore.on('fail', this.onError);
-            SearchActions.requestData(this.props.url);
+            if(this.props.isFullDataResponse){
+                this.requestFullData();
+            }
 
             //Hook up page click event to close list when user clicks outside search component
             $(document).mouseup(_.bind(function(e){
@@ -51,6 +108,36 @@ define(function(require) {
         },
 
         /**
+         * Makes a request on load to request full data set of this.props.isFullDataResponse is set. Once done, invokes
+         * onDataRecieved method with results.
+         */
+        requestFullData: function(){
+            RequestHandler.request(this.props.url, this.props.additionalFilters, this.onDataReceived, this.onError, this);
+        },
+
+        /**
+         * Makes a request for the provided search term. Used when each character typed will cause a request
+         * to be made for data.
+         * @param {String} searchTerm Term searched on
+         */
+        requestDataForTerm: function(searchTerm){
+            var cachedData = this.cache[searchTerm.toLowerCase()];
+            if(cachedData){
+                this.updateStateForNewData(cachedData);
+                return;
+            }
+            var searchFilter = this.props.additionalFilters || {};
+            searchFilter[this.props.searchFilterName] = searchTerm;
+
+            //Cancel any existing requests
+            if(this.outstandingRequest && this.outstandingRequest.abort){
+                this.outstandingRequest.abort();
+            }
+
+            this.outstandingRequest = RequestHandler.request(this.props.url, searchFilter, this.onDataReceived, this.onError, this);
+        },
+
+        /**
          * Error handler for failed request. Updates failure message and sets
          * input to be disabled
          * @return {[type]} [description]
@@ -60,29 +147,40 @@ define(function(require) {
         },
 
         /**
-         * Unsubscribe from events if this component is removed
-         */
-        componentWillUnmount: function() {
-            SearchStore.removeListener('change', this.onDataReceived);
-        },
-
-        /**
          * Handle store change event.
          */
-        onDataReceived: function() {
-            var data = SearchStore.getData();
-            var placeholder = 'Search';
-
+        onDataReceived: function(data) {
             if(!data){
                 this.onError();
                 return;
             }
-
-            if (this.props.placeholder && typeof this.props.placeholder === 'string') {
-                placeholder = this.props.placeholder;
+            if(this.props.onDataReceived){
+                data = this.props.onDataReceived(data, this.state.inputValue);
+                this.setState({shownList: data});
             }
 
-            this.setState({itemList: data, disabled: false, placeholder: placeholder});
+            if(!this.props.isFullDataResponse && data.length){
+                data.sort(this.sortMatchingEntries);
+            }
+            this.cache[this.state.inputValue.toLowerCase()] = data;
+            this.updateStateForNewData(data);
+        },
+
+        /**
+         * Updates various state components for newly shown data
+         * @param {Array} data New data array
+         */
+        updateStateForNewData: function(data){
+            var state = {
+                itemList: data,
+                disabled: false
+            };
+            if(!this.props.isFullDataResponse){
+                state.shownList = data;
+                this.currentFilteredList = data;
+            }
+
+            this.setState(state);
         },
 
         /**
@@ -147,14 +245,20 @@ define(function(require) {
         onChange: function(event){
             var searchTerm = event.target.value;
             this.setState({inputValue: searchTerm});
-            if(searchTerm.length === 0){
+            if(searchTerm.length < this.props.minLength){
                 this.currentFilteredList = [];
                 this.setState({shownList: []});
             }
+            //Only continue of value entered is longer than min search term length
             else{
-                var listToShow = this.getListOfMatchesForQuery(searchTerm);
-                this.currentFilteredList = listToShow;
-                this.setState({shownList: listToShow});
+                if(this.props.isFullDataResponse){
+                    var listToShow = this.getListOfMatchesForQuery(searchTerm);
+                    this.currentFilteredList = listToShow;
+                    this.setState({shownList: listToShow});
+                }
+                else{
+                    this.requestDataForTerm(searchTerm);
+                }
             }
         },
 
@@ -292,8 +396,8 @@ define(function(require) {
          * @param  {Object} event Click/enter key event
          */
         itemSelect: function(event) {
-            if (this.props.searchSubmitCallback && typeof this.props.searchSubmitCallback === 'function') {
-                this.props.searchSubmitCallback(event);
+            if (this.props.onSelect) {
+                this.props.onSelect(event);
             }
 
             this.clearList(true);
@@ -325,9 +429,9 @@ define(function(require) {
          * Returns list of autocomplete items to show in dropdown
          * @return {Array} List of nodes to display
          */
-        getAutocompleteComponents: function(){
+        getAutocompleteComponents: function(rowData){
             var markup = [];
-            _.forEach(this.state.shownList, _.bind(function(item){
+            _.forEach(rowData, _.bind(function(item){
                 markup.push(
                     <li key={item.id} data-id={item.id} tabIndex="-1" onMouseEnter={this.handleListMouseEnter}>{item.name}</li>
                 );
@@ -336,12 +440,14 @@ define(function(require) {
         },
 
         render: function() {
-            var autoCompleteMarkup = this.getAutocompleteComponents(),
+            var autoCompleteMarkup = (this.props.rowFormatter || this.getAutocompleteComponents)(this.state.shownList, this.handleListMouseEnter),
                 searchIconClasses = React.addons.classSet({
                     fa: true,
                     'fa-search': true,
                     focused: this.state.inputFocused
                 });
+
+            var placeholderText = this.state.itemList ? this.props.placeholder : 'Loading...';
 
             return (
                 <div className="search-component">
@@ -351,7 +457,7 @@ define(function(require) {
                                value={this.state.inputValue}
                                type="text"
                                autoComplete="off"
-                               placeholder={this.state.placeholder}
+                               placeholder={placeholderText}
                                disabled={this.state.disabled}
                                onChange={this.onChange}
                                onFocus={this.onFocus}
