@@ -258,6 +258,9 @@ define(function(require) {
                     successCallback(searchData);
                     break;
             }
+            return {
+                abort: function(){}
+            };
         }
     };
 });
