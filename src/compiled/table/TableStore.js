@@ -146,7 +146,7 @@ define(function(require) {
 
             _.forEach(this.cols, function(col) {
                 if (col.quickFilter) {
-                    matches = _.filter(data, function(item) {
+                    matches = _.remove(data, function(item) {
                         if (typeof item[col.dataProperty] === 'string') {
                             return item[col.dataProperty].toLowerCase().indexOf(value.toLowerCase()) !== -1;
                         }
