@@ -11,6 +11,12 @@ define(function(require) {
     return {
         displayName: 'BasicTable',
 
+        getDefaultProps: function() {
+            return {
+                quickFilterPlaceholder: 'Filter'
+            };
+        },
+
         mixins: [
             DataMixins.dataRequest,
             DataMixins.destroySelfOnUnmount(TableActions),
@@ -18,7 +24,10 @@ define(function(require) {
         ],
 
         getInitialState: function() {
+            var quickFilterEnabled = _.find(this.props.definition.cols, function(col) {return col.quickFilter === true;}) ? true : false;
+
             return {
+                quickFilter: quickFilterEnabled,
                 loading: true,
                 data: null,
                 dataError: false
@@ -32,6 +41,8 @@ define(function(require) {
                     error: this.state.dataError
                 }),
                 thead, tbody, paginationControls, noResults;
+
+            var quickFilter = this.getQuickFilter();
 
             if (this.state.data) {
                 thead = this.state.colDefinitions.map(this.getTableHeaderItem);
@@ -47,6 +58,7 @@ define(function(require) {
                 React.createElement("div", {className: "data-component table-component"}, 
                     React.createElement("div", {className: containerClasses}, 
                         React.createElement("i", {className: Utils.getLoaderClasses(this.state.loading, this.props.loadingIconClasses)}), 
+                        quickFilter, 
                         paginationControls, 
                         React.createElement("table", null, 
                             React.createElement("thead", null, thead), 
@@ -99,6 +111,14 @@ define(function(require) {
          */
         onError: function() {
             this.setState({loading: false, dataError: true});
+        },
+
+        getQuickFilter: function() {
+            if (!this.state.quickFilter) {
+                 return null;
+            }
+
+            return React.createElement("input", {ref: "filter", type: "text", placeholder: this.props.quickFilterPlaceholder, onChange: this.handleQuickFilterChange});
         },
 
         getPaginationControls: function() {
@@ -280,6 +300,10 @@ define(function(require) {
             });
 
             return React.createElement("i", {className: iconClasses});
+        },
+
+        handleQuickFilterChange: function(e) {
+            TableActions.filter(this.props.componentId, e.target.value);
         },
 
         handlePageLeftClick: function() {

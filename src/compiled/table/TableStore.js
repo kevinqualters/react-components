@@ -29,6 +29,7 @@ define(function(require) {
         this.rowClick = definition.rowClick;
         this.dataFormatter = definition.dataFormatter || undefined;
         this.data = null;
+        this.dataCount = null;
     };
 
     Table.prototype = {
@@ -38,6 +39,7 @@ define(function(require) {
          */
         onDataReceived: function(data) {
             this.data = _.values(data);
+            this.dataCount = data.length;
             //Run data through definition formatter if it exists
             if(this.dataFormatter){
                 this.data = this.dataFormatter(data);
@@ -59,11 +61,18 @@ define(function(require) {
          * @returns {array} - A paginated subset of Table.data or just Table.data.
          */
         getData: function() {
-            if (this.pagination) {
-                return this.sliceData(this.data, this.pagination);
+            var data = _.clone(this.data);
+            this.dataCount = data.length;
+
+            if (this.filterValue) {
+                data = this.filterData(data, this.filterValue);
             }
 
-            return this.data;
+            if (this.pagination) {
+                return this.sliceData(data, this.pagination);
+            }
+
+            return data;
         },
 
         /**
@@ -71,7 +80,7 @@ define(function(require) {
          * @returns {number} - The length of the Table.data array.
          */
         getDataCount: function() {
-            return this.data.length;
+            return this.dataCount;
         },
 
         /**
@@ -104,6 +113,34 @@ define(function(require) {
          */
         getPaginationData: function() {
             return this.pagination;
+        },
+
+        setFilterValue: function(value) {
+            this.filterValue = value;
+        },
+
+        filterData: function(data, value) {
+            var filteredData = [];
+            var matches;
+
+            _.forEach(this.cols, function(col) {
+                if (col.quickFilter) {
+                    matches = _.filter(data, function(item) {
+                        if (col.dataType === 'string') {
+                            return item[col.dataProperty].toLowerCase().indexOf(value.toLowerCase()) !== -1;
+                        }
+                        else if (col.dataType === 'number') {
+                            return item[col.dataProperty] === (Number(value));
+                        }
+                    });
+
+                    filteredData = filteredData.concat(matches);
+                }
+            });
+
+            this.dataCount = filteredData.length;
+
+            return filteredData;
         },
 
         /**
@@ -249,6 +286,10 @@ define(function(require) {
             return this.collection[id].getPaginationData();
         },
 
+        setFilterValue: function(id, value) {
+            this.collection[id].setFilterValue(value);
+        },
+
         /**
          * Moves the cursor forwards or backwards through paginated data.
          * @param {string} id - The unique identifier of the Table instance to paginate.
@@ -285,6 +326,10 @@ define(function(require) {
                     break;
                 case ActionTypes.TABLE_SORT:
                     this.sortData(action.id, action.data.colIndex, action.data.direction);
+                    this.emitChange(action.id);
+                    break;
+                case ActionTypes.FILTER:
+                    this.setFilterValue(action.id, action.data.value);
                     this.emitChange(action.id);
                     break;
                 case ActionTypes.PAGINATE:

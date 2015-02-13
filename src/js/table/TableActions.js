@@ -7,6 +7,7 @@ define(function(require) {
         actionTypes: {
             REQUEST_DATA: 'REQUEST_DATA',
             DESTROY_INSTANCE: 'DESTROY_INSTANCE',
+            FILTER: 'FILTER',
             PAGINATE: 'PAGINATE',
             TABLE_SORT: 'TABLE_SORT'
         },
@@ -34,6 +35,17 @@ define(function(require) {
                 actionType: this.actionTypes.DESTROY_INSTANCE,
                 component: 'Table',
                 id: id
+            });
+        },
+
+        filter: function(id, value) {
+            AppDispatcher.handleViewAction({
+                actionType: this.actionTypes.FILTER,
+                component: 'Table',
+                id: id,
+                data: {
+                    value: value
+                }
             });
         },
 

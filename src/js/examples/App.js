@@ -16,14 +16,16 @@ define(function(require) {
                 hoverProperty: 'username',
                 sortDirection: 'ascending',
                 dataType: 'string',
-                width: '35%'
+                width: '35%',
+                quickFilter: true
             },
             {
                 headerLabel: 'MESSAGES',
                 dataProperty: 'messages',
                 sortDirection: 'descending',
                 dataType: 'number',
-                width: '20%'
+                width: '20%',
+                quickFilter: true
             },
             {
                 headerLabel: 'LAST MESSAGE',
@@ -87,9 +89,9 @@ define(function(require) {
                     componentSet = (
                         <div className="component">
                             <PieChart definition={pieChartDefinition}
-                            componentId={'pieChartId'}
-                            key={'pieChartId'}
-                            loadingIconClasses={['icon', 'ion-loading-c']} />
+                                      componentId={'pieChartId'}
+                                      key={'pieChartId'}
+                                      loadingIconClasses={['icon', 'ion-loading-c']} />
                         </div>
                     );
                     break;
@@ -102,9 +104,10 @@ define(function(require) {
                     componentSet = (
                         <div className="component">
                             <Table definition={tableDefinition}
-                                componentId={'tableId'}
-                                key={'tableId'}
-                                loadingIconClasses={['icon', 'ion-loading-c']} />
+                                   componentId='tableId'
+                                   key='tableId'
+                                   loadingIconClasses={['icon', 'ion-loading-c']}
+                                   quickFilterPlaceholder='Quick Filter' />
                         </div>
                     );
             }
