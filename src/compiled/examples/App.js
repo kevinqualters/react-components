@@ -68,31 +68,77 @@ define(function(require) {
 
     return React.createClass({
         displayName: 'App',
+
+        getInitialState: function() {
+            return {
+                selectedComponentSet: window.location.hash.split('#')[1] || 'piechart'
+            };
+        },
+
+        componentDidUpdate: function() {
+            window.location.hash = this.state.selectedComponentSet;
+        },
+
         render: function() {
+            var componentSet;
+
+            switch (this.state.selectedComponentSet) {
+                case 'piechart':
+                    componentSet = (
+                        React.createElement("div", {className: "component"}, 
+                            React.createElement(PieChart, {definition: pieChartDefinition, 
+                            componentId: 'pieChartId', 
+                            key: 'pieChartId', 
+                            loadingIconClasses: ['icon', 'ion-loading-c']})
+                        )
+                    );
+                    break;
+                case 'search':
+                    componentSet = (
+                        React.createElement(Search, {url: '/test/search', searchSubmitCallback: searchSubmitCallback})
+                    );
+                    break;
+                case 'table':
+                    componentSet = (
+                        React.createElement("div", {className: "component"}, 
+                            React.createElement(Table, {definition: tableDefinition, 
+                                componentId: 'tableId', 
+                                key: 'tableId', 
+                                loadingIconClasses: ['icon', 'ion-loading-c']})
+                        )
+                    );
+            }
             return (
                 React.createElement("div", {className: "app-component"}, 
                     React.createElement("div", {id: "header-component"}, 
                         React.createElement("img", {id: "application-logo", src: "images/dataminr_logo_white-01.png"}), 
                         React.createElement("div", {className: "header-divider"}), 
-                        React.createElement("div", {id: "application-description"}, "REACT COMPONENTS")
+                        React.createElement("div", {className: "application-description"}, 
+                            React.createElement("a", {href: "http://facebook.github.io/react/", target: "_blank", className: "react"}, React.createElement("img", {src: "images/react_logo.png"}), React.createElement("span", null, "React Components")), 
+                            React.createElement("a", {href: "https://facebook.github.io/flux/", target: "_blank", className: "flux"}, React.createElement("img", {src: "images/flux_logo.svg"}), React.createElement("span", null, "Flux Architecture"))
+                        )
+                    ), 
+                    React.createElement("div", {className: "sidebar"}, 
+                        React.createElement("ul", {className: "nav"}, 
+                            React.createElement("li", {className: this.state.selectedComponentSet === 'piechart' ? 'active' : null, 
+                                onClick: this.handleLinkClick.bind(this, 'piechart')}, "Pie Chart"), 
+                            React.createElement("li", {className: this.state.selectedComponentSet === 'search' ? 'active' : null, 
+                                onClick: this.handleLinkClick.bind(this, 'search')}, "Search"), 
+                            React.createElement("li", {className: this.state.selectedComponentSet === 'table' ? 'active' : null, 
+                                onClick: this.handleLinkClick.bind(this, 'table')}, "Table")
+                        )
                     ), 
                     React.createElement("div", {className: "content-component"}, 
-                        React.createElement(Search, {url: '/test/search', searchSubmitCallback: searchSubmitCallback}), 
-                        React.createElement("div", {className: "component"}, 
-                            React.createElement(Table, {definition: tableDefinition, 
-                                   componentId: 'tableId', 
-                                   key: 'tableId', 
-                                   loadingIconClasses: ['icon', 'ion-loading-c']})
-                        ), 
-                        React.createElement("div", {className: "component"}, 
-                            React.createElement(PieChart, {definition: pieChartDefinition, 
-                                      componentId: 'pieChartId', 
-                                      key: 'pieChartId', 
-                                      loadingIconClasses: ['icon', 'ion-loading-c']})
-                        )
+                        componentSet
                     )
                 )
             );
+        },
+
+        handleLinkClick: function(link) {
+            this.setState({
+                selectedComponentSet: link
+            });
         }
     });
 });

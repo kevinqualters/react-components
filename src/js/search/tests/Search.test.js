@@ -357,6 +357,14 @@ define(function(require) {
             it('resets values', function(){
                 spyOn(search, 'setState');
 
+                search.state.shownList = [];
+                search.state.inputFocused = true;
+                search.hideList(true);
+                expect(search.focusedIndex).toBeNull();
+                expect(search.setState).toHaveBeenCalledWith({shownList: [], inputFocused: false});
+
+                search.state.shownList = ['item'];
+                search.state.inputFocused = false;
                 search.hideList(true);
                 expect(search.focusedIndex).toBeNull();
                 expect(search.setState).toHaveBeenCalledWith({shownList: [], inputFocused: false});

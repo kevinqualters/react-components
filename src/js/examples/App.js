@@ -68,31 +68,77 @@ define(function(require) {
 
     return React.createClass({
         displayName: 'App',
+
+        getInitialState: function() {
+            return {
+                selectedComponentSet: window.location.hash.split('#')[1] || 'piechart'
+            };
+        },
+
+        componentDidUpdate: function() {
+            window.location.hash = this.state.selectedComponentSet;
+        },
+
         render: function() {
+            var componentSet;
+
+            switch (this.state.selectedComponentSet) {
+                case 'piechart':
+                    componentSet = (
+                        <div className="component">
+                            <PieChart definition={pieChartDefinition}
+                            componentId={'pieChartId'}
+                            key={'pieChartId'}
+                            loadingIconClasses={['icon', 'ion-loading-c']} />
+                        </div>
+                    );
+                    break;
+                case 'search':
+                    componentSet = (
+                        <Search url={'/test/search'} searchSubmitCallback={searchSubmitCallback} />
+                    );
+                    break;
+                case 'table':
+                    componentSet = (
+                        <div className="component">
+                            <Table definition={tableDefinition}
+                                componentId={'tableId'}
+                                key={'tableId'}
+                                loadingIconClasses={['icon', 'ion-loading-c']} />
+                        </div>
+                    );
+            }
             return (
                 <div className="app-component">
                     <div id="header-component">
                         <img id="application-logo" src="images/dataminr_logo_white-01.png" />
                         <div className="header-divider"></div>
-                        <div id="application-description">REACT COMPONENTS</div>
+                        <div className="application-description">
+                            <a href="http://facebook.github.io/react/" target="_blank" className="react"><img src="images/react_logo.png" /><span>React Components</span></a>
+                            <a href="https://facebook.github.io/flux/" target="_blank" className="flux"><img src="images/flux_logo.svg" /><span>Flux Architecture</span></a>
+                        </div>
+                    </div>
+                    <div className="sidebar">
+                        <ul className="nav">
+                            <li className={this.state.selectedComponentSet === 'piechart' ? 'active' : null}
+                                onClick={this.handleLinkClick.bind(this, 'piechart')}>Pie Chart</li>
+                            <li className={this.state.selectedComponentSet === 'search' ? 'active' : null}
+                                onClick={this.handleLinkClick.bind(this, 'search')}>Search</li>
+                            <li className={this.state.selectedComponentSet === 'table' ? 'active' : null}
+                                onClick={this.handleLinkClick.bind(this, 'table')}>Table</li>
+                        </ul>
                     </div>
                     <div className="content-component">
-                        <Search url={'/test/search'} searchSubmitCallback={searchSubmitCallback} />
-                        <div className="component">
-                            <Table definition={tableDefinition}
-                                   componentId={'tableId'}
-                                   key={'tableId'}
-                                   loadingIconClasses={['icon', 'ion-loading-c']} />
-                        </div>
-                        <div className="component">
-                            <PieChart definition={pieChartDefinition}
-                                      componentId={'pieChartId'}
-                                      key={'pieChartId'}
-                                      loadingIconClasses={['icon', 'ion-loading-c']} />
-                        </div>
+                        {componentSet}
                     </div>
                 </div>
             );
+        },
+
+        handleLinkClick: function(link) {
+            this.setState({
+                selectedComponentSet: link
+            });
         }
     });
 });
