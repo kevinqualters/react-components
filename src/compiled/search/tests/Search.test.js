@@ -1,23 +1,24 @@
 define(function(require) {
     var React = require('react');
     var Search = require('drc/search/Search');
-    var SearchActions = require('drc/search/SearchActions');
-    var SearchStore = require('drc/search/SearchStore');
+    var RequestHandler = require('RequestHandler');
 
     var TestUtils = React.addons.TestUtils;
 
     describe('Search', function() {
         var search;
-        var searchSubmitCallback = function() {};
+        var searchSubmitCallback;
+        var onDataReceivedCallback;
 
         beforeEach(function() {
-            search = TestUtils.renderIntoDocument(React.createElement(Search, {searchSubmitCallback: searchSubmitCallback, url: "/test/url"}));
+            searchSubmitCallback = jasmine.createSpy();
+            onDataReceivedCallback = jasmine.createSpy().and.returnValue([{foo: 'bar'}]);
+            search = TestUtils.renderIntoDocument(React.createElement(Search, {onSelect: searchSubmitCallback, onDataReceived: onDataReceivedCallback, url: "/test/url", isFullDataResponse: true, searchFilterName: "myTerm"}));
         });
 
         describe('getInitialState function', function() {
             it('should initialize the state of the component', function() {
                 expect(search.getInitialState()).toEqual({
-                    placeholder: 'Loading...',
                     disabled: true,
                     itemList: [],
                     shownList: [],
@@ -29,13 +30,74 @@ define(function(require) {
 
         describe('componentDidMount function', function(){
             it('subscribes to store and requests data', function(){
-                spyOn(SearchStore, 'on');
-                spyOn(SearchActions, 'requestData');
+                spyOn(search, 'requestFullData');
 
                 search.componentDidMount();
 
-                expect(SearchStore.on.calls.count()).toEqual(2);
-                expect(SearchActions.requestData).toHaveBeenCalledWith(search.props.url);
+                expect(search.requestFullData.calls.count()).toEqual(1);
+
+                search.props.isFullDataResponse = false;
+
+                search.componentDidMount();
+
+                expect(search.requestFullData.calls.count()).toEqual(1);
+            });
+        });
+
+        describe('requestFullData function', function(){
+            it('pass props to request handler', function(){
+                spyOn(RequestHandler, 'request');
+
+                search.requestFullData();
+
+                expect(RequestHandler.request.calls.argsFor(0)[0]).toEqual('/test/url');
+                expect(RequestHandler.request.calls.argsFor(0)[1]).toBeUndefined();
+                expect(RequestHandler.request.calls.argsFor(0)[2]).toBeFunction();
+                expect(RequestHandler.request.calls.argsFor(0)[3]).toBeFunction();
+                expect(RequestHandler.request.calls.argsFor(0)[3]).toBeObject();
+            });
+        });
+
+        describe('requestDataForTerm function', function(){
+            it('checks cache and returns if present', function(){
+                search.cache.foo = {bar: 'baz'};
+                spyOn(search, 'updateStateForNewData');
+
+                search.requestDataForTerm('foo');
+
+                expect(search.updateStateForNewData.calls.count()).toEqual(1);
+                expect(search.updateStateForNewData.calls.argsFor(0)[0]).toEqual({bar: 'baz'});
+
+                search.requestDataForTerm('FOO');
+
+                expect(search.updateStateForNewData.calls.count()).toEqual(2);
+                expect(search.updateStateForNewData.calls.argsFor(1)[0]).toEqual({bar: 'baz'});
+
+                search.requestDataForTerm('FoO');
+
+                expect(search.updateStateForNewData.calls.count()).toEqual(3);
+                expect(search.updateStateForNewData.calls.argsFor(2)[0]).toEqual({bar: 'baz'});
+            });
+
+            it('calls abort on existing request if present', function(){
+                spyOn(RequestHandler, 'request').and.returnValue("foo");
+
+                search.outstandingRequest = {abort: jasmine.createSpy()};
+                search.requestDataForTerm('my term');
+
+                expect(search.outstandingRequest).toEqual("foo");
+            });
+
+            it('aborts existing request if present and makes new request', function(){
+                spyOn(RequestHandler, 'request');
+
+                search.requestDataForTerm('my term');
+
+                expect(RequestHandler.request).toHaveBeenCalled();
+                expect(RequestHandler.request.calls.argsFor(0)[0]).toEqual('/test/url');
+                expect(RequestHandler.request.calls.argsFor(0)[1]).toEqual({myTerm: 'my term'});
+
+                RequestHandler.request.calls.reset();
             });
         });
 
@@ -49,41 +111,63 @@ define(function(require) {
             });
         });
 
-        describe('componentWillUnmount function', function(){
-            it('unsubscribes from store', function(){
-                spyOn(SearchStore, 'removeListener');
-
-                search.componentWillUnmount();
-
-                expect(SearchStore.removeListener).toHaveBeenCalled();
-            });
-        });
-
         describe('onDataReceived function', function(){
             it('calls onError if no data is available', function(){
-                spyOn(SearchStore, 'getData').and.returnValue(null);
                 spyOn(search, 'onError');
                 spyOn(search, 'setState');
 
-                search.onDataReceived();
+                search.onDataReceived(null);
 
-                expect(SearchStore.getData).toHaveBeenCalledWith();
                 expect(search.onError).toHaveBeenCalledWith();
                 expect(search.setState.calls.count()).toEqual(0);
             });
 
-            it('calls setstate with data results', function(){
-                spyOn(SearchStore, 'getData').and.returnValue('foo');
-                spyOn(search, 'onError');
+            it('calls custom on data recieved handler', function(){
+                search.state.inputValue = "custom";
+                spyOn(search, 'updateStateForNewData');
+                spyOn(search, 'setState');
+                search.onDataReceived([{foo: 'bar'}]);
+
+                expect(onDataReceivedCallback).toHaveBeenCalledWith([{foo: 'bar'}], 'custom');
+                expect(search.cache.custom).toEqual([{foo: 'bar'}]);
+                expect(search.setState).toHaveBeenCalledWith({shownList: [{foo: 'bar'}]});
+                expect(search.updateStateForNewData).toHaveBeenCalledWith([{foo: 'bar'}]);
+
+                search.props.onDataReceived = null;
+                search.onDataReceived([{foo: 'bar'}]);
+                expect(search.setState.calls.count()).toEqual(1);
+            });
+
+            it('sorts data on response', function(){
+                search.props.isFullDataResponse = false;
+                search.props.onDataReceived = false;
+                search.sortMatchingEntries = "fake";
+                spyOn(search, 'setState');
+                var request = {
+                    length: 1,
+                    sort: jasmine.createSpy()
+                };
+
+                search.onDataReceived(request);
+                expect(request.sort).toHaveBeenCalledWith("fake");
+            });
+        });
+
+        describe('updateStateForNewData function', function(){
+            it('only sets state when full data response is false', function(){
                 spyOn(search, 'setState');
 
-                search.onDataReceived();
+                search.updateStateForNewData('foo');
+                expect(search.setState).toHaveBeenCalledWith({itemList: 'foo', disabled: false});
+            });
 
-                expect(SearchStore.getData).toHaveBeenCalledWith();
-                expect(search.onError.calls.count()).toEqual(0);
-                expect(search.setState.calls.count()).toEqual(1);
-                expect(search.setState.calls.allArgs()[0][0]).toBeObject();
-                expect(search.setState.calls.allArgs()[0][0].itemList).toEqual('foo');
+            it('edits additional properties when not a full data response', function(){
+                spyOn(search, 'setState');
+                search.props.isFullDataResponse = false;
+
+                search.updateStateForNewData('foo');
+                expect(search.setState).toHaveBeenCalledWith({itemList: 'foo', shownList: 'foo', disabled: false});
+                expect(search.currentFilteredList).toEqual('foo');
             });
         });
 
@@ -193,6 +277,15 @@ define(function(require) {
                 expect(search.getListOfMatchesForQuery).toHaveBeenCalledWith('search term');
                 expect(search.setState).toHaveBeenCalledWith({shownList: ['foo', 'bar']});
                 expect(search.currentFilteredList).toEqual(['foo', 'bar']);
+            });
+
+            it('makes reqeust for each change if not full data response', function(){
+                search.props.isFullDataResponse = false;
+                spyOn(search, 'requestDataForTerm');
+
+                search.onChange({target: {value: 'term'}});
+
+                expect(search.requestDataForTerm).toHaveBeenCalledWith('term');
             });
         });
 
@@ -381,34 +474,23 @@ define(function(require) {
         });
 
         describe('itemSelect', function(){
-            it('bails when no ID found', function(){
-                var getAttrSpy = jasmine.createSpy().and.returnValue(null);
-                var eventObj = {
-                    target: {
-                        innerText: 'item Name',
-                        getAttribute: getAttrSpy
-                    }
-                };
-
-                expect(search.itemSelect(eventObj)).toBeUndefined();
-            });
-
-            it('clears list and calls the searchSubmitCallback', function(){
+            it('clears list', function(){
+                search.props.onSelect = null;
                 spyOn(search, 'clearList');
-                spyOn(search.props, 'searchSubmitCallback');
 
-                var getAttrSpy = jasmine.createSpy().and.returnValue("10");
-                var eventObj = {
-                    target: {
-                        innerText: 'item Name',
-                        getAttribute: getAttrSpy
-                    }
-                };
-
-                search.itemSelect(eventObj);
+                search.itemSelect();
 
                 expect(search.clearList).toHaveBeenCalledWith(true);
-                expect(search.props.searchSubmitCallback).toHaveBeenCalled();
+            });
+
+            it('invokes onSelect when specified', function(){
+                var searchEvent = {
+                    foo: 'bar'
+                };
+
+                search.itemSelect(searchEvent);
+
+                expect(searchSubmitCallback).toHaveBeenCalledWith(searchEvent);
             });
         });
 
@@ -436,7 +518,7 @@ define(function(require) {
 
         describe('getAutocompleteComponents function', function(){
             it('adds markup for each item', function(){
-                search.state.shownList = [
+                var rowData = [
                     {
                         id: 10,
                         name: 'acme'
@@ -447,7 +529,7 @@ define(function(require) {
                     }
                 ];
 
-                var list = search.getAutocompleteComponents();
+                var list = search.getAutocompleteComponents(rowData);
                 expect(list).toBeArrayOfSize(2);
 
                 var firstItemItem = TestUtils.renderIntoDocument(list[0]),

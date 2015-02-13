@@ -95,7 +95,7 @@ define(function(require) {
                     break;
                 case 'search':
                     componentSet = (
-                        <Search url={'/test/search'} searchSubmitCallback={searchSubmitCallback} />
+                        <Search url={'/test/search'} onSelect={searchSubmitCallback} isFullDataResponse={true} minLength={1}/>
                     );
                     break;
                 case 'table':
