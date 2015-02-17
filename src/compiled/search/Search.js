@@ -121,7 +121,7 @@ define(function(require) {
          * @param {String} searchTerm Term searched on
          */
         requestDataForTerm: function(searchTerm){
-            var cachedData = this.cache[searchTerm.toLowerCase()];
+            var cachedData = this.cache[this.getSearchTermCacheKey(searchTerm)];
             if(cachedData){
                 this.updateStateForNewData(cachedData);
                 return;
@@ -163,7 +163,7 @@ define(function(require) {
             if(!this.props.isFullDataResponse && data.length){
                 data.sort(this.sortMatchingEntries);
             }
-            this.cache[this.state.inputValue.toLowerCase()] = data;
+            this.cache[this.getSearchTermCacheKey(this.state.inputValue)] = data;
             this.updateStateForNewData(data);
         },
 
@@ -236,6 +236,16 @@ define(function(require) {
                 return -1;
             }
             return 0;
+        },
+
+        /**
+         * Returns a modified cache key for the search term. Trims leading and trailing
+         * whitespace, replaces multiple spaces with a single, and lowercases the value.
+         * @param  {String} searchTerm User entered search term
+         * @return {String}            Cache key modified search term
+         */
+        getSearchTermCacheKey: function(searchTerm){
+            return _.trim(searchTerm.toLowerCase().replace(/\s{2,}/g, ' '));
         },
 
         /**
