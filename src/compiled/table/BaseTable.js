@@ -2,6 +2,7 @@ define(function(require) {
     'use strict';
 
     var DataMixins = require('drc/mixins/DataMixins');
+    var _ = require('lodash');
     var Moment = require('moment');
     var React = require('react');
     var TableActions = require('drc/table/TableActions');
