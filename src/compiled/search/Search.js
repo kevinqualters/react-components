@@ -216,10 +216,31 @@ define(function(require) {
          */
         sortMatchingEntries: function(a, b){
             //Put matches that are earliest in the string first
-            if(a.matchIndex > b.matchIndex){
+            var aMatchIndex = a.matchIndex,
+                bMatchIndex = b.matchIndex;
+
+            //Look at secondary index if neither item has a primary index
+            if(aMatchIndex === undefined && bMatchIndex === undefined){
+                aMatchIndex = a.secondaryMatchIndex;
+                bMatchIndex = b.secondaryMatchIndex;
+            }
+
+            //First check if either item doesn't match completely
+            if(bMatchIndex !== undefined && aMatchIndex === undefined){
                 return 1;
             }
-            if(a.matchIndex < b.matchIndex){
+            if(aMatchIndex !== undefined && bMatchIndex === undefined){
+                return -1;
+            }
+            if(aMatchIndex === undefined && bMatchIndex === undefined){
+                return 0;
+            }
+
+            //If they both match, take the one whose match appears earliest
+            if(aMatchIndex > bMatchIndex){
+                return 1;
+            }
+            if(aMatchIndex < bMatchIndex){
                 return -1;
             }
             //If match is at same location, put shorter strings first

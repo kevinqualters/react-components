@@ -268,6 +268,23 @@ define(function(require) {
                 expect(search.sortMatchingEntries({matchIndex: 1, name: 'abc'}, {matchIndex: 1, name: 'abc'})).toEqual(0);
                 expect(search.sortMatchingEntries({matchIndex: 1, name: 'a'}, {matchIndex: 1, name: 'a'})).toEqual(0);
             });
+
+            it('returns items with a match index above those without', function(){
+                expect(search.sortMatchingEntries({name: 'abc'}, {matchIndex: 1, name: 'abc'})).toEqual(1);
+                expect(search.sortMatchingEntries({matchIndex: 1, name: 'abc'}, {name: 'abc'})).toEqual(-1);
+                expect(search.sortMatchingEntries({name: 'abc'}, {name: 'abc'})).toEqual(0);
+            });
+
+            it('prefers primary match index over secondary', function(){
+                expect(search.sortMatchingEntries({secondaryMatchIndex: 0, name: 'abc'}, {matchIndex: 1, name: 'abc'})).toEqual(1);
+                expect(search.sortMatchingEntries({matchIndex: 0, name: 'abc'}, {secondaryMatchIndex: 1, name: 'abc'})).toEqual(-1);
+            });
+
+            it('uses secondary index if neither has a primary', function(){
+                expect(search.sortMatchingEntries({secondaryMatchIndex: 0, name: 'abc'}, {secondaryMatchIndex: 1, name: 'abc'})).toEqual(-1);
+                expect(search.sortMatchingEntries({secondaryMatchIndex: 1, name: 'abc'}, {secondaryMatchIndex: 0, name: 'abc'})).toEqual(1);
+                expect(search.sortMatchingEntries({secondaryMatchIndex: 0, name: 'abc'}, {secondaryMatchIndex: 0, name: 'abc'})).toEqual(0);
+            });
         });
 
         describe('onChange function', function(){
