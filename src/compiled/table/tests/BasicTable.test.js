@@ -84,11 +84,13 @@ define(function(require) {
                 dataProperty: 'string',
                 dataType: 'string',
                 hoverProperty: 'string',
-                sortDirection: 'ascending'
+                sortDirection: 'ascending',
+                quickFilter: 'true'
             },
             {
                 dataProperty: 'integer',
-                sortDirection: 'descending'
+                sortDirection: 'descending',
+                quickFilter: 'true'
             },
             {
                 dataProperty: 'mixedCase',
@@ -98,17 +100,20 @@ define(function(require) {
             {
                 dataProperty: 'time',
                 dataType: 'time',
-                sortDirection: 'ascending'
+                sortDirection: 'ascending',
+                quickFilter: 'true'
             },
             {
                 dataProperty: 'percent',
                 dataType: 'percent',
-                sortDirection: 'descending'
+                sortDirection: 'descending',
+                quickFilter: 'true'
             },
             {
                 dataProperty: 'status',
                 dataType: 'status',
-                sortDirection: 'off'
+                sortDirection: 'off',
+                quickFilter: 'true'
             }
         ];
         var sortColIndex = 0;

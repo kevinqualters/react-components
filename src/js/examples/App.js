@@ -13,7 +13,6 @@ define(function(require) {
             {
                 headerLabel: 'NAME',
                 dataProperty: 'name',
-                hoverProperty: 'username',
                 sortDirection: 'ascending',
                 dataType: 'string',
                 width: '25%',
@@ -49,6 +48,7 @@ define(function(require) {
                 dataProperty: 'lastMessage',
                 sortDirection: 'descending',
                 dataType: 'status',
+                onlineLimit: 4,
                 timeFormat: 'MMM Do, h:mm A',
                 width: '30%',
                 quickFilter: true

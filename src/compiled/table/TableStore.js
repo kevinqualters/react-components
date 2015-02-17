@@ -11,13 +11,13 @@ define(function(require) {
 
     /**
      * A Table requires a definition to operate upon. The table definition requires a url for requesting
-     * data and an array of cols (column definitions). an object in the cols array requires a headerLabel,
+     * data and an array of cols (column definitions). An object in the cols array requires a headerLabel,
      * dataProperty, and a percentage width. The Table may also receive a sortColIndex which adds required
      * fields to the cols objects of sortDirection (ascending/descending) and dataType (string, number,
-     * percent, or time). The table definition may also include a pagination object with two required
+     * percent, time, or status). The table definition may also include a pagination object with two required
      * properties (cursor - the starting index and size - number of lines per page).
-     * @param {string} id - The unique identifier of the Tab instance.
-     * @param {object} definition - A defined table.
+     * @param {String} id - The unique identifier of the Table instance.
+     * @param {Object} definition - A defined table.
      * @constructor
      */
     var Table = function(id, definition) {
@@ -36,7 +36,7 @@ define(function(require) {
     Table.prototype = {
         /**
          * Triggered when data is received correctly from the server.
-         * @param {object} data - The data retrieved from the server for the Table instance.
+         * @param {Object} data - The data retrieved from the server for the Table instance.
          */
         onDataReceived: function(data) {
             this.data = _.values(data);
@@ -49,17 +49,21 @@ define(function(require) {
 
             // Run data through built in data formatters.
             _.forEach(this.cols, function(col) {
+                // Default to 15 minutes if the onlineLimit for the col was not set or was set incorrectly.
+                if (typeof col.onlineLimit !== 'number' || col.onlineLimit < 1) {
+                    col.onlineLimit = 15;
+                }
                 _.forEach(data, function(item) {
                     if (col.dataType === 'percent') {
-                        item[col.dataProperty] = item[col.dataProperty] + '%';
+                        item[col.dataProperty] += '%';
                     }
-                    else if (col.dataType === 'time' || col.dataType == 'status') {
-                        var online = Moment(item[col.dataProperty]).valueOf() > Moment(Date.now()).subtract(15, 'minutes').valueOf();
-
-                        if (col.dataType === 'status' && online) {
-                            item['online'] = true;
+                    else if (col.dataType === 'time' || col.dataType === 'status') {
+                        if (col.dataType === 'status') {
+                            item.online = Moment(item[col.dataProperty]).valueOf() > Moment(Date.now()).subtract(col.onlineLimit, 'minutes').valueOf();
                         }
 
+                        // Need to keep track of the original timestamp for column sorting to work properly.
+                        item[col.timestamp] = item[col.dataProperty];
                         item[col.dataProperty] = item[col.dataProperty] ? Moment(item[col.dataProperty]).format(col.timeFormat) : '--';
                     }
                 });
@@ -79,18 +83,18 @@ define(function(require) {
 
         /**
          * Retrieves the data for the table (also triggers pagination).
-         * @returns {array} - A paginated subset of Table.data or just Table.data.
+         * @returns {Array} - A potentially filtered and paginated subset of table data.
          */
         getData: function() {
             var data = _.clone(this.data);
             this.dataCount = data.length;
 
             if (this.filterValue) {
-                data = this.filterData(data, this.filterValue);
+                data = this.filterData(data);
             }
 
             if (this.pagination) {
-                return this.sliceData(data, this.pagination);
+                return this.sliceData(data);
             }
 
             return data;
@@ -98,7 +102,7 @@ define(function(require) {
 
         /**
          * Retrieves the number of data rows that need to be inserted into the table.
-         * @returns {number} - The length of the Table.data array.
+         * @returns {Number} - The number of table data elements.
          */
         getDataCount: function() {
             return this.dataCount;
@@ -106,7 +110,7 @@ define(function(require) {
 
         /**
          * Retrieves the column definitions for the table.
-         * @returns {array} An array of objects Table.cols originally defined in the table's definition.
+         * @returns {Array} An array of objects that define table columns originally defined in the table definition.
          */
         getColDefinitions: function() {
             return this.cols;
@@ -114,15 +118,15 @@ define(function(require) {
 
         /**
          * Retrieves the column index that the table is set to be sorting off of.
-         * @returns {number} - Table.sortColIndex originally defined in the table's definition.
+         * @returns {Number} - Table.sortColIndex originally defined in the table's definition.
          */
         getSortColIndex: function() {
             return this.sortColIndex;
         },
 
         /**
-         * Retrieves an actionType and callback function to use for table row clicks.
-         * @returns {object} - Contains properties used in the row click handler of the table component.
+         * Retrieves a rowClick object for the Table.
+         * @returns {Object} - Contains properties used in the row click handler of the table component.
          */
         getRowClickData: function() {
             return this.rowClick;
@@ -136,11 +140,21 @@ define(function(require) {
             return this.pagination;
         },
 
+        /**
+         * Sets the value used for filtering the Table.
+         * @param {String|Number} value - The string or number used to filter out table rows that are not a match.
+         */
         setFilterValue: function(value) {
             this.filterValue = value;
         },
 
-        filterData: function(data, value) {
+        /**
+         * Filters out table data that does not match the filter value for table cols that have quickFilter set to true.
+         * @param {Array} data - Cloned Table.data.
+         * @returns {Array} - The subset of data that matches the filter value.
+         */
+        filterData: function(data) {
+            var value = this.filterValue;
             var filteredData = [];
             var matches;
 
@@ -166,7 +180,7 @@ define(function(require) {
 
         /**
          * Moves the cursor forwards or backwards through paginated data.
-         * @param {string} direction - the direction paginate (right or left).
+         * @param {String} direction - the direction paginate (right or left).
          */
         paginate: function(direction) {
             var size = this.pagination.size;
@@ -182,25 +196,31 @@ define(function(require) {
 
         /**
          * Returns a subset of data for pagination.
-         * @param {object} data - The data retrieved from the server for the Table instance.
-         * @param {object} pagination - The Table's pagination object containing cursor and size.
-         * @returns {array} - A paginated slice of Table.data.
+         * @param {Object} data - The data retrieved from the server for the Table instance after formatting has occurred.
+         * @returns {Array} - A paginated subset of table data.
          */
-        sliceData: function(data, pagination) {
-            return data.slice(pagination.cursor, pagination.cursor + pagination.size);
+        sliceData: function(data) {
+            return data.slice(this.pagination.cursor, this.pagination.cursor + this.pagination.size);
         },
 
         /**
          * Sorts the array of data for the Table based on the sort column index and the direction.
-         * @param {number} colIndex - The index of the table column that is to sorted.
-         * @param {string} direction - The direction to sort (ascending or descending).
+         * @param {Number} colIndex - The index of the table column that is to sorted.
+         * @param {String} direction - The direction to sort (ascending or descending).
          */
         sortData: function(colIndex, direction) {
             this.sortColIndex = colIndex;
             this.cols[colIndex].sortDirection = direction;
 
             var dataType = this.cols[this.sortColIndex].dataType;
-            var key = this.cols[this.sortColIndex].dataProperty;
+            var key;
+
+            if (dataType === 'time' || dataType === 'status') {
+                key = this.cols[this.sortColIndex].timestamp;
+            }
+            else {
+                key = this.cols[this.sortColIndex].dataProperty;
+            }
 
             if (this.pagination) {
                 this.resetPagination();
@@ -214,7 +234,7 @@ define(function(require) {
                     first = first.toLowerCase();
                     second = second.toLowerCase();
                 }
-                if (dataType === 'time') {
+                if (dataType === 'time' || dataType === 'status') {
                     first = first ? first : 0;
                     second = second ? second : 0;
                 }
@@ -238,8 +258,8 @@ define(function(require) {
 
         /**
          * Creates an instance of Table.
-         * @param {string} id - The unique identifier used to access the Table instance.
-         * @param {string} definition - A defined Table.
+         * @param {String} id - The unique identifier used to access the Table instance.
+         * @param {String} definition - A defined Table.
          */
         createInstance: function(id, definition) {
             this.collection[id] = new Table(id, definition);
@@ -247,7 +267,7 @@ define(function(require) {
 
         /**
          * Destroys an instance of Table.
-         * @param {string} id - The unique identifier of the Table instance to be deleted.
+         * @param {String} id - The unique identifier of the Table instance to be destroyed.
          */
         destroyInstance: function(id) {
             delete this.collection[id];
@@ -255,8 +275,8 @@ define(function(require) {
 
         /**
          * Retrieves the data for the table (also triggers pagination).
-         * @param {string} id - The unique identifier of the Table instance to request data for.
-         * @returns {array|null} - Table.data or null if data hasn't been received from the server yet.
+         * @param {String} id - The unique identifier of the Table instance to request data for.
+         * @returns {Array|Null} - Table.data or null if data hasn't been received from the server yet.
          */
         getData: function(id) {
             return this.collection[id].getData();
@@ -264,8 +284,8 @@ define(function(require) {
 
         /**
          * Retrieves the number of data rows that need to be inserted into the table.
-         * @param {string} id - The unique identifier of the Table instance to get a data count for.
-         * @returns {number} - The length of the Table.data array.
+         * @param {String} id - The unique identifier of the Table instance to get a data count for.
+         * @returns {Number} - The length of the Table.data array.
          */
         getDataCount: function(id) {
             return this.collection[id].getDataCount();
@@ -273,8 +293,8 @@ define(function(require) {
 
         /**
          * Retrieves the column definitions for the table.
-         * @param {string} id - The unique identifier of the Table instance to get the column definition for.
-         * @returns {array} - List of column objects containing key information to render the table.
+         * @param {String} id - The unique identifier of the Table instance to get the column definition for.
+         * @returns {Array} - List of column objects containing key information to render the table.
          */
         getColDefinitions: function(id) {
             return this.collection[id].getColDefinitions();
@@ -282,8 +302,8 @@ define(function(require) {
 
         /**
          * Retrieves the column index that the table is set to be sorting off of.
-         * @param {string} id - The unique identifier of the Table instance to get the sorting column index for.
-         * @returns {number} - The Table.sortColIndex.
+         * @param {String} id - The unique identifier of the Table instance to get the sorting column index for.
+         * @returns {Number} - The Table.sortColIndex.
          */
         getSortColIndex: function(id) {
             return this.collection[id].getSortColIndex();
@@ -291,8 +311,8 @@ define(function(require) {
 
         /**
          * Retrieves a value representing if table rows are clickable (for style and behavior).
-         * @param {string} id - The unique identifier of the Table instance to get row click data for.
-         * @returns {object} - Contains properties used in the row click handler of the table component.
+         * @param {String} id - The unique identifier of the Table instance to get row click data for.
+         * @returns {Object} - Contains properties used in the row click handler of the table component.
          */
         getRowClickData: function(id) {
             return this.collection[id].getRowClickData();
@@ -300,21 +320,26 @@ define(function(require) {
 
         /**
          * Retrieves the pagination data for the table. This includes cursor and size.
-         * @param {string} id - The unique identifier of the Table instance to request pagination data for.
+         * @param {String} id - The unique identifier of the Table instance to request pagination data for.
          * @returns {{cursor: number, size:number}}
          */
         getPaginationData: function(id) {
             return this.collection[id].getPaginationData();
         },
 
+        /**
+         * Sets the value used for filtering a Table instance.
+         * @param {String} id - The unique identifier of the Table instance to request filtering data for.
+         * @param {String|Number} value - The string or number used to filter out table rows that are not a match.
+         */
         setFilterValue: function(id, value) {
             this.collection[id].setFilterValue(value);
         },
 
         /**
          * Moves the cursor forwards or backwards through paginated data.
-         * @param {string} id - The unique identifier of the Table instance to paginate.
-         * @param {string} direction - the direction paginate (right or left).
+         * @param {String} id - The unique identifier of the Table instance to paginate.
+         * @param {String} direction - the direction paginate (right or left).
          */
         paginate: function(id, direction) {
             this.collection[id].paginate(direction);
@@ -322,9 +347,9 @@ define(function(require) {
 
         /**
          * Sorts the array of data for the Table based on the sort column index and the direction.
-         * @param {string} id - The unique identifier of the Table instance to be sorted.
-         * @param {number} colIndex - The index of the table column that is to sorted.
-         * @param {string} direction - The direction to sort (ascending or descending).
+         * @param {String} id - The unique identifier of the Table instance to be sorted.
+         * @param {Number} colIndex - The index of the table column that is to sorted.
+         * @param {String} direction - The direction to sort (ascending or descending).
          */
         sortData: function(id, colIndex, direction) {
             this.collection[id].sortData(colIndex, direction);
@@ -332,7 +357,7 @@ define(function(require) {
 
         /**
          * Handles all events sent from the dispatcher. Filters out to only those sent via the Table
-         * @param {object} payload - Contains action details.
+         * @param {Object} payload - Contains action details.
          */
         dispatchRegister: function(payload) {
             var action = payload.action;

@@ -26,7 +26,7 @@ define(function(require) {
         ],
 
         getInitialState: function() {
-            this.quickFilterEnabled = _.find(this.props.definition.cols, function(col) {return col.quickFilter === true;}) ? true : false;
+            this.quickFilterEnabled = _.some(this.props.definition.cols, function(col) {return col.quickFilter === true;}) ? true : false;
 
             return {
                 loading: true,
@@ -261,7 +261,7 @@ define(function(require) {
             var cx = React.addons.classSet;
             var afterIcon, statusIconClasses;
 
-            if (meta.dataType == 'status') {
+            if (meta.dataType === 'status') {
                 statusIconClasses = cx({
                     'fa': true,
                     'fa-circle': this.state.data[index].online,
