@@ -116,7 +116,7 @@ define(function(require) {
 
         getQuickFilter: function() {
             if (!this.quickFilterEnabled) {
-                 return null;
+                return null;
             }
 
             return <input ref="filter" className="quick-filter" type="text" placeholder={this.props.quickFilterPlaceholder} onChange={this.handleQuickFilterChange} />;
