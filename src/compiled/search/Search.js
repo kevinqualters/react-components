@@ -20,6 +20,7 @@ define(function(require) {
             placeholder:        React.PropTypes.string,
             onDataReceived:     React.PropTypes.func,
             onSelect:           React.PropTypes.func,
+            onInputSubmit:      React.PropTypes.func,
             rowFormatter:       React.PropTypes.func
         },
 
@@ -121,7 +122,7 @@ define(function(require) {
          * @param {String} searchTerm Term searched on
          */
         requestDataForTerm: function(searchTerm){
-            var cachedData = this.cache[searchTerm.toLowerCase()];
+            var cachedData = this.cache[this.getSearchTermCacheKey(searchTerm)];
             if(cachedData){
                 this.updateStateForNewData(cachedData);
                 return;
@@ -163,7 +164,7 @@ define(function(require) {
             if(!this.props.isFullDataResponse && data.length){
                 data.sort(this.sortMatchingEntries);
             }
-            this.cache[this.state.inputValue.toLowerCase()] = data;
+            this.cache[this.getSearchTermCacheKey(this.state.inputValue)] = data;
             this.updateStateForNewData(data);
         },
 
@@ -239,6 +240,16 @@ define(function(require) {
         },
 
         /**
+         * Returns a modified cache key for the search term. Trims leading and trailing
+         * whitespace, replaces multiple spaces with a single, and lowercases the value.
+         * @param  {String} searchTerm User entered search term
+         * @return {String}            Cache key modified search term
+         */
+        getSearchTermCacheKey: function(searchTerm){
+            return _.trim(searchTerm.toLowerCase().replace(/\s{2,}/g, ' '));
+        },
+
+        /**
          * Change handler for input element. Causes item list to update
          * and display
          * @param  {Object} event Input change event
@@ -290,8 +301,8 @@ define(function(require) {
          * @param  {Object} event Event object
          */
         onInputKeyPress: function(event){
-            //We only care about key down (40) and escape (27)
-            if(!event.keyCode || (event.keyCode !== 40 && event.keyCode !== 27)){
+            //We only care about key down (40), escape (27), and enter (13)
+            if(!event.keyCode || (event.keyCode !== 40 && event.keyCode !== 27 && event.keyCode !== 13)){
                 return;
             }
             event.preventDefault();
@@ -299,6 +310,9 @@ define(function(require) {
                 this.focusNext();
             }
             else{
+                if(event.keyCode === 13 && this.props.onInputSubmit){
+                    this.props.onInputSubmit(this.state.inputValue);
+                }
                 this.currentFilteredList = [];
                 this.setState({shownList: [], inputValue: ''});
             }
@@ -398,7 +412,7 @@ define(function(require) {
          */
         itemSelect: function(event) {
             if (this.props.onSelect) {
-                this.props.onSelect(event);
+                this.props.onSelect(event, this.state.inputValue);
             }
 
             this.clearList(true);
