@@ -1,4 +1,5 @@
 define(function(require) {
+    var Moment = require('moment');
     var TableActions = require('drc/table/TableActions');
     var TableStore = require('drc/table/TableStore');
     var Utils = require('drc/utils/Utils');
@@ -18,11 +19,14 @@ define(function(require) {
                 {
                     dataProperty: 'string',
                     dataType: 'string',
-                    sortDirection: 'ascending'
+                    sortDirection: 'ascending',
+                    quickFilter: true
                 },
                 {
                     dataProperty: 'integer',
-                    sortDirection: 'descending'
+                    dataType: 'number',
+                    sortDirection: 'descending',
+                    quickFilter: true
                 },
                 {
                     dataProperty: 'mixedCase',
@@ -32,17 +36,32 @@ define(function(require) {
                 {
                     dataProperty: 'time',
                     dataType: 'time',
-                    sortDirection: 'ascending'
+                    timeFormat: 'MMM Do, h A',
+                    sortDirection: 'ascending',
+                    quickFilter: true
+                },
+                {
+                    dataProperty: 'percent',
+                    dataType: 'percent',
+                    sortDirection: 'descending',
+                    quickFilter: true
+                },
+                {
+                    dataProperty: 'status',
+                    dataType: 'status',
+                    timeFormat: 'MMM Do, h A',
+                    sortDirection: 'descending',
+                    quickFilter: true
                 }
             ];
             definition.data = [
-                {string: 'aaa', integer: -2, mixedCase: 'Aaa', time: 1417455952},
-                {string: 'b', integer: 3, mixedCase: 'B'},
-                {string: 'a', integer: 0, mixedCase: 'a', time: 1416591981},
-                {string: 'aa', integer: 2, mixedCase: 'Aa', time: 1417715098},
-                {string: 'aab', integer: -1, mixedCase: 'aAb'},
-                {string: 'ab', integer: 1, mixedCase: 'aB'},
-                {string: 'aba', integer: 1, mixedCase: 'aBA', time: 1406479597}
+                {string: 'aaa', integer: -2, mixedCase: 'Aaa', time: 1417455952, percent: 14, status: 1417455952},
+                {string: 'b', integer: 3, mixedCase: 'B', percent: 14},
+                {string: 'a', integer: 0, mixedCase: 'a', time: 1416591981, percent: 43, status: 1416591981},
+                {string: 'aa', integer: 2, mixedCase: 'Aa', time: 1417715098, percent: 78, status: 1417715098},
+                {string: 'aab', integer: -1, mixedCase: 'aAb', percent: 13},
+                {string: 'ab', integer: 1, mixedCase: 'aB', percent: 76},
+                {string: 'aba', integer: 1, mixedCase: 'aBA', time: 1406479597, percent: 99, status: 1406479597}
             ];
             definition.pagination = {
                 cursor: 3,
@@ -60,6 +79,7 @@ define(function(require) {
             });
 
             describe('onDataReceived function', function() {
+                var origDefinition = _.clone(definition);
                 var val = 'data';
                 var val2 = 'data2';
                 var data = [{test: val}, {test2: val2}];
@@ -81,10 +101,84 @@ define(function(require) {
                     delete table.dataFormatter;
                 });
 
+                describe('percent formatter', function() {
+                    it('should correctly format a percent dataType', function() {
+                        table.onDataReceived(definition.data);
+
+                        expect(table.data[0].percent).toEqual('43%');
+                    });
+                });
+
+                describe('time formatter', function() {
+                    it('should format the time and keep track of the original timestamp', function() {
+                        table.onDataReceived(definition.data);
+
+                        expect(table.data[0].time).toBeNonEmptyString();
+                        expect(table.data[0].timestamp).toEqual(1416591981);
+                    });
+                });
+
+                describe('status formatter', function() {
+                    it('should set a default onlineLimit if the column is a status column and the onlineLimit was not set', function() {
+                        table.onDataReceived(definition.data);
+
+                        expect(table.cols[5].onlineLimit).toEqual(15);
+                    });
+
+                    it('should set a default onlineLimit if the column is a status column and the onlineLimit is not a number', function() {
+                        definition.cols[5].onlineLimit = '5';
+                        table.onDataReceived(definition.data);
+
+                        expect(table.cols[5].onlineLimit).toEqual(15);
+                    });
+
+                    it('should set a default onlineLimit if the column is a status column and the onlineLimit is not greater than 1', function() {
+                        definition.cols[5].onlineLimit = 0.5;
+                        table.onDataReceived(definition.data);
+
+                        expect(table.cols[5].onlineLimit).toEqual(15);
+                    });
+
+                    it('should use the set onlineLimit if the column is a status column and the onlineLimit was set correctly', function() {
+                        definition.cols[5].onlineLimit = 5;
+                        table.onDataReceived(definition.data);
+
+                        expect(table.cols[5].onlineLimit).toEqual(5);
+                    });
+
+                    it('should correctly format the time and keep track of the original timestamp', function() {
+                        table.onDataReceived(definition.data);
+
+                        expect(table.data[0].status).toBeNonEmptyString();
+                        expect(table.data[0].timestamp).toEqual(1416591981);
+                    });
+
+                    it('should set the online attribute of a data element to true if the time is within the onlineLimit', function() {
+                        definition.cols[5].onlineLimit = 15;
+                        definition.data[0].status = Moment().subtract(1, 'minutes').valueOf();
+                        spyOn(table, 'sortData');
+                        table.onDataReceived(definition.data);
+
+                        expect(table.data[0].online).toBeTruthy();
+                    });
+
+                    it('should set the online attribute of a data element to true if the time is not within the onlineLimit', function() {
+                        definition.cols[5].onlineLimit = 15;
+                        definition.data[0].status = Moment().subtract(16, 'minutes').valueOf();
+                        spyOn(table, 'sortData');
+                        table.onDataReceived(definition.data);
+
+                        expect(table.data[0].online).toBeFalsy();
+                    });
+                });
+
                 it('should not error if there is not a sortColIndex defined', function() {
                     table.sortColIndex = null;
                     expect(function(){table.onDataReceived(data);}).not.toThrow();
                 });
+
+                // Reset definition
+                definition = _.clone(origDefinition);
             });
 
             describe('errorFunction function', function() {
@@ -104,6 +198,17 @@ define(function(require) {
                     table.onDataReceived(data);
                     result = table.getData();
                     expect(result[0].test).toEqual(val);
+                });
+
+                it('should attempt to filter the data', function() {
+                    var filterVal = 'testFilter';
+                    spyOn(table, 'filterData').and.callThrough();
+                    table.filterValue = filterVal;
+                    table.onDataReceived(data);
+
+                    table.getData();
+
+                    expect(table.filterData).toHaveBeenCalled();
                 });
 
                 it('should not error if there is not a pagination object defined', function() {
@@ -174,6 +279,33 @@ define(function(require) {
 
                     expect(table.getPaginationData()).toEqual(pagination);
                 });
+            });
+
+            describe('filterData function', function() {
+                var origDefinition = _.clone(definition);
+
+                beforeEach(function() {
+                    definition.cols[0].quickFilter = true;
+                    definition.cols[1].quickFilter = true;
+
+                    table.onDataReceived(definition.data);
+                    expect(table.data.length).toEqual(7);
+                });
+
+                it('should filter data for each column that has quickFilter set to true and set the dataCount', function() {
+                    table.filterValue = 'a';
+                    expect(table.filterData(definition.data).length).toEqual(6);
+                    expect(table.dataCount).toEqual(6);
+                });
+
+                it('should filter data for each column that has quickFilter set to true and set the dataCount', function() {
+                    table.filterValue = 4;
+                    expect(table.filterData(definition.data).length).toEqual(3);
+                    expect(table.dataCount).toEqual(3);
+                });
+
+                // Reset definition
+                definition = _.clone(origDefinition);
             });
 
             describe('paginate function', function() {
@@ -449,6 +581,15 @@ define(function(require) {
             });
         });
 
+        describe('setFilterValue function', function() {
+            it('should set the filter value for the table instance', function() {
+                var val = 'testFilter';
+                TableStore.setFilterValue(id, val);
+
+                expect(TableStore.collection[id].filterValue).toEqual(val);
+            });
+        });
+
         describe('paginate function', function() {
             it('should trigger the paginate function for the table instance', function() {
                 var direction = 'ascending';
@@ -530,6 +671,26 @@ define(function(require) {
                 TableStore.dispatchRegister(payload);
 
                 expect(TableStore.sortData).toHaveBeenCalledWith(payload.action.id, payload.action.data.colIndex, payload.action.data.direction);
+                expect(TableStore.emitChange).toHaveBeenCalledWith(payload.action.id);
+            });
+
+            it('should call the filter function and emit a change when the action is requesting that the table be filtered', function() {
+                var payload = {
+                    action: {
+                        actionType: ActionTypes.FILTER,
+                        component: 'Table',
+                        id: 'testId',
+                        data: {
+                            value: 'testValue'
+                        }
+                    }
+                };
+
+                spyOn(TableStore, 'setFilterValue');
+                spyOn(TableStore, 'emitChange');
+                TableStore.dispatchRegister(payload);
+
+                expect(TableStore.setFilterValue).toHaveBeenCalledWith(payload.action.id, payload.action.data.value);
                 expect(TableStore.emitChange).toHaveBeenCalledWith(payload.action.id);
             });
 

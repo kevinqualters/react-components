@@ -50,7 +50,7 @@ define(function(require) {
             // Run data through built in data formatters.
             _.forEach(this.cols, function(col) {
                 // Default to 15 minutes if the onlineLimit for the col was not set or was set incorrectly.
-                if (typeof col.onlineLimit !== 'number' || col.onlineLimit < 1) {
+                if (col.dataType === 'status' && (typeof col.onlineLimit !== 'number' || col.onlineLimit < 1)) {
                     col.onlineLimit = 15;
                 }
                 _.forEach(data, function(item) {
@@ -162,7 +162,7 @@ define(function(require) {
                 if (col.quickFilter) {
                     matches = _.remove(data, function(item) {
                         if (typeof item[col.dataProperty] === 'string') {
-                            return item[col.dataProperty].toLowerCase().indexOf(value.toLowerCase()) !== -1;
+                            return item[col.dataProperty].toLowerCase().indexOf(value.toString().toLowerCase()) !== -1;
                         }
                         else if (typeof item[col.dataProperty] === 'number') {
                             return item[col.dataProperty].toString().indexOf(value.toString()) !== -1;
