@@ -102,12 +102,16 @@ define(function(require) {
         });
 
         describe('onError function', function(){
-            it('calls setState', function(){
+            it('calls setState if props are correct', function(){
                 spyOn(search, 'setState');
-
+                search.props.isFullDataResponse = true;
                 search.onError();
 
                 expect(search.setState).toHaveBeenCalledWith({placeholder: 'Unable to load list', disabled: true});
+
+                search.props.isFullDataResponse = false;
+                search.onError();
+                expect(search.setState.calls.count()).toEqual(1);
             });
         });
 

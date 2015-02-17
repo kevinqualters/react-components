@@ -138,12 +138,13 @@ define(function(require) {
         },
 
         /**
-         * Error handler for failed request. Updates failure message and sets
-         * input to be disabled
-         * @return {[type]} [description]
+         * Error handler for failed request. Updates failure message and sets input to be disabled if full
+         * data response prop is set. Otherwise does nothing and essentially just disables autocomplete.
          */
         onError: function(){
-            this.setState({placeholder: 'Unable to load list', disabled: true});
+            if(this.props.isFullDataResponse){
+                this.setState({placeholder: 'Unable to load list', disabled: true});
+            }
         },
 
         /**
