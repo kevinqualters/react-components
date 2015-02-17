@@ -491,10 +491,11 @@ define(function(require) {
                 var searchEvent = {
                     foo: 'bar'
                 };
+                search.state.inputValue = "search term";
 
                 search.itemSelect(searchEvent);
 
-                expect(searchSubmitCallback).toHaveBeenCalledWith(searchEvent);
+                expect(searchSubmitCallback).toHaveBeenCalledWith(searchEvent, "search term");
             });
         });
 

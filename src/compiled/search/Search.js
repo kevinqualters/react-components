@@ -408,7 +408,7 @@ define(function(require) {
          */
         itemSelect: function(event) {
             if (this.props.onSelect) {
-                this.props.onSelect(event);
+                this.props.onSelect(event, this.state.inputValue);
             }
 
             this.clearList(true);
