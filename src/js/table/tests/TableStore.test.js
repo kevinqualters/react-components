@@ -299,9 +299,9 @@ define(function(require) {
                 });
 
                 it('should filter data for each column that has quickFilter set to true and set the dataCount', function() {
-                    table.filterValue = 4;
-                    expect(table.filterData(definition.data).length).toEqual(3);
-                    expect(table.dataCount).toEqual(3);
+                    table.filterValue = 14;
+                    expect(table.filterData(definition.data).length).toEqual(2);
+                    expect(table.dataCount).toEqual(2);
                 });
 
                 // Reset definition
