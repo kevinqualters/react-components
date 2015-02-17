@@ -9,11 +9,20 @@ define(function(require) {
         var search;
         var searchSubmitCallback;
         var onDataReceivedCallback;
+        var onInputSubmitCallback;
 
         beforeEach(function() {
             searchSubmitCallback = jasmine.createSpy();
             onDataReceivedCallback = jasmine.createSpy().and.returnValue([{foo: 'bar'}]);
-            search = TestUtils.renderIntoDocument(<Search onSelect={searchSubmitCallback} onDataReceived={onDataReceivedCallback} url="/test/url" isFullDataResponse={true} searchFilterName="myTerm"/>);
+            onInputSubmitCallback = jasmine.createSpy();
+            search = TestUtils.renderIntoDocument(
+                <Search onSelect={searchSubmitCallback}
+                        onDataReceived={onDataReceivedCallback}
+                        url="/test/url"
+                        isFullDataResponse={true}
+                        searchFilterName="myTerm"
+                        onInputSubmit={onInputSubmitCallback}/>
+                );
         });
 
         describe('getInitialState function', function() {
@@ -342,12 +351,26 @@ define(function(require) {
                 expect(search.focusNext).toHaveBeenCalledWith();
                 expect(search.setState.calls.count()).toEqual(0);
 
+                //Escape key press
                 eventObj.keyCode = 27;
 
                 search.onInputKeyPress(eventObj);
                 expect(preventDefaultSpy).toHaveBeenCalledWith();
                 expect(search.currentFilteredList).toEqual([]);
                 expect(search.setState).toHaveBeenCalledWith({shownList: [], inputValue: ''});
+
+                //Enter key press
+                eventObj.keyCode = 13;
+                search.state.inputValue = "search term";
+                search.setState.calls.reset();
+                preventDefaultSpy.calls.reset();
+
+                search.onInputKeyPress(eventObj);
+
+                expect(preventDefaultSpy).toHaveBeenCalledWith();
+                expect(search.currentFilteredList).toEqual([]);
+                expect(search.setState).toHaveBeenCalledWith({shownList: [], inputValue: ''});
+                expect(onInputSubmitCallback).toHaveBeenCalledWith("search term");
             });
         });
 

@@ -20,6 +20,7 @@ define(function(require) {
             placeholder:        React.PropTypes.string,
             onDataReceived:     React.PropTypes.func,
             onSelect:           React.PropTypes.func,
+            onInputSubmit:      React.PropTypes.func,
             rowFormatter:       React.PropTypes.func
         },
 
@@ -300,8 +301,8 @@ define(function(require) {
          * @param  {Object} event Event object
          */
         onInputKeyPress: function(event){
-            //We only care about key down (40) and escape (27)
-            if(!event.keyCode || (event.keyCode !== 40 && event.keyCode !== 27)){
+            //We only care about key down (40), escape (27), and enter (13)
+            if(!event.keyCode || (event.keyCode !== 40 && event.keyCode !== 27 && event.keyCode !== 13)){
                 return;
             }
             event.preventDefault();
@@ -309,6 +310,9 @@ define(function(require) {
                 this.focusNext();
             }
             else{
+                if(event.keyCode === 13 && this.props.onInputSubmit){
+                    this.props.onInputSubmit(this.state.inputValue);
+                }
                 this.currentFilteredList = [];
                 this.setState({shownList: [], inputValue: ''});
             }
