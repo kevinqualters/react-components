@@ -58,12 +58,12 @@ define(function(require) {
                         item[col.dataProperty] += '%';
                     }
                     else if (col.dataType === 'time' || col.dataType === 'status') {
-                        if (col.dataType === 'status') {
+                        if (col.dataType === 'status' && item[col.dataProperty]) {
                             item.online = Moment(item[col.dataProperty]).valueOf() > Moment(Date.now()).subtract(col.onlineLimit, 'minutes').valueOf();
                         }
 
                         // Need to keep track of the original timestamp for column sorting to work properly.
-                        item[col.timestamp] = item[col.dataProperty];
+                        item.timestamp = item[col.dataProperty] ? item[col.dataProperty] : null;
                         item[col.dataProperty] = item[col.dataProperty] ? Moment(item[col.dataProperty]).format(col.timeFormat) : '--';
                     }
                 });
@@ -216,7 +216,7 @@ define(function(require) {
             var key;
 
             if (dataType === 'time' || dataType === 'status') {
-                key = this.cols[this.sortColIndex].timestamp;
+                key = 'timestamp';
             }
             else {
                 key = this.cols[this.sortColIndex].dataProperty;

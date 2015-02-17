@@ -43,6 +43,26 @@ define(function(require) {
             });
         });
 
+        describe('filter function', function() {
+            it('should request that an action be dispatched', function() {
+                var id = 'testID';
+                var value = 'testFilter';
+
+                spyOn(AppDispatcher, 'handleViewAction');
+
+                TableActions.filter(id, value);
+
+                expect(AppDispatcher.handleViewAction).toHaveBeenCalledWith({
+                    actionType: ActionTypes.FILTER,
+                    component: 'Table',
+                    id: id,
+                    data: {
+                        value: value
+                    }
+                });
+            });
+        });
+
         describe('paginate function', function() {
             it('should request that an action be dispatched', function() {
                 var id = 'testID';

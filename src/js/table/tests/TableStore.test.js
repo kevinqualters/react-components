@@ -73,13 +73,11 @@ define(function(require) {
 
                 it('should call formatter if present', function() {
                     spyOn(table, 'sortData');
-                    table.dataFormatter = function(data) {
-                        data.push({test3: 'data3'});
-                        return data;
-                    };
+                    table.dataFormatter = function(data) {};
+                    spyOn(table, 'dataFormatter');
 
                     table.onDataReceived(data);
-                    expect(table.data).toEqual([{test: val}, {test2: val2}, {test3: 'data3'}]);
+                    expect(table.dataFormatter).toHaveBeenCalled();
                     delete table.dataFormatter;
                 });
 
@@ -110,6 +108,7 @@ define(function(require) {
 
                 it('should not error if there is not a pagination object defined', function() {
                     table.pagination = null;
+                    table.data = [];
                     expect(function(){table.getData();}).not.toThrow();
                 });
             });
@@ -217,12 +216,12 @@ define(function(require) {
                 it('should', function() {
                     var data = [0, 1, 2, 3, 4, 5];
 
-                    var pagination = {
+                    table.pagination = {
                         cursor: 2,
                         size: 2
                     };
 
-                    data = table.sliceData(data, pagination);
+                    data = table.sliceData(data);
 
                     expect(data.length).toEqual(2);
                     expect(data[0]).toEqual(2);
@@ -240,6 +239,7 @@ define(function(require) {
                         },
                         {
                             dataProperty: 'integer',
+                            dataType: 'number',
                             sortDirection: 'descending'
                         },
                         {
@@ -262,6 +262,11 @@ define(function(require) {
                         {string: 'ab', integer: 1, mixedCase: 'aB'},
                         {string: 'aba', integer: 1, mixedCase: 'aBA', time: 1406479597}
                     ];
+                    table.onDataReceived(table.data);
+                });
+
+                afterEach(function() {
+                    table.data = [];
                 });
 
                 it('should change the sort direction for the column index', function() {
@@ -355,24 +360,24 @@ define(function(require) {
 
                 it('should sort objects on a key with timestamps in ascending order if some timestamps are undefined', function() {
                     table.sortData(3, 'ascending');
-                    expect(table.data[0].time).toBeUndefined();
-                    expect(table.data[1].time).toBeUndefined();
-                    expect(table.data[2].time).toBeUndefined();
-                    expect(table.data[3].time).toEqual(1406479597);
-                    expect(table.data[4].time).toEqual(1416591981);
-                    expect(table.data[5].time).toEqual(1417455952);
-                    expect(table.data[6].time).toEqual(1417715098);
+                    expect(table.data[0].timestamp).toBeNull();
+                    expect(table.data[1].timestamp).toBeNull();
+                    expect(table.data[2].timestamp).toBeNull();
+                    expect(table.data[3].timestamp).toEqual(1406479597);
+                    expect(table.data[4].timestamp).toEqual(1416591981);
+                    expect(table.data[5].timestamp).toEqual(1417455952);
+                    expect(table.data[6].timestamp).toEqual(1417715098);
                 });
 
                 it('should sort objects on a key with timestamps in descending order if some timestamps are undefined', function() {
                     table.sortData(3, 'descending');
-                    expect(table.data[0].time).toEqual(1417715098);
-                    expect(table.data[1].time).toEqual(1417455952);
-                    expect(table.data[2].time).toEqual(1416591981);
-                    expect(table.data[3].time).toEqual(1406479597);
-                    expect(table.data[4].time).toBeUndefined();
-                    expect(table.data[5].time).toBeUndefined();
-                    expect(table.data[6].time).toBeUndefined();
+                    expect(table.data[0].timestamp).toEqual(1417715098);
+                    expect(table.data[1].timestamp).toEqual(1417455952);
+                    expect(table.data[2].timestamp).toEqual(1416591981);
+                    expect(table.data[3].timestamp).toEqual(1406479597);
+                    expect(table.data[4].timestamp).toBeNull();
+                    expect(table.data[5].timestamp).toBeNull();
+                    expect(table.data[6].timestamp).toBeNull();
                 });
             });
         });

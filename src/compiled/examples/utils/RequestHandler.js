@@ -8,7 +8,7 @@ define(function(require) {
         {"name": "Whitney Pecoraro", "messages": 315, "usage": 57, "lastLogin": 1423166411206, "lastMessage": 1423166411206},
         {"name": "Cleta Speno", "messages": 53, "usage": 45, "lastLogin": 1423063030181, "lastMessage": 1423063030181},
         {"name": "Fransisca Lakey", "messages": 5, "usage": 63, "lastLogin": 1423067858444, "lastMessage": 1423067858444},
-        {"name": "Dorie Valverde", "messages": 24, "usage": 12, "lastLogin": 1422846137772, "lastMessage": 1422846137772},
+        {"name": "Dorie Valverde", "messages": 24, "usage": 12, "lastLogin": 1422846137772},
         {"name": "Kasi Tubb", "messages": 4, "usage": 100, "lastLogin": 1423069784253, "lastMessage": 1423069784253},
         {"name": "Stella Needles", "messages": 4, "usage": 1, "lastLogin": 1422758245850, "lastMessage": 1422758245850},
         {"name": "Lory Borkholder", "messages": 4, "usage": 0, "lastLogin": 1423168675800, "lastMessage": 1423168675800},
