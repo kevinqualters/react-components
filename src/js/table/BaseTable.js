@@ -16,6 +16,7 @@ define(function(require) {
 
         getDefaultProps: function() {
             return {
+                noResultsText: 'No results found.',
                 quickFilterPlaceholder: 'Filter'
             };
         },
@@ -53,7 +54,7 @@ define(function(require) {
             }
 
             if (this.state.data && !this.state.data.length) {
-                noResults = <div className="no-results">There were no results that matched the selected range.</div>;
+                noResults = <div className="no-results">{this.props.noResultsText}</div>;
             }
 
             return (
