@@ -139,6 +139,25 @@ define(function(require) {
                 expect(table.state.data).toBeNull();
                 expect(table.state.dataError).toEqual(false);
             });
+
+            it('should initialize the quickFilterEnabled property to false if quickFilter is not set to true for all cols.', function() {
+                expect(table.quickFilterEnabled).toEqual(false);
+            });
+
+            it('should set the quickFilterEnabled property to true if it is quickFilter is set to true on a column definition.', function() {
+                var def = _.clone(definition);
+                def.cols[0].quickFilter = true;
+                var props = {
+                    definition: def,
+                    componentId: id,
+                    key: id,
+                    filters: {},
+                    loadingIconClasses: ['icon', 'ion-loading-c']
+                };
+
+                table = TestUtils.renderIntoDocument(<BasicTable {...props} />);
+                expect(table.quickFilterEnabled).toEqual(true);
+            });
         });
 
         describe('componentDidMount function', function() {
@@ -221,6 +240,18 @@ define(function(require) {
 
                 expect(table.state.loading).toEqual(false);
                 expect(table.state.dataError).toEqual(true);
+            });
+        });
+
+        describe('getQuickFilter function', function() {
+            it('should create an input element if the quickFilterEnabled property is set to true.', function() {
+                table.quickFilterEnabled = true;
+                expect(table.getQuickFilter().type).toEqual('input');
+            });
+
+            it('should not create an input element if the quickFilterEnabled property is set to false.', function() {
+                table.quickFilterEnabled = false;
+                expect(table.getQuickFilter()).toBeNull();
             });
         });
 
@@ -385,66 +416,21 @@ define(function(require) {
         });
 
         describe('getTableData function', function() {
-            it('should create table data elements', function() {
+            beforeEach(function() {
                 spyOnTableGetCalls(tableData, dataCount, colDefinitions, sortColIndex, undefined, undefined);
                 table.onDataReceived();
-
+            });
+            it('should create table data elements', function() {
                 expect(TestUtils.scryRenderedDOMComponentsWithTag(table, 'td').length).toEqual(42);
-            });
-
-            it('should display percentages and add a percent symbol to the end of them', function() {
-                var val = 87;
-                var meta = {dataType: 'percent'};
-                var tableDataComponent = table.getTableData(val, meta);
-
-                expect(tableDataComponent.props.children[0].props.children).toEqual('87%');
-                expect(tableDataComponent.props.children[0].props.title).toEqual('87%');
-                expect(tableDataComponent.props.children[1]).toBeUndefined();
-            });
-
-            it('should display formatted times', function() {
-                var val = 1417546800000;
-                var meta = {dataType: 'time', timeFormat: 'MMM Do'};
-                var tableDataComponent = table.getTableData(val, meta);
-
-                expect(tableDataComponent.props.children[0].props.children).toEqual('Dec 2nd');
-                expect(tableDataComponent.props.children[0].props.title).toEqual('Dec 2nd');
-                expect(tableDataComponent.props.children[1]).toBeUndefined();
-            });
-
-            it('should display "--" for times that are undefined', function() {
-                var val;
-                var meta = {dataType: 'time', timeFormat: 'MMM Do, h A'};
-                var tableDataComponent = table.getTableData(val, meta);
-
-                expect(tableDataComponent.props.children[0].props.title).toEqual('--');
-                expect(tableDataComponent.props.children[1]).toBeUndefined();
-            });
-
-            it('should display a formatted timestamp if there is a value defined', function() {
-                var val = 1417546800000;
-                var meta = {dataType: 'status', timeFormat: 'MMM Do'};
-                var tableDataComponent = table.getTableData(val, meta);
-
-                expect(tableDataComponent.props.children[0].props.children).toEqual('Dec 2nd');
-                expect(tableDataComponent.props.children[0].props.title).toEqual('Dec 2nd');
-                expect(tableDataComponent.props.children[1]).toBeDefined();
-            });
-
-            it('should display "--" if the status is undefined', function() {
-                var val;
-                var meta = {dataType: 'status', timeFormat: 'MMM Do, h A'};
-                var tableDataComponent = table.getTableData(val, meta);
-
-                expect(tableDataComponent.props.children[0].props.children).toEqual('--');
-                expect(tableDataComponent.props.children[0].props.title).toEqual('--');
-                expect(tableDataComponent.props.children[1]).toBeDefined();
             });
 
             it('should render fa-circle icons after the status of an online user', function() {
                 var val = Date.now() - 899999;
-                var meta = {dataType: 'status', timeFormat: 'MMM Do, h A'};
-                var tableDataComponent = table.getTableData(val, meta);
+                var meta = {dataType: 'status', timeFormat: 'MMM Do, h A', online: true};
+                table.state.data = [];
+                table.state.data.push(meta);
+                var tableDataComponent = table.getTableData(val, meta, null, 0);
+
 
                 expect(tableDataComponent.props.children[1].props.className).toEqual('after-icon');
                 expect(tableDataComponent.props.children[1].props.children.props.className).toEqual('fa fa-circle');
@@ -452,8 +438,10 @@ define(function(require) {
 
             it('should render fa-circle-o icons after the status of an offline user', function() {
                 var val = Date.now() - 900001;
-                var meta = {dataType: 'status', timeFormat: 'MMM Do, h A'};
-                var tableDataComponent = table.getTableData(val, meta);
+                var meta = {dataType: 'status', timeFormat: 'MMM Do, h A', online: false};
+                table.state.data = [];
+                table.state.data.push(meta);
+                var tableDataComponent = table.getTableData(val, meta, null, 0);
 
                 expect(tableDataComponent.props.children[1].props.className).toEqual('after-icon');
                 expect(tableDataComponent.props.children[1].props.children.props.className).toEqual('fa fa-circle-o');
@@ -501,6 +489,21 @@ define(function(require) {
                 table.onDataReceived();
 
                 expect(TestUtils.scryRenderedDOMComponentsWithClass(table, 'fa-sort-desc').length).toEqual(2);
+            });
+        });
+
+        describe('handleQuickFilterChange function', function() {
+            it('should trigger filtering.', function() {
+                var event = {
+                    target: {
+                        value: 'testFilter'
+                    }
+                };
+
+                spyOn(TableActions, 'filter');
+                table.handleQuickFilterChange(event);
+
+                expect(TableActions.filter).toHaveBeenCalledWith(id, event.target.value);
             });
         });
 

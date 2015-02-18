@@ -13,25 +13,45 @@ define(function(require) {
             {
                 headerLabel: 'NAME',
                 dataProperty: 'name',
-                hoverProperty: 'username',
                 sortDirection: 'ascending',
                 dataType: 'string',
-                width: '35%'
+                width: '25%',
+                quickFilter: true
             },
             {
                 headerLabel: 'MESSAGES',
                 dataProperty: 'messages',
                 sortDirection: 'descending',
                 dataType: 'number',
-                width: '20%'
+                width: '10%',
+                quickFilter: true
+            },
+            {
+                headerLabel: 'USAGE',
+                dataProperty: 'usage',
+                sortDirection: 'descending',
+                dataType: 'percent',
+                width: '10%',
+                quickFilter: true
+            },
+            {
+                headerLabel: 'LAST LOGIN',
+                dataProperty: 'lastLogin',
+                sortDirection: 'descending',
+                dataType: 'time',
+                timeFormat: 'MMM Do, h A',
+                width: '25%',
+                quickFilter: true
             },
             {
                 headerLabel: 'LAST MESSAGE',
                 dataProperty: 'lastMessage',
                 sortDirection: 'descending',
                 dataType: 'status',
+                onlineLimit: 4,
                 timeFormat: 'MMM Do, h:mm A',
-                width: '35%'
+                width: '30%',
+                quickFilter: true
             }
         ],
         sortColIndex: 0,
@@ -87,9 +107,9 @@ define(function(require) {
                     componentSet = (
                         React.createElement("div", {className: "component"}, 
                             React.createElement(PieChart, {definition: pieChartDefinition, 
-                            componentId: 'pieChartId', 
-                            key: 'pieChartId', 
-                            loadingIconClasses: ['icon', 'ion-loading-c']})
+                                      componentId: 'pieChartId', 
+                                      key: 'pieChartId', 
+                                      loadingIconClasses: ['icon', 'ion-loading-c']})
                         )
                     );
                     break;
@@ -102,9 +122,10 @@ define(function(require) {
                     componentSet = (
                         React.createElement("div", {className: "component"}, 
                             React.createElement(Table, {definition: tableDefinition, 
-                                componentId: 'tableId', 
-                                key: 'tableId', 
-                                loadingIconClasses: ['icon', 'ion-loading-c']})
+                                   componentId: "tableId", 
+                                   key: "tableId", 
+                                   loadingIconClasses: ['icon', 'ion-loading-c'], 
+                                   quickFilterPlaceholder: "Quick Filter"})
                         )
                     );
             }

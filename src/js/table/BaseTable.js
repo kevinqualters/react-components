@@ -2,6 +2,7 @@ define(function(require) {
     'use strict';
 
     var DataMixins = require('drc/mixins/DataMixins');
+    var _ = require('lodash');
     var Moment = require('moment');
     var React = require('react');
     var TableActions = require('drc/table/TableActions');
@@ -11,6 +12,14 @@ define(function(require) {
     return {
         displayName: 'BasicTable',
 
+        quickFilterEnabled: false,
+
+        getDefaultProps: function() {
+            return {
+                quickFilterPlaceholder: 'Filter'
+            };
+        },
+
         mixins: [
             DataMixins.dataRequest,
             DataMixins.destroySelfOnUnmount(TableActions),
@@ -18,6 +27,8 @@ define(function(require) {
         ],
 
         getInitialState: function() {
+            this.quickFilterEnabled = _.some(this.props.definition.cols, function(col) {return col.quickFilter === true;}) ? true : false;
+
             return {
                 loading: true,
                 data: null,
@@ -33,6 +44,8 @@ define(function(require) {
                 }),
                 thead, tbody, paginationControls, noResults;
 
+            var quickFilter = this.getQuickFilter();
+
             if (this.state.data) {
                 thead = this.state.colDefinitions.map(this.getTableHeaderItem);
                 tbody = this.state.data.map(this.getTableRowItem);
@@ -44,9 +57,10 @@ define(function(require) {
             }
 
             return (
-                <div className="data-component table-component">
+                <div className="data-component table-component no-select">
                     <div className={containerClasses}>
                         <i className={Utils.getLoaderClasses(this.state.loading, this.props.loadingIconClasses)}></i>
+                        {quickFilter}
                         {paginationControls}
                         <table>
                             <thead>{thead}</thead>
@@ -99,6 +113,14 @@ define(function(require) {
          */
         onError: function() {
             this.setState({loading: false, dataError: true});
+        },
+
+        getQuickFilter: function() {
+            if (!this.quickFilterEnabled) {
+                return null;
+            }
+
+            return <input ref="filter" className="quick-filter" type="text" placeholder={this.props.quickFilterPlaceholder} onChange={this.handleQuickFilterChange} />;
         },
 
         getPaginationControls: function() {
@@ -207,7 +229,7 @@ define(function(require) {
             );
         },
 
-        getTableRowItem: function(rowData) {
+        getTableRowItem: function(rowData, index) {
             var handleRowClick;
             var row = [];
 
@@ -219,7 +241,7 @@ define(function(require) {
             });
 
             _.forIn(this.state.colDefinitions, function(val) {
-                row.push(this.getTableData(rowData[val.dataProperty], val, val.hoverProperty ? rowData[val.hoverProperty] : null));
+                row.push(this.getTableData(rowData[val.dataProperty], val, val.hoverProperty ? rowData[val.hoverProperty] : null, index));
             }.bind(this));
 
             if (this.state.rowClick) {
@@ -233,29 +255,18 @@ define(function(require) {
          * @param  {Mixed} val         The value for the current cell
          * @param  {Object} meta       Details about the value (format, type, etc)
          * @param  {Mixed=} hoverValue Optional value to show in hover state of cell
+         * @param {Number} index
          * @return {Object}            Cell markup
          */
-        getTableData: function(val, meta, hoverValue) {
+        getTableData: function(val, meta, hoverValue, index) {
             var cx = React.addons.classSet;
-            var online = false;
             var afterIcon, statusIconClasses;
 
-            if (meta.dataType === 'percent') {
-                val = val + '%';
-            }
-            else if (meta.dataType === 'time') {
-                val = val ? Moment(val).format(meta.timeFormat) : '--';
-            }
-            else if (meta.dataType == 'status') {
-                if (val && val > Moment(Date.now()).subtract(15, 'minutes').valueOf()) {
-                    online = true;
-                }
-                val = val ? Moment(val).format(meta.timeFormat) : '--';
-
+            if (meta.dataType === 'status') {
                 statusIconClasses = cx({
                     'fa': true,
-                    'fa-circle': online,
-                    'fa-circle-o': !online
+                    'fa-circle': this.state.data[index].online,
+                    'fa-circle-o': !this.state.data[index].online
                 });
 
                 afterIcon = (<span className="after-icon"><i className={statusIconClasses}/></span>);
@@ -280,6 +291,10 @@ define(function(require) {
             });
 
             return <i className={iconClasses}></i>;
+        },
+
+        handleQuickFilterChange: function(e) {
+            TableActions.filter(this.props.componentId, e.target.value);
         },
 
         handlePageLeftClick: function() {

@@ -173,6 +173,7 @@ body {
 }
 
 .table-component {
+  width: 100%;
   .table-body {
     font-family: $font-regular;
     font-size: 15pt;
@@ -183,8 +184,10 @@ body {
   border: solid 1px $light-grey;
   border-radius: 5px;
   margin-bottom: 15px;
+  max-width: calc(100% - 60px);
+  min-width: 500px;
   padding: 20px;
-  width: 500px;
+
 }
 
 .search-component {
