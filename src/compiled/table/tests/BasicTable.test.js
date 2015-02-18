@@ -266,8 +266,8 @@ define(function(require) {
                 table.onDataReceived();
                 table.setState({data: null});
 
-                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'icon ion-chevron-left left-control')}).toThrow();
-                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'icon ion-chevron-right right-control')}).toThrow();
+                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'left-control fa fa-chevron-left')}).toThrow();
+                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'right-control fa fa-chevron-right')}).toThrow();
             });
 
             it('should not generate controls if the data is an empty array', function() {
@@ -280,8 +280,8 @@ define(function(require) {
                 table.onDataReceived();
                 table.setState({data: []});
 
-                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'icon ion-chevron-left left-control')}).toThrow();
-                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'icon ion-chevron-right right-control')}).toThrow();
+                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'left-control fa fa-chevron-left')}).toThrow();
+                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'right-control fa fa-chevron-right')}).toThrow();
             });
 
             it('should not generate controls if pagination is not defined for the table', function() {
@@ -294,8 +294,8 @@ define(function(require) {
                 table.onDataReceived();
                 table.setState({pagination: null});
 
-                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'icon ion-chevron-left left-control')}).toThrow();
-                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'icon ion-chevron-right right-control')}).toThrow();
+                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'left-control fa fa-chevron-left')}).toThrow();
+                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'right-control fa fa-chevron-right')}).toThrow();
             });
 
             it('should enable the right and left clicks if not at the beginning or end of pagination', function() {
@@ -307,10 +307,10 @@ define(function(require) {
                 spyOnTableGetCalls(tableData, dataCount, colDefinitions, undefined, undefined, pagination);
                 table.onDataReceived();
 
-                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'icon ion-chevron-left left-control')}).not.toThrow();
-                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'icon ion-chevron-right right-control')}).not.toThrow();
-                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'icon ion-chevron-left left-control disabled')}).toThrow();
-                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'icon ion-chevron-right right-control disabled')}).toThrow();
+                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'left-control fa fa-chevron-left')}).not.toThrow();
+                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'right-control fa fa-chevron-right')}).not.toThrow();
+                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'left-control disabled fa fa-chevron-left')}).toThrow();
+                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'right-control disabled fa fa-chevron-right')}).toThrow();
             });
 
             it('should disable the left click if at the beginning of pagination', function() {
@@ -322,8 +322,8 @@ define(function(require) {
                 spyOnTableGetCalls(tableData, dataCount, colDefinitions, undefined, undefined, pagination);
                 table.onDataReceived();
 
-                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'icon ion-chevron-left left-control disabled')}).not.toThrow();
-                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'icon ion-chevron-right right-control disabled')}).toThrow();
+                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'left-control disabled fa fa-chevron-left')}).not.toThrow();
+                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'right-control disabled fa fa-chevron-right')}).toThrow();
             });
 
             it('should disable the right click if at the end of pagination', function() {
@@ -335,8 +335,8 @@ define(function(require) {
                 spyOnTableGetCalls(tableData, dataCount, colDefinitions, undefined, undefined, pagination);
                 table.onDataReceived();
 
-                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'icon ion-chevron-left left-control disabled')}).toThrow();
-                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'icon ion-chevron-right right-control disabled')}).not.toThrow();
+                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'left-control disabled fa fa-chevron-left')}).toThrow();
+                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'right-control disabled fa fa-chevron-right')}).not.toThrow();
             });
         });
 
@@ -463,16 +463,16 @@ define(function(require) {
             it('should display the fa-sort-asc icon and be active', function() {
                 table.onDataReceived();
 
-                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'fa-sort-asc active')}).not.toThrow();
-                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'fa-sort-desc active')}).toThrow();
+                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'active fa fa-sort-asc')}).not.toThrow();
+                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'active fa fa-sort-desc')}).toThrow();
             });
 
             it('should display the fa-sort-desc icon and be active', function() {
                 colDefinitions[0].sortDirection = 'descending';
                 table.onDataReceived();
 
-                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'fa-sort-asc active')}).toThrow();
-                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'fa-sort-desc active')}).not.toThrow();
+                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'active fa fa-sort-asc')}).toThrow();
+                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'active fa fa-sort-desc')}).not.toThrow();
 
                 // reset data
                 colDefinitions[0].sortDirection = 'ascending';

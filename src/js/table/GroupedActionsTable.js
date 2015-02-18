@@ -13,6 +13,17 @@ define(function(require) {
      */
     var GroupedActionsTable = {
         clobberBaseTable: {
+            iconClasses: {
+                rowsCollapsed: 'fa fa-chevron-right',
+                rowsExpanded: 'fa fa-chevron-down',
+                pageLeft: 'fa fa-chevron-left',
+                pageRight: 'fa fa-chevron-right',
+                sortAsc: 'fa fa-sort-asc',
+                sortDesc: 'fa fa-sort-desc',
+                statusOn: 'fa fa-circle',
+                statusOff: 'fa fa-circle-o'
+            },
+
             getTableRowItem: function(rowData, index) {
                 var rows = [];
                 var rowDataElements = [];
@@ -70,11 +81,7 @@ define(function(require) {
                 }
                 else if (meta.dataProperty === 'groupDate') {
                     // Date has count and chevron, but not in a sep column.
-                    statusIconClasses = React.addons.classSet({
-                        'icon': true,
-                        'ion-chevron-right': this.state.selectedIndex !== index,
-                        'ion-chevron-down': this.state.selectedIndex === index
-                    });
+                    statusIconClasses = this.state.selectedIndex === index ? this.iconClasses.rowsExpanded : this.iconClasses.rowsCollapsed;
 
                     expandedRowIndicatorClasses = React.addons.classSet({
                         'before-icon': true,

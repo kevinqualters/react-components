@@ -201,7 +201,7 @@ define(function(require) {
                 var span = beforeElement._store.props.children[0];
                 var icon = beforeElement._store.props.children[1];
                 expect(span).toEqual(4);
-                expect(icon._store.props.className).toEqual('icon ion-chevron-right');
+                expect(icon._store.props.className).toEqual('fa fa-chevron-right');
             });
 
             it('should create a table data element.', function() {
