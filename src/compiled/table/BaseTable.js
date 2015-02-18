@@ -3,7 +3,6 @@ define(function(require) {
 
     var DataMixins = require('drc/mixins/DataMixins');
     var _ = require('lodash');
-    var Moment = require('moment');
     var React = require('react');
     var TableActions = require('drc/table/TableActions');
     var TableStore = require('drc/table/TableStore');
@@ -231,6 +230,7 @@ define(function(require) {
 
         getTableRowItem: function(rowData, index) {
             var handleRowClick;
+            var onMouseDown;
             var row = [];
 
             var cx = React.addons.classSet;
@@ -246,8 +246,16 @@ define(function(require) {
 
             if (this.state.rowClick) {
                 handleRowClick = this.handleRowClick;
+                onMouseDown = this.onMouseDown;
             }
-            return React.createElement("tr", {key: 'tableRow' + Utils.guid(), className: hoverClass, onClick: handleRowClick}, row);
+            return (
+                React.createElement("tr", {key: 'tableRow' + Utils.guid(), 
+                    className: hoverClass, 
+                    onClick: handleRowClick, 
+                    onMouseDown: onMouseDown}, 
+                    row
+                )
+            );
         },
 
         /**
@@ -318,8 +326,22 @@ define(function(require) {
             TableActions.sortChange(this.props.componentId, index, direction);
         },
 
+        /**
+         * Tracks the mouse down x value to detect dragging on a table row to highlight text.
+         * @param {Object} e - The event simulated by React.
+         */
+        onMouseDown: function(e) {
+            this.mouseDownX = e.clientX;
+        },
+
+        /**
+         * Will trigger the rowClick's callback function if a drag hasn't occurred.
+         * @param {Object} e - The event simulated by React.
+         */
         handleRowClick: function(e) {
-            if (!this.state.rowClick) {
+            // Do not allow the click functionality to be triggered when the user is highlighting text.
+            if (this.mouseDownX && Math.abs(this.mouseDownX - e.clientX) > 10) {
+                this.mouseDownX = null;
                 return;
             }
             if (typeof this.state.rowClick.callback !== 'function') {
