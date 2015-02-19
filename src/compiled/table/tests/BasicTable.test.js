@@ -230,6 +230,8 @@ define(function(require) {
                 table.onDataReceived();
 
                 expect(table.state.data).toEqual([]);
+                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'no-results')}).not.toThrow();
+                expect(TestUtils.findRenderedDOMComponentWithClass(table, 'no-results').props.children).toEqual('No results found.');
             });
         });
 
