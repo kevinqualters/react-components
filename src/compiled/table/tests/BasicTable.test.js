@@ -230,6 +230,8 @@ define(function(require) {
                 table.onDataReceived();
 
                 expect(table.state.data).toEqual([]);
+                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'no-results')}).not.toThrow();
+                expect(TestUtils.findRenderedDOMComponentWithClass(table, 'no-results').props.children).toEqual('No results found.');
             });
         });
 
@@ -574,51 +576,79 @@ define(function(require) {
             });
         });
 
+        describe('onMouseDown function', function() {
+            it('should store the client x value of the mouse down event.', function() {
+                var e = {
+                    clientX: 100
+                };
+                spyOnTableGetCalls(tableData, dataCount, colDefinitions, undefined, rowClick, undefined);
+                table.onDataReceived();
+                table.onMouseDown(e);
+
+                expect(table.mouseDownX).toEqual(e.clientX);
+            });
+        });
+
         describe('handleRowClick function', function() {
             it('should open a new tab if the row click action was to open a tab.', function() {
+                var e = {
+                    currentTarget: {
+                        rowIndex: 0
+                    }
+                };
                 spyOnTableGetCalls(tableData, dataCount, colDefinitions, undefined, rowClick, undefined);
-                var e = {
-                    currentTarget: {
-                        rowIndex: 0
-                    }
-                };
+                spyOn(rowClick, 'callback');
                 table.onDataReceived();
 
-                spyOn(rowClick, 'callback');
                 table.handleRowClick(e);
-
                 expect(rowClick.callback).toHaveBeenCalled();
-            });
-
-            it('should not throw an error or execute the callback if a rowClick was not defined.', function() {
-                spyOnTableGetCalls(tableData, dataCount, colDefinitions, undefined, undefined, undefined);
-                var e = {
-                    currentTarget: {
-                        rowIndex: 0
-                    }
-                };
-                table.onDataReceived();
-
-                spyOn(rowClick, 'callback');
-                table.handleRowClick(e);
-
-                expect(function() {table.handleRowClick();}).not.toThrow();
-                expect(rowClick.callback).not.toHaveBeenCalled();
             });
 
             it('should throw an error if the callback is not a function.', function() {
                 spyOnTableGetCalls(tableData, dataCount, colDefinitions, undefined, 'error', undefined);
-                var e = {
-                    currentTarget: {
-                        rowIndex: 0
-                    }
-                };
-                table.onDataReceived();
-
                 spyOn(rowClick, 'callback');
+                table.onDataReceived();
 
                 expect(function() {table.handleRowClick();}).toThrow();
                 expect(rowClick.callback).not.toHaveBeenCalled();
+            });
+
+            it('should not execute the rowClick callback if the user dragged the mouse more than 10 pixels.', function() {
+                var e = {
+                    clientX: 111
+                };
+                spyOnTableGetCalls(tableData, dataCount, colDefinitions, undefined, rowClick, undefined);
+                spyOn(rowClick, 'callback');
+                table.onDataReceived();
+
+                // Drag right.
+                table.mouseDownX = 100;
+                table.handleRowClick(e);
+                expect(rowClick.callback).not.toHaveBeenCalled();
+
+                // Drag left.
+                table.mouseDownX = 122;
+                table.handleRowClick(e);
+                expect(rowClick.callback).not.toHaveBeenCalled();
+            });
+
+            it('should execute the rowClick callback if the user dragged the mouse less than 11 pixels.', function() {
+                var e = {
+                    clientX: 110
+                };
+                spyOnTableGetCalls(tableData, dataCount, colDefinitions, undefined, rowClick, undefined);
+                spyOn(rowClick, 'callback');
+                table.onDataReceived();
+
+                // Drag right.
+                table.mouseDownX = 100;
+                table.handleRowClick(e);
+                expect(rowClick.callback.calls.count()).toEqual(1);
+
+                // Drag left.
+                table.mouseDownX = 120;
+                table.handleRowClick(e);
+                expect(rowClick.callback.calls.count()).toEqual(2);
             });
         });
     });
