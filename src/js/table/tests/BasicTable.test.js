@@ -58,6 +58,10 @@ define(function(require) {
         }
     };
 
+    function dataFormatter(data) {
+        return data;
+    }
+
     var iconClasses = {
         pageLeft: 'test-page-left',
         pageRight: 'test-page-right',
@@ -133,6 +137,7 @@ define(function(require) {
             id = 'table-' + Utils.guid();
             var props = {
                 definition: definition,
+                dataFormatter: dataFormatter,
                 componentId: id,
                 key: id,
                 filters: {},
@@ -201,7 +206,8 @@ define(function(require) {
         });
 
         describe('requestData function', function() {
-            it('should put the component into a loading state with no data errors', function() {
+            it('should put the component into a loading state with no data errors and make a request for data', function() {
+                spyOn(TableActions, 'requestData');
                 table.setState({
                     loading: false,
                     dataError: true
@@ -212,6 +218,7 @@ define(function(require) {
 
                 table.requestData();
 
+                expect(TableActions.requestData).toHaveBeenCalledWith(id, definition, dataFormatter, {});
                 expect(table.state.loading).toEqual(true);
                 expect(table.state.dataError).toEqual(false);
             });

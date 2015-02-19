@@ -176,7 +176,7 @@ define(function(require) {
             StoreBase.modelTypes = undefined;
         });
 
-        it('calls create instance if not existant', function(){
+        it('calls create instance if not existent', function(){
             var handleSpy = spyOn(StoreBase, 'shouldHandleAction').and.returnValue(true);
             StoreBase.createInstance = function(){};
             var createInstanceSpy = spyOn(StoreBase, 'createInstance');
@@ -186,12 +186,13 @@ define(function(require) {
             var action = {
                 id: 'foo',
                 data: {
-                    definition: 'type'
+                    definition: 'type',
+                    dataFormatter: 'formatter'
                 }
             };
 
             expect(StoreBase.handleRequestDataAction(action)).toBeUndefined();
-            expect(createInstanceSpy).toHaveBeenCalledWith('foo', 'type');
+            expect(createInstanceSpy).toHaveBeenCalledWith('foo', 'type', 'formatter');
         });
 
         it('calls request data if action type is correct', function(){

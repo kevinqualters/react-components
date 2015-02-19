@@ -9,11 +9,12 @@ define(function(require) {
             it('should request that an action be dispatched', function() {
                 var id = 'testID';
                 var definition = {testModelType: 'testModelType'};
+                var dataFormatter = 'formatter';
                 var filters = {test: 'filter'};
 
                 spyOn(AppDispatcher, 'handleViewAction');
 
-                TableActions.requestData(id, definition, filters);
+                TableActions.requestData(id, definition, dataFormatter, filters);
 
                 expect(AppDispatcher.handleViewAction).toHaveBeenCalledWith({
                     actionType: ActionTypes.REQUEST_DATA,
@@ -21,6 +22,7 @@ define(function(require) {
                     id: id,
                     data: {
                         definition: definition,
+                        dataFormatter: dataFormatter,
                         filters: filters
                     }
                 });

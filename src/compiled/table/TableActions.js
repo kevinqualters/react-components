@@ -16,15 +16,17 @@ define(function(require) {
          * Action for populating table data. Used both for initial and subsequent loads.
          * @param {String} id - Unique identifier for the Table component.
          * @param {Object} definition - A configuration object for the Table.
+         * @param {Function} dataFormatter - A function that will allow for post processing of data from the server.
          * @param {Object} filters - The query string params to be sent with any data requests to the server.
          */
-        requestData: function(id, definition, filters) {
+        requestData: function(id, definition, dataFormatter, filters) {
             AppDispatcher.handleViewAction({
                 actionType: this.actionTypes.REQUEST_DATA,
                 component: 'Table',
                 id: id,
                 data: {
                     definition: definition,
+                    dataFormatter: dataFormatter,
                     filters: filters
                 }
             });

@@ -77,7 +77,6 @@ define(function(require) {
          */
         handleRequestDataAction: function(action) {
             var id = action.id;
-            var definition = action.data.definition;
 
             // we only care about actions that are for the component tied to this model
             if (!this.shouldHandleAction(action.component)) {
@@ -85,7 +84,7 @@ define(function(require) {
             }
 
             if (!_.find(this.collection, id) && !this.collection[id]) {
-                this.createInstance(id, definition);
+                this.createInstance(id, action.data.definition, action.data.dataFormatter);
             }
 
             if (action.actionType === 'REQUEST_DATA') {
