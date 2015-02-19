@@ -98,6 +98,10 @@ define(function(require) {
             }
         ];
         var dataCount = tableData.length;
+        var iconClasses = {
+            rowsCollapsed: 'test-rows-collapsed',
+            rowsExpanded: 'test-rows-expanded'
+        };
         var table, id;
 
         beforeEach(function() {
@@ -195,13 +199,62 @@ define(function(require) {
                 expect(str).toEqual('12m');
             });
 
-            it('should display the number of nested rows and an arrow if the dataProperty is "groupDate".', function() {
+            it('should display the number of nested rows and a rowsCollapsed icon if the dataProperty is "groupDate".', function() {
                 var tableDataElement = table.getTableData(tableData[0], definition.cols[0], 0);
                 var beforeElement = tableDataElement._store.props.children[0];
                 var span = beforeElement._store.props.children[0];
                 var icon = beforeElement._store.props.children[1];
                 expect(span).toEqual(4);
                 expect(icon._store.props.className).toEqual('fa fa-chevron-right');
+            });
+
+            it('should display the number of nested rows and a rowsCollapsed icon from props if the dataProperty is "groupDate".', function() {
+                var props = {
+                    type: 'groupedActions',
+                    definition: definition,
+                    componentId: id,
+                    key: id,
+                    filters: {},
+                    iconClasses: iconClasses,
+                    loadingIconClasses: ['icon', 'ion-loading-c']
+                };
+                table = TestUtils.renderIntoDocument(React.createElement(GroupedActionsTable, React.__spread({},  props)));
+                table.onDataReceived();
+
+                var tableDataElement = table.getTableData(tableData[0], definition.cols[0], 0);
+                var beforeElement = tableDataElement._store.props.children[0];
+                var icon = beforeElement._store.props.children[1];
+                expect(icon._store.props.className).toEqual('test-rows-collapsed');
+            });
+
+            it('should display the number of nested rows and a rowsExpanded icon if the dataProperty is "groupDate" and the row was clicked.', function() {
+                TestUtils.Simulate.click(TestUtils.scryRenderedDOMComponentsWithTag(table, 'tr')[0]);
+                var tableDataElement = table.getTableData(tableData[0], definition.cols[0], 0);
+                var beforeElement = tableDataElement._store.props.children[0];
+                var span = beforeElement._store.props.children[0];
+                var icon = beforeElement._store.props.children[1];
+                expect(span).toEqual(4);
+                expect(icon._store.props.className).toEqual('fa fa-chevron-down');
+            });
+
+            it('should display the number of nested rows and a rowsExpanded icon from props if the dataProperty is "groupDate" and the row was clicked.', function() {
+                var props = {
+                    type: 'groupedActions',
+                    definition: definition,
+                    componentId: id,
+                    key: id,
+                    filters: {},
+                    iconClasses: iconClasses,
+                    loadingIconClasses: ['icon', 'ion-loading-c']
+                };
+                table = TestUtils.renderIntoDocument(React.createElement(GroupedActionsTable, React.__spread({},  props)));
+                table.onDataReceived();
+                TestUtils.Simulate.click(TestUtils.scryRenderedDOMComponentsWithTag(table, 'tr')[0]);
+
+                var tableDataElement = table.getTableData(tableData[0], definition.cols[0], 0);
+                var beforeElement = tableDataElement._store.props.children[0];
+                var icon = beforeElement._store.props.children[1];
+                expect(icon._store.props.className).toEqual('test-rows-expanded');
             });
 
             it('should create a table data element.', function() {

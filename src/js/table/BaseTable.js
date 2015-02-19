@@ -8,6 +8,17 @@ define(function(require) {
     var TableStore = require('drc/table/TableStore');
     var Utils = require('drc/utils/Utils');
 
+    var iconClasses = {
+        pageLeft: 'fa fa-chevron-left',
+        pageRight: 'fa fa-chevron-right',
+        rowsCollapsed: 'fa fa-chevron-right',
+        rowsExpanded: 'fa fa-chevron-down',
+        sortAsc: 'fa fa-sort-asc',
+        sortDesc: 'fa fa-sort-desc',
+        statusOn: 'fa fa-circle',
+        statusOff: 'fa fa-circle-o'
+    };
+
     return {
         displayName: 'BasicTable',
 
@@ -19,15 +30,6 @@ define(function(require) {
 
         quickFilterEnabled: false,
 
-        iconClasses: {
-            pageLeft: 'fa fa-chevron-left',
-            pageRight: 'fa fa-chevron-right',
-            sortAsc: 'fa fa-sort-asc',
-            sortDesc: 'fa fa-sort-desc',
-            statusOn: 'fa fa-circle',
-            statusOff: 'fa fa-circle-o'
-        },
-
         getDefaultProps: function() {
             return {
                 noResultsText: 'No results found.',
@@ -37,7 +39,7 @@ define(function(require) {
 
         getInitialState: function() {
             this.quickFilterEnabled = _.some(this.props.definition.cols, function(col) {return col.quickFilter === true;}) ? true : false;
-            this.iconClasses = _.merge(this.iconClasses, this.props.iconClasses);
+            this.iconClasses = _.merge(_.clone(iconClasses), this.props.iconClasses);
 
             return {
                 loading: true,

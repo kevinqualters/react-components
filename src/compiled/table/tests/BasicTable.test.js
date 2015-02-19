@@ -58,6 +58,15 @@ define(function(require) {
         }
     };
 
+    var iconClasses = {
+        pageLeft: 'test-page-left',
+        pageRight: 'test-page-right',
+        sortAsc: 'test-sort-asc',
+        sortDesc: 'test-sort-desc',
+        statusOn: 'test-status-on',
+        statusOff: 'test-status-off'
+    };
+
     function spyOnTableGetCalls(data, count, colDef, sortIdx, rowClick, pagination) {
         spyOn(TableStore, 'getData').and.returnValue(data);
         spyOn(TableStore, 'getDataCount').and.returnValue(count);
@@ -340,6 +349,30 @@ define(function(require) {
                 expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'left-control disabled fa fa-chevron-left')}).toThrow();
                 expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'right-control disabled fa fa-chevron-right')}).not.toThrow();
             });
+
+            it('should use pagination icons passed in on props if provided', function() {
+                var dataCount = 100;
+                var pagination = {
+                    cursor: 99,
+                    size: 2
+                };
+
+                var props = {
+                    definition: definition,
+                    componentId: id,
+                    key: id,
+                    filters: {},
+                    iconClasses: iconClasses,
+                    loadingIconClasses: ['icon', 'ion-loading-c']
+                };
+                table = TestUtils.renderIntoDocument(React.createElement(BasicTable, React.__spread({},  props)));
+
+                spyOnTableGetCalls(tableData, dataCount, colDefinitions, undefined, undefined, pagination);
+                table.onDataReceived();
+
+                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'test-page-left')}).not.toThrow();
+                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'test-page-right')}).not.toThrow();
+            });
         });
 
         describe('getColSortDirections function', function() {
@@ -438,6 +471,28 @@ define(function(require) {
                 expect(tableDataComponent.props.children[1].props.children.props.className).toEqual('fa fa-circle');
             });
 
+            it('should use the status on icon passed in on props', function() {
+                var props = {
+                    definition: definition,
+                    componentId: id,
+                    key: id,
+                    filters: {},
+                    iconClasses: iconClasses,
+                    loadingIconClasses: ['icon', 'ion-loading-c']
+                };
+                table = TestUtils.renderIntoDocument(React.createElement(BasicTable, React.__spread({},  props)));
+                table.onDataReceived();
+
+                var val = Date.now() - 899999;
+                var meta = {dataType: 'status', timeFormat: 'MMM Do, h A', online: true};
+                table.state.data = [];
+                table.state.data.push(meta);
+                var tableDataComponent = table.getTableData(val, meta, null, 0);
+
+                expect(tableDataComponent.props.children[1].props.className).toEqual('after-icon');
+                expect(tableDataComponent.props.children[1].props.children.props.className).toEqual('test-status-on');
+            });
+
             it('should render fa-circle-o icons after the status of an offline user', function() {
                 var val = Date.now() - 900001;
                 var meta = {dataType: 'status', timeFormat: 'MMM Do, h A', online: false};
@@ -447,6 +502,28 @@ define(function(require) {
 
                 expect(tableDataComponent.props.children[1].props.className).toEqual('after-icon');
                 expect(tableDataComponent.props.children[1].props.children.props.className).toEqual('fa fa-circle-o');
+            });
+
+            it('should use the status off icon passed in on props', function() {
+                var props = {
+                    definition: definition,
+                    componentId: id,
+                    key: id,
+                    filters: {},
+                    iconClasses: iconClasses,
+                    loadingIconClasses: ['icon', 'ion-loading-c']
+                };
+                table = TestUtils.renderIntoDocument(React.createElement(BasicTable, React.__spread({},  props)));
+                table.onDataReceived();
+
+                var val = Date.now() - 900001;
+                var meta = {dataType: 'status', timeFormat: 'MMM Do, h A', online: false};
+                table.state.data = [];
+                table.state.data.push(meta);
+                var tableDataComponent = table.getTableData(val, meta, null, 0);
+
+                expect(tableDataComponent.props.children[1].props.className).toEqual('after-icon');
+                expect(tableDataComponent.props.children[1].props.children.props.className).toEqual('test-status-off');
             });
 
             it('should set different title attribute when hover value is passed in', function(){
@@ -469,12 +546,48 @@ define(function(require) {
                 expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'active fa fa-sort-desc')}).toThrow();
             });
 
+            it('should display the sort asc icon passed in on props and be active', function() {
+                var props = {
+                    definition: definition,
+                    componentId: id,
+                    key: id,
+                    filters: {},
+                    iconClasses: iconClasses,
+                    loadingIconClasses: ['icon', 'ion-loading-c']
+                };
+                table = TestUtils.renderIntoDocument(React.createElement(BasicTable, React.__spread({},  props)));
+                table.onDataReceived();
+
+                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'active test-sort-asc')}).not.toThrow();
+                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'active test-sort-desc')}).toThrow();
+            });
+
             it('should display the fa-sort-desc icon and be active', function() {
                 colDefinitions[0].sortDirection = 'descending';
                 table.onDataReceived();
 
                 expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'active fa fa-sort-asc')}).toThrow();
                 expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'active fa fa-sort-desc')}).not.toThrow();
+
+                // reset data
+                colDefinitions[0].sortDirection = 'ascending';
+            });
+
+            it('should display the sort desc icon passed in on props and be active', function() {
+                var props = {
+                    definition: definition,
+                    componentId: id,
+                    key: id,
+                    filters: {},
+                    iconClasses: iconClasses,
+                    loadingIconClasses: ['icon', 'ion-loading-c']
+                };
+                colDefinitions[0].sortDirection = 'descending';
+                table = TestUtils.renderIntoDocument(React.createElement(BasicTable, React.__spread({},  props)));
+                table.onDataReceived();
+
+                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'active test-sort-asc')}).toThrow();
+                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'active test-sort-desc')}).not.toThrow();
 
                 // reset data
                 colDefinitions[0].sortDirection = 'ascending';

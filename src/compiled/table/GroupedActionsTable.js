@@ -13,17 +13,6 @@ define(function(require) {
      */
     var GroupedActionsTable = {
         clobberBaseTable: {
-            iconClasses: {
-                rowsCollapsed: 'fa fa-chevron-right',
-                rowsExpanded: 'fa fa-chevron-down',
-                pageLeft: 'fa fa-chevron-left',
-                pageRight: 'fa fa-chevron-right',
-                sortAsc: 'fa fa-sort-asc',
-                sortDesc: 'fa fa-sort-desc',
-                statusOn: 'fa fa-circle',
-                statusOff: 'fa fa-circle-o'
-            },
-
             getTableRowItem: function(rowData, index) {
                 var rows = [];
                 var rowDataElements = [];
