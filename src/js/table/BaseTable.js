@@ -128,7 +128,7 @@ define(function(require) {
         },
 
         getQuickFilter: function() {
-            if (!this.quickFilterEnabled) {
+            if (!this.quickFilterEnabled || !this.state.data || !this.state.data.length) {
                 return null;
             }
 

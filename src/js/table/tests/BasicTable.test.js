@@ -246,7 +246,7 @@ define(function(require) {
                 table.onDataReceived();
 
                 expect(table.state.data).toEqual([]);
-                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'no-results')}).not.toThrow();
+                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'no-results');}).not.toThrow();
                 expect(TestUtils.findRenderedDOMComponentWithClass(table, 'no-results').props.children).toEqual('No results found.');
             });
         });
@@ -263,13 +263,22 @@ define(function(require) {
 
         describe('getQuickFilter function', function() {
             it('should create an input element if the quickFilterEnabled property is set to true.', function() {
+                table.state.data = tableData;
                 table.quickFilterEnabled = true;
                 expect(table.getQuickFilter().type).toEqual('input');
+                table.state.data = null;
+            });
+
+            it('should not create an element if there is no data to display', function(){
+                table.state.data = null;
+                expect(table.getQuickFilter()).toBeNull();
             });
 
             it('should not create an input element if the quickFilterEnabled property is set to false.', function() {
+                table.state.data = tableData;
                 table.quickFilterEnabled = false;
                 expect(table.getQuickFilter()).toBeNull();
+                table.state.data = null;
             });
         });
 
