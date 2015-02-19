@@ -9,6 +9,9 @@ define(function(require) {
     describe('TableStore', function() {
         var id;
         var definition = {};
+        var dataFormatter = function(data) {
+            return data;
+        };
 
         beforeEach(function() {
             id = 'table-' + Utils.guid();
@@ -68,14 +71,14 @@ define(function(require) {
                 size: 2
             };
 
-            TableStore.createInstance(id, definition);
+            TableStore.createInstance(id, definition, dataFormatter);
         });
 
         describe('Table', function() {
             var table;
 
             beforeEach(function() {
-                table = new TableStore.Table(id, definition);
+                table = new TableStore.Table(id, definition, dataFormatter);
             });
 
             describe('onDataReceived function', function() {
@@ -93,12 +96,10 @@ define(function(require) {
 
                 it('should call formatter if present', function() {
                     spyOn(table, 'sortData');
-                    table.dataFormatter = function(data) {};
                     spyOn(table, 'dataFormatter');
 
                     table.onDataReceived(data);
                     expect(table.dataFormatter).toHaveBeenCalled();
-                    delete table.dataFormatter;
                 });
 
                 describe('percent formatter', function() {

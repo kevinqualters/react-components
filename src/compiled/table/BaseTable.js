@@ -77,7 +77,7 @@ define(function(require) {
                 loading: true,
                 dataError: false
             });
-            TableActions.requestData(this.props.componentId, this.props.definition, this.props.filters);
+            TableActions.requestData(this.props.componentId, this.props.definition, this.props.dataFormatter, this.props.filters);
         },
 
         /**

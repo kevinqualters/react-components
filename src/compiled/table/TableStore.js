@@ -18,9 +18,10 @@ define(function(require) {
      * properties (cursor - the starting index and size - number of lines per page).
      * @param {String} id - The unique identifier of the Table instance.
      * @param {Object} definition - A defined table.
+     * @param {Function} dataFormatter - A function that will allow for post processing of data from the server.
      * @constructor
      */
-    var Table = function(id, definition) {
+    var Table = function(id, definition, dataFormatter) {
         this.id = id;
         this.url = definition.url;
         this.cols = definition.cols;
@@ -28,9 +29,9 @@ define(function(require) {
         this.pagination = definition.pagination;
         this.cursor = definition.cursor;
         this.rowClick = definition.rowClick;
-        this.dataFormatter = definition.dataFormatter || undefined;
         this.data = null;
         this.dataCount = null;
+        this.dataFormatter = dataFormatter;
     };
 
     Table.prototype = {
@@ -260,9 +261,10 @@ define(function(require) {
          * Creates an instance of Table.
          * @param {String} id - The unique identifier used to access the Table instance.
          * @param {String} definition - A defined Table.
+         * @param {Function} dataFormatter - A function that will allow for post processing of data from the server.
          */
-        createInstance: function(id, definition) {
-            this.collection[id] = new Table(id, definition);
+        createInstance: function(id, definition, dataFormatter) {
+            this.collection[id] = new Table(id, definition, dataFormatter);
         },
 
         /**

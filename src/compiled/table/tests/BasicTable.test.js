@@ -58,6 +58,10 @@ define(function(require) {
         }
     };
 
+    function dataFormatter(data) {
+        return data;
+    }
+
     function spyOnTableGetCalls(data, count, colDef, sortIdx, rowClick, pagination) {
         spyOn(TableStore, 'getData').and.returnValue(data);
         spyOn(TableStore, 'getDataCount').and.returnValue(count);
@@ -124,6 +128,7 @@ define(function(require) {
             id = 'table-' + Utils.guid();
             var props = {
                 definition: definition,
+                dataFormatter: dataFormatter,
                 componentId: id,
                 key: id,
                 filters: {},
@@ -192,7 +197,8 @@ define(function(require) {
         });
 
         describe('requestData function', function() {
-            it('should put the component into a loading state with no data errors', function() {
+            it('should put the component into a loading state with no data errors and make a request for data', function() {
+                spyOn(TableActions, 'requestData');
                 table.setState({
                     loading: false,
                     dataError: true
@@ -203,6 +209,7 @@ define(function(require) {
 
                 table.requestData();
 
+                expect(TableActions.requestData).toHaveBeenCalledWith(id, definition, dataFormatter, {});
                 expect(table.state.loading).toEqual(true);
                 expect(table.state.dataError).toEqual(false);
             });
