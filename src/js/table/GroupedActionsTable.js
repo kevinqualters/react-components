@@ -70,11 +70,7 @@ define(function(require) {
                 }
                 else if (meta.dataProperty === 'groupDate') {
                     // Date has count and chevron, but not in a sep column.
-                    statusIconClasses = React.addons.classSet({
-                        'icon': true,
-                        'ion-chevron-right': this.state.selectedIndex !== index,
-                        'ion-chevron-down': this.state.selectedIndex === index
-                    });
+                    statusIconClasses = this.state.selectedIndex === index ? this.iconClasses.rowsExpanded : this.iconClasses.rowsCollapsed;
 
                     expandedRowIndicatorClasses = React.addons.classSet({
                         'before-icon': true,

@@ -8,8 +8,25 @@ define(function(require) {
     var TableStore = require('drc/table/TableStore');
     var Utils = require('drc/utils/Utils');
 
+    var iconClasses = {
+        pageLeft: 'fa fa-chevron-left',
+        pageRight: 'fa fa-chevron-right',
+        rowsCollapsed: 'fa fa-chevron-right',
+        rowsExpanded: 'fa fa-chevron-down',
+        sortAsc: 'fa fa-sort-asc',
+        sortDesc: 'fa fa-sort-desc',
+        statusOn: 'fa fa-circle',
+        statusOff: 'fa fa-circle-o'
+    };
+
     return {
         displayName: 'BasicTable',
+
+        mixins: [
+            DataMixins.dataRequest,
+            DataMixins.destroySelfOnUnmount(TableActions),
+            DataMixins.eventSubscription(TableStore)
+        ],
 
         quickFilterEnabled: false,
 
@@ -20,14 +37,9 @@ define(function(require) {
             };
         },
 
-        mixins: [
-            DataMixins.dataRequest,
-            DataMixins.destroySelfOnUnmount(TableActions),
-            DataMixins.eventSubscription(TableStore)
-        ],
-
         getInitialState: function() {
             this.quickFilterEnabled = _.some(this.props.definition.cols, function(col) {return col.quickFilter === true;}) ? true : false;
+            this.iconClasses = _.merge(_.clone(iconClasses), this.props.iconClasses);
 
             return {
                 loading: true,
@@ -148,15 +160,11 @@ define(function(require) {
 
             var cx = React.addons.classSet;
             var leftControl = cx({
-                'icon': true,
-                'ion-chevron-left': true,
                 'left-control': true,
                 'disabled': disableLeft,
                 'hide': disableLeft && disableRight
             });
             var rightControl = cx({
-                'icon': true,
-                'ion-chevron-right': true,
                 'right-control': true,
                 'disabled': disableRight,
                 'hide': disableLeft && disableRight
@@ -169,8 +177,8 @@ define(function(require) {
                     lastDisplayedVal, 
                     React.createElement("span", null, "  of  "), 
                     this.state.dataCount, 
-                    React.createElement("i", {className: leftControl, onClick: handlePageLeftClick}), 
-                    React.createElement("i", {className: rightControl, onClick: handlePageRightClick})
+                    React.createElement("i", {className: leftControl + ' ' + this.iconClasses.pageLeft, onClick: handlePageLeftClick}), 
+                    React.createElement("i", {className: rightControl + ' ' + this.iconClasses.pageRight, onClick: handlePageRightClick})
                 )
             );
         },
@@ -268,17 +276,12 @@ define(function(require) {
          * @return {Object}            Cell markup
          */
         getTableData: function(val, meta, hoverValue, index) {
-            var cx = React.addons.classSet;
-            var afterIcon, statusIconClasses;
+            var afterIcon, defaultIconClasses;
 
             if (meta.dataType === 'status') {
-                statusIconClasses = cx({
-                    'fa': true,
-                    'fa-circle': this.state.data[index].online,
-                    'fa-circle-o': !this.state.data[index].online
-                });
+                defaultIconClasses = this.state.data[index].online ? this.iconClasses.statusOn : this.iconClasses.statusOff;
 
-                afterIcon = (React.createElement("span", {className: "after-icon"}, React.createElement("i", {className: statusIconClasses})));
+                afterIcon = (React.createElement("span", {className: "after-icon"}, React.createElement("i", {className: defaultIconClasses})));
             }
             hoverValue = hoverValue || val;
 
@@ -293,13 +296,11 @@ define(function(require) {
         getIcon: function(direction, sortActive) {
             var iconClasses = React.addons.classSet({
                 'sorting-indicator': true,
-                'fa': true,
-                'fa-sort-asc': direction === 'ascending',
-                'fa-sort-desc': direction === 'descending',
                 'active': sortActive
             });
+            var defaultIconClasses = direction === 'ascending' ? this.iconClasses.sortAsc : this.iconClasses.sortDesc;
 
-            return React.createElement("i", {className: iconClasses});
+            return React.createElement("i", {className: iconClasses + ' ' + defaultIconClasses});
         },
 
         handleQuickFilterChange: function(e) {
