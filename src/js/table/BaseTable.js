@@ -221,7 +221,8 @@ define(function(require) {
 
             headerClasses = React.addons.classSet({
                 'indicator': !!icon,
-                'no-select': true
+                'no-select': true,
+                'action-column-th': colData.action && typeof colData.action.iconClasses === 'object'
             });
 
             if (icon) {
@@ -230,6 +231,7 @@ define(function(require) {
 
             return (
                 <th className={headerClasses}
+                    title={colData.headerLabel}
                     key={'tableHeader' + Utils.guid()}
                     style={thStyle}
                     onClick={handleSortClick ? handleSortClick.bind(this, index) : undefined}>{colData.headerLabel} {icon}
@@ -276,18 +278,29 @@ define(function(require) {
          * @return {Object}            Cell markup
          */
         getTableData: function(val, meta, hoverValue, index) {
-            var afterIcon, defaultIconClasses;
+            var afterIcon, iconClasses;
+            var contentClasses = 'content';
+
+            // This is an action column
+            if (meta.action && typeof meta.action.iconClasses === 'object' && meta.action.iconClasses.off) {
+                return (
+                    <td className="action-column-td" key={'tableData' + Utils.guid()}>
+                        <i className={meta.action.iconClasses.off}></i>
+                    </td>
+                );
+            }
 
             if (meta.dataType === 'status') {
-                defaultIconClasses = this.state.data[index].online ? this.iconClasses.statusOn : this.iconClasses.statusOff;
+                contentClasses += ' before-icon';
+                iconClasses = this.state.data[index].online ? this.iconClasses.statusOn + ' status-on' : this.iconClasses.statusOff + ' status-off';
 
-                afterIcon = (<span className="after-icon"><i className={defaultIconClasses} /></span>);
+                afterIcon = <i className={'after-icon ' + iconClasses}></i>;
             }
             hoverValue = hoverValue || val;
 
             return (
                 <td className="status" key={'tableData' + Utils.guid()}>
-                    <span className="content" title={hoverValue}>{val}</span>
+                    <span className={contentClasses} title={hoverValue}>{val}</span>
                     {afterIcon}
                 </td>
             );
@@ -298,7 +311,7 @@ define(function(require) {
                 'sorting-indicator': true,
                 'active': sortActive
             });
-            var defaultIconClasses = direction === 'ascending' ? this.iconClasses.sortAsc : this.iconClasses.sortDesc;
+            var defaultIconClasses = direction === 'ascending' ? this.iconClasses.sortAsc + ' asc' : this.iconClasses.sortDesc + ' desc';
 
             return <i className={iconClasses + ' ' + defaultIconClasses}></i>;
         },

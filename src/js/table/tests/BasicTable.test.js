@@ -483,8 +483,7 @@ define(function(require) {
                 var tableDataComponent = table.getTableData(val, meta, null, 0);
 
 
-                expect(tableDataComponent.props.children[1].props.className).toEqual('after-icon');
-                expect(tableDataComponent.props.children[1].props.children.props.className).toEqual('fa fa-circle');
+                expect(tableDataComponent.props.children[1].props.className).toEqual('after-icon fa fa-circle status-on');
             });
 
             it('should use the status on icon passed in on props', function() {
@@ -505,8 +504,7 @@ define(function(require) {
                 table.state.data.push(meta);
                 var tableDataComponent = table.getTableData(val, meta, null, 0);
 
-                expect(tableDataComponent.props.children[1].props.className).toEqual('after-icon');
-                expect(tableDataComponent.props.children[1].props.children.props.className).toEqual('test-status-on');
+                expect(tableDataComponent.props.children[1].props.className).toEqual('after-icon test-status-on status-on');
             });
 
             it('should render fa-circle-o icons after the status of an offline user', function() {
@@ -516,8 +514,7 @@ define(function(require) {
                 table.state.data.push(meta);
                 var tableDataComponent = table.getTableData(val, meta, null, 0);
 
-                expect(tableDataComponent.props.children[1].props.className).toEqual('after-icon');
-                expect(tableDataComponent.props.children[1].props.children.props.className).toEqual('fa fa-circle-o');
+                expect(tableDataComponent.props.children[1].props.className).toEqual('after-icon fa fa-circle-o status-off');
             });
 
             it('should use the status off icon passed in on props', function() {
@@ -538,8 +535,7 @@ define(function(require) {
                 table.state.data.push(meta);
                 var tableDataComponent = table.getTableData(val, meta, null, 0);
 
-                expect(tableDataComponent.props.children[1].props.className).toEqual('after-icon');
-                expect(tableDataComponent.props.children[1].props.children.props.className).toEqual('test-status-off');
+                expect(tableDataComponent.props.children[1].props.className).toEqual('after-icon test-status-off status-off');
             });
 
             it('should set different title attribute when hover value is passed in', function(){

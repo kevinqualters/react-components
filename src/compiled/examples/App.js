@@ -11,11 +11,38 @@ define(function(require) {
         url: '/test/table',
         cols: [
             {
+                width: '35px',
+                action: {
+                    iconClasses: {
+                        on: 'fa fa-check-square-o',
+                        off: 'fa fa-square-o'
+                    },
+                    callback: function() {
+                        console.log('super sweet checkbox action');
+                    }
+                }
+            },
+            {
+                dataProperty: '',
+                selectedVal: '',
+                deselectedVal: '',
+                width: '35px',
+                action: {
+                    iconClasses: {
+                        on: 'fa fa-star',
+                        off: 'fa fa-star-o'
+                    },
+                    callback: function() {
+                        console.log('super sweet favorite action');
+                    }
+                }
+            },
+            {
                 headerLabel: 'NAME',
                 dataProperty: 'name',
                 sortDirection: 'ascending',
                 dataType: 'string',
-                width: '25%',
+                width: '20%',
                 quickFilter: true
             },
             {
@@ -23,7 +50,7 @@ define(function(require) {
                 dataProperty: 'messages',
                 sortDirection: 'descending',
                 dataType: 'number',
-                width: '10%',
+                width: '15%',
                 quickFilter: true
             },
             {
@@ -50,7 +77,7 @@ define(function(require) {
                 dataType: 'status',
                 onlineLimit: 4,
                 timeFormat: 'MMM Do, h:mm A',
-                width: '30%',
+                width: '24%',
                 quickFilter: true
             }
         ],

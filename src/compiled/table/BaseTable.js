@@ -221,7 +221,8 @@ define(function(require) {
 
             headerClasses = React.addons.classSet({
                 'indicator': !!icon,
-                'no-select': true
+                'no-select': true,
+                'action-column-th': colData.action && typeof colData.action.iconClasses === 'object'
             });
 
             if (icon) {
@@ -230,6 +231,7 @@ define(function(require) {
 
             return (
                 React.createElement("th", {className: headerClasses, 
+                    title: colData.headerLabel, 
                     key: 'tableHeader' + Utils.guid(), 
                     style: thStyle, 
                     onClick: handleSortClick ? handleSortClick.bind(this, index) : undefined}, colData.headerLabel, " ", icon
@@ -276,18 +278,29 @@ define(function(require) {
          * @return {Object}            Cell markup
          */
         getTableData: function(val, meta, hoverValue, index) {
-            var afterIcon, defaultIconClasses;
+            var afterIcon, iconClasses;
+            var contentClasses = 'content';
+
+            // This is an action column
+            if (meta.action && typeof meta.action.iconClasses === 'object' && meta.action.iconClasses.off) {
+                return (
+                    React.createElement("td", {className: "action-column-td", key: 'tableData' + Utils.guid()}, 
+                        React.createElement("i", {className: meta.action.iconClasses.off})
+                    )
+                );
+            }
 
             if (meta.dataType === 'status') {
-                defaultIconClasses = this.state.data[index].online ? this.iconClasses.statusOn : this.iconClasses.statusOff;
+                contentClasses += ' before-icon';
+                iconClasses = this.state.data[index].online ? this.iconClasses.statusOn + ' status-on' : this.iconClasses.statusOff + ' status-off';
 
-                afterIcon = (React.createElement("span", {className: "after-icon"}, React.createElement("i", {className: defaultIconClasses})));
+                afterIcon = React.createElement("i", {className: 'after-icon ' + iconClasses});
             }
             hoverValue = hoverValue || val;
 
             return (
                 React.createElement("td", {className: "status", key: 'tableData' + Utils.guid()}, 
-                    React.createElement("span", {className: "content", title: hoverValue}, val), 
+                    React.createElement("span", {className: contentClasses, title: hoverValue}, val), 
                     afterIcon
                 )
             );
@@ -298,7 +311,7 @@ define(function(require) {
                 'sorting-indicator': true,
                 'active': sortActive
             });
-            var defaultIconClasses = direction === 'ascending' ? this.iconClasses.sortAsc : this.iconClasses.sortDesc;
+            var defaultIconClasses = direction === 'ascending' ? this.iconClasses.sortAsc + ' asc' : this.iconClasses.sortDesc + ' desc';
 
             return React.createElement("i", {className: iconClasses + ' ' + defaultIconClasses});
         },
