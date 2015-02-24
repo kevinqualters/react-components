@@ -45,12 +45,13 @@ define(function(require) {
          */
         onDataReceived: function(data) {
             this.data = _.values(data);
-            this.dataCount = data.length;
 
             // Run data through definition formatter if it exists.
             if (this.dataFormatter) {
                 this.data = this.dataFormatter(data);
             }
+
+            this.dataCount = this.data.length;
 
             // Run data through built in data formatters.
             _.forEach(this.cols, function(col) {
@@ -58,7 +59,7 @@ define(function(require) {
                 if (col.dataType === 'status' && (typeof col.onlineLimit !== 'number' || col.onlineLimit < 1)) {
                     col.onlineLimit = 15;
                 }
-                _.forEach(data, function(item) {
+                _.forEach(this.data, function(item) {
                     if (col.dataType === 'percent') {
                         item[col.dataProperty] += '%';
                     }
@@ -72,7 +73,7 @@ define(function(require) {
                         item[col.dataProperty] = item[col.dataProperty] ? Moment(item[col.dataProperty]).format(col.timeFormat) : '--';
                     }
                 });
-            });
+            }, this);
 
             if (typeof this.sortColIndex === 'number') {
                 this.sortData(this.sortColIndex, this.cols[this.sortColIndex].sortDirection);

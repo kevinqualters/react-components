@@ -96,7 +96,7 @@ define(function(require) {
 
                 it('should call formatter if present', function() {
                     spyOn(table, 'sortData');
-                    spyOn(table, 'dataFormatter');
+                    spyOn(table, 'dataFormatter').and.returnValue(data);
 
                     table.onDataReceived(data);
                     expect(table.dataFormatter).toHaveBeenCalled();

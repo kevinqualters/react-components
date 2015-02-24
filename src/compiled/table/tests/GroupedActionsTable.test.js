@@ -8,7 +8,7 @@ define(function(require) {
 
     var TestUtils = React.addons.TestUtils;
 
-    describe('Table', function() {
+    describe('Grouped Actions Table', function() {
         var table, id;
 
         function spyOnTableGetCalls(data, count, colDef, sortIdx, rowClick, pagination) {
@@ -174,26 +174,6 @@ define(function(require) {
         });
 
         describe('getTableData function', function() {
-            it('should set the value to the formatted Moment if the dataType is "time" and there is a val.', function() {
-                var tableDataElement = table.getTableData(tableData[0], definition.cols[0], 0);
-                var tableDataContents = tableDataElement._store.props.children[1];
-                var title = tableDataContents._store.props.title;
-                var str = tableDataContents._store.props.children;
-                expect(title).toBeNonEmptyString();
-                expect(str.split(' ').length).toEqual(3);
-            });
-
-            it('should set the value to "--" if the meta dataType is "time" and there is no val.', function() {
-                var meta = _.clone(definition.cols[0]);
-                delete meta.dataProperty;
-                var tableDataElement = table.getTableData(tableData[0], meta, 0);
-                var tableDataContents = tableDataElement._store.props.children[1];
-                var title = tableDataContents._store.props.title;
-                var str = tableDataContents._store.props.children;
-                expect(title).toBeNonEmptyString();
-                expect(str).toEqual('--');
-            });
-
             it('should set the value to a calculated duration string if the dataProperty is "duration".', function() {
                 var tableDataElement = table.getTableData(tableData[0], definition.cols[1], 0);
                 var tableDataContents = tableDataElement._store.props.children[1];

@@ -61,10 +61,6 @@ define(function(require) {
                     'group-date': meta.dataProperty === 'groupDate'
                 });
 
-                if (meta.dataType === 'time') {
-                    val = val ? Moment(val).format(meta.timeFormat) : "--";
-                }
-
                 if (meta.dataProperty === 'duration') {
                     val = this.calculateDurationString(val);
                 }
