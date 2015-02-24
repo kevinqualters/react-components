@@ -9,13 +9,17 @@ define(function(require) {
     var TestUtils = React.addons.TestUtils;
 
     describe('Table', function() {
+        var table, id;
+
         function spyOnTableGetCalls(data, count, colDef, sortIdx, rowClick, pagination) {
-            spyOn(TableStore, 'getData').and.returnValue(data);
-            spyOn(TableStore, 'getDataCount').and.returnValue(count);
-            spyOn(TableStore, 'getColDefinitions').and.returnValue(colDef);
-            spyOn(TableStore, 'getSortColIndex').and.returnValue(sortIdx);
-            spyOn(TableStore, 'getRowClickData').and.returnValue(rowClick);
-            spyOn(TableStore, 'getPaginationData').and.returnValue(pagination);
+            var tableInstance = TableStore.getInstance(id);
+
+            spyOn(tableInstance, 'getData').and.returnValue(data);
+            spyOn(tableInstance, 'getDataCount').and.returnValue(count);
+            spyOn(tableInstance, 'getColDefinitions').and.returnValue(colDef);
+            spyOn(tableInstance, 'getSortColIndex').and.returnValue(sortIdx);
+            spyOn(tableInstance, 'getRowClickData').and.returnValue(rowClick);
+            spyOn(tableInstance, 'getPaginationData').and.returnValue(pagination);
         }
 
         var definition = {
@@ -102,7 +106,6 @@ define(function(require) {
             rowsCollapsed: 'test-rows-collapsed',
             rowsExpanded: 'test-rows-expanded'
         };
-        var table, id;
 
         beforeEach(function() {
             id = 'table-' + Utils.guid();
@@ -116,6 +119,7 @@ define(function(require) {
             };
 
             table = TestUtils.renderIntoDocument(<GroupedActionsTable {...props} />);
+            table.requestData();
             spyOnTableGetCalls(tableData, dataCount, definition.cols, definition.sortColIndex, definition.rowClick, definition.pagination);
             table.onDataReceived();
         });

@@ -335,121 +335,12 @@ define(function(require) {
         },
 
         /**
-         * Retrieves the data for the table (also triggers pagination).
-         * @param {String} id - The unique identifier of the Table instance to request data for.
-         * @returns {Array|Null} - Table.data or null if data hasn't been received from the server yet.
+         * Retrieves a Table instance.
+         * @param {String} id - The unique identifier fo the Table instance to retrieve.
+         * @returns {Table}
          */
-        getData: function(id) {
-            return this.collection[id].getData();
-        },
-
-        /**
-         * Retrieves the number of data rows that need to be inserted into the table.
-         * @param {String} id - The unique identifier of the Table instance to get a data count for.
-         * @returns {Number} - The length of the Table.data array.
-         */
-        getDataCount: function(id) {
-            return this.collection[id].getDataCount();
-        },
-
-        /**
-         * Retrieves the column definitions for the table.
-         * @param {String} id - The unique identifier of the Table instance to get the column definition for.
-         * @returns {Array} - List of column objects containing key information to render the table.
-         */
-        getColDefinitions: function(id) {
-            return this.collection[id].getColDefinitions();
-        },
-
-        /**
-         * Retrieves the column index that the table is set to be sorting off of.
-         * @param {String} id - The unique identifier of the Table instance to get the sorting column index for.
-         * @returns {Number} - The Table.sortColIndex.
-         */
-        getSortColIndex: function(id) {
-            return this.collection[id].getSortColIndex();
-        },
-
-        /**
-         * Retrieves a value representing if table rows are clickable (for style and behavior).
-         * @param {String} id - The unique identifier of the Table instance to get row click data for.
-         * @returns {Object} - Contains properties used in the row click handler of the table component.
-         */
-        getRowClickData: function(id) {
-            return this.collection[id].getRowClickData();
-        },
-
-        /**
-         * Retrieves the pagination data for the table. This includes cursor and size.
-         * @param {String} id - The unique identifier of the Table instance to request pagination data for.
-         * @returns {{cursor: number, size:number}}
-         */
-        getPaginationData: function(id) {
-            return this.collection[id].getPaginationData();
-        },
-
-        /**
-         * Sets the value used for filtering a Table instance.
-         * @param {String} id - The unique identifier of the Table instance to request filtering data for.
-         * @param {String|Number} value - The string or number used to filter out table rows that are not a match.
-         */
-        setFilterValue: function(id, value) {
-            this.collection[id].setFilterValue(value);
-        },
-
-        /**
-         * Moves the cursor forwards or backwards through paginated data.
-         * @param {String} id - The unique identifier of the Table instance to paginate.
-         * @param {String} direction - the direction paginate (right or left).
-         */
-        paginate: function(id, direction) {
-            this.collection[id].paginate(direction);
-        },
-
-        /**
-         * Sorts the array of data for the Table based on the sort column index and the direction.
-         * @param {String} id - The unique identifier of the Table instance to be sorted.
-         * @param {Number} colIndex - The index of the table column that is to sorted.
-         * @param {String} direction - The direction to sort (ascending or descending).
-         */
-        sortData: function(id, colIndex, direction) {
-            this.collection[id].sortData(colIndex, direction);
-        },
-
-        /**
-         * Retrieves the selected items for the Table instance.
-         * @param {String} id - The unique identifier of the Table instance to get the selected items for.
-         * @returns {{}|Table.selectedItems} - The object containing all of the selected keys.
-         */
-        getSelectedItems: function(id) {
-            return this.collection[id].getSelectedItems();
-        },
-
-        /**
-         * Retrieves the filtered data for the Table instance.
-         * @param {String} id - The unique identifier of the Table instance to get the filtered data for.
-         * @returns {[]|Table.filteredData} - The subset of Table data post filtering.
-         */
-        getFilteredData: function(id) {
-            return this.collection[id].getFilteredData();
-        },
-
-        /**
-         * Adds or removes all elements
-         * @param {String} id - The unique identifier of the Table instance to toggle bulk selection for.
-         * @param {Boolean} deselect - There are selected items in the filtered data set, so we need to deselect them.
-         */
-        updateBulkSelection: function(id, deselect) {
-            this.collection[id].updateBulkSelection(deselect);
-        },
-
-        /**
-         * Adds or removes a table row from the selected table row list.
-         * @param {String} id - The unique identifier of the Table instance to select a row within.
-         * @param {Number} rowIndex - The index of the table row containing the select box that was toggled.
-         */
-        updateRowSelection: function(id, rowIndex) {
-            this.collection[id].updateRowSelection(rowIndex);
+        getInstance: function(id) {
+            return this.collection[id];
         },
 
         /**
@@ -468,23 +359,23 @@ define(function(require) {
                     this.handleRequestDataAction(action);
                     break;
                 case ActionTypes.TABLE_SORT:
-                    this.sortData(action.id, action.data.colIndex, action.data.direction);
+                    this.collection[action.id].sortData(action.data.colIndex, action.data.direction);
                     this.emitChange(action.id);
                     break;
                 case ActionTypes.FILTER:
-                    this.setFilterValue(action.id, action.data.value);
+                    this.collection[action.id].setFilterValue(action.data.value);
                     this.emitChange(action.id);
                     break;
                 case ActionTypes.PAGINATE:
-                    this.paginate(action.id, action.data.direction);
+                    this.collection[action.id].paginate(action.data.direction);
                     this.emitChange(action.id);
                     break;
                 case ActionTypes.TOGGLE_BULK_SELECT:
-                    this.updateBulkSelection(action.id, action.data.deselect);
+                    this.collection[action.id].updateBulkSelection(action.data.deselect);
                     this.emitChange(action.id);
                     break;
                 case ActionTypes.TOGGLE_ROW_SELECT:
-                    this.updateRowSelection(action.id, action.data.rowIndex);
+                    this.collection[action.id].updateRowSelection(action.data.rowIndex);
                     this.emitChange(action.id);
                     break;
                 case ActionTypes.DESTROY_INSTANCE:

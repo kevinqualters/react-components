@@ -102,12 +102,9 @@ define(function(require) {
          * Handle store change event.
          */
         onDataReceived: function() {
-            var data = TableStore.getData(this.props.componentId);
-            var dataCount = TableStore.getDataCount(this.props.componentId);
-            var colDefinitions = TableStore.getColDefinitions(this.props.componentId);
-            var sortColIndex = TableStore.getSortColIndex(this.props.componentId);
-            var rowClick = TableStore.getRowClickData(this.props.componentId);
-            var pagination = TableStore.getPaginationData(this.props.componentId);
+            var table = TableStore.getInstance(this.props.componentId);
+            var data = table.getData();
+            var colDefs = table.getColDefinitions();
 
             if (!data) {
                 this.onError();
@@ -115,15 +112,16 @@ define(function(require) {
             }
 
             this.setState({
-                loading: false,
+                colDefinitions: colDefs,
+                colSortDirections: this.getColSortDirections(colDefs),
+                dataCount: table.getDataCount(),
                 data: data,
-                dataCount: dataCount,
-                colDefinitions: colDefinitions,
-                sortColIndex: sortColIndex,
-                pagination: pagination,
-                rowClick: rowClick,
-                colSortDirections: this.getColSortDirections(colDefinitions),
-                selectedItems: this.selectionEnabled ? TableStore.getSelectedItems(this.props.componentId) : null
+                filteredData: table.getFilteredData(),
+                loading: false,
+                pagination: table.getPaginationData(),
+                rowClick: table.getRowClickData(),
+                selectedItems: this.selectionEnabled ? table.getSelectedItems() : null,
+                sortColIndex: table.getSortColIndex()
             });
         },
 
@@ -236,7 +234,7 @@ define(function(require) {
             }
 
             if (colData.dataType === 'select') {
-                filteredData = TableStore.getFilteredData(this.props.componentId);
+                filteredData = this.state.filteredData;
 
                 match = _.some(filteredData, function(data) {
                     return this.state.selectedItems[data[colData.dataProperty]];
@@ -375,7 +373,7 @@ define(function(require) {
 
         /**
          * Tracks the mouse down x value to detect dragging on a table row to highlight text.
-         * @param {Object} e - The event simulated by React.
+         * @param {Object} e - Simulated React event.
          */
         onMouseDown: function(e) {
             this.mouseDownX = e.clientX;
@@ -383,7 +381,7 @@ define(function(require) {
 
         /**
          * Will trigger the rowClick's callback function if a drag hasn't occurred.
-         * @param {Object} e - The event simulated by React.
+         * @param {Object} e - Simulated React event.
          */
         handleRowClick: function(e) {
             // Do not allow the click functionality to be triggered when the user is highlighting text.

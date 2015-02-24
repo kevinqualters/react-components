@@ -528,92 +528,6 @@ define(function(require) {
             });
         });
 
-        describe('getData function', function() {
-            it('should trigger the getData function for the table instance', function() {
-                spyOn(TableStore.collection[id], 'getData');
-                TableStore.getData(id);
-
-                expect(TableStore.collection[id].getData).toHaveBeenCalled();
-            });
-        });
-
-        describe('getDataCount function', function() {
-            it('should trigger the getDataCount function for the table instance', function() {
-                spyOn(TableStore.collection[id], 'getDataCount');
-                TableStore.getDataCount(id);
-
-                expect(TableStore.collection[id].getDataCount).toHaveBeenCalled();
-            });
-        });
-
-        describe('getColDefinitions function', function() {
-            it('should trigger the getColDefinitions function for the table instance', function() {
-                spyOn(TableStore.collection[id], 'getColDefinitions');
-                TableStore.getColDefinitions(id);
-
-                expect(TableStore.collection[id].getColDefinitions).toHaveBeenCalled();
-            });
-        });
-
-        describe('getSortColIndex function', function() {
-            it('should trigger the getSortColIndex function for the table instance', function() {
-                spyOn(TableStore.collection[id], 'getSortColIndex');
-                TableStore.getSortColIndex(id);
-
-                expect(TableStore.collection[id].getSortColIndex).toHaveBeenCalled();
-            });
-        });
-
-        describe('getRowClickData function', function() {
-            it('should trigger the getRowClickData function for the table instance', function() {
-                spyOn(TableStore.collection[id], 'getRowClickData');
-                TableStore.getRowClickData(id);
-
-                expect(TableStore.collection[id].getRowClickData).toHaveBeenCalled();
-            });
-        });
-
-        describe('getPaginationData function', function() {
-            it('should trigger the getPaginationData function for the table instance', function() {
-                spyOn(TableStore.collection[id], 'getPaginationData');
-                TableStore.getPaginationData(id);
-
-                expect(TableStore.collection[id].getPaginationData).toHaveBeenCalled();
-            });
-        });
-
-        describe('setFilterValue function', function() {
-            it('should set the filter value for the table instance', function() {
-                var val = 'testFilter';
-                TableStore.setFilterValue(id, val);
-
-                expect(TableStore.collection[id].filterValue).toEqual(val);
-            });
-        });
-
-        describe('paginate function', function() {
-            it('should trigger the paginate function for the table instance', function() {
-                var direction = 'ascending';
-
-                spyOn(TableStore.collection[id], 'paginate');
-                TableStore.paginate(id, direction);
-
-                expect(TableStore.collection[id].paginate).toHaveBeenCalledWith(direction);
-            });
-        });
-
-        describe('sortData function', function() {
-            it('should trigger the sortData function for the table instance', function() {
-                var colIndex = 0;
-                var direction = 'descending';
-
-                spyOn(TableStore.collection[id], 'sortData');
-                TableStore.sortData(id, colIndex, direction);
-
-                expect(TableStore.collection[id].sortData).toHaveBeenCalledWith(colIndex, direction);
-            });
-        });
-
         describe('dispatchRegister function', function() {
             it('should not handle the action if the component type is not supported', function() {
                 var payload = {
@@ -666,12 +580,13 @@ define(function(require) {
                         }
                     }
                 };
+                TableStore.collection['testId'] = {sortData: function(){}};
 
-                spyOn(TableStore, 'sortData');
+                spyOn(TableStore.collection['testId'], 'sortData');
                 spyOn(TableStore, 'emitChange');
                 TableStore.dispatchRegister(payload);
 
-                expect(TableStore.sortData).toHaveBeenCalledWith(payload.action.id, payload.action.data.colIndex, payload.action.data.direction);
+                expect(TableStore.collection['testId'].sortData).toHaveBeenCalledWith(payload.action.data.colIndex, payload.action.data.direction);
                 expect(TableStore.emitChange).toHaveBeenCalledWith(payload.action.id);
             });
 
@@ -686,12 +601,13 @@ define(function(require) {
                         }
                     }
                 };
+                TableStore.collection['testId'] = {setFilterValue: function(){}};
 
-                spyOn(TableStore, 'setFilterValue');
+                spyOn(TableStore.collection['testId'], 'setFilterValue');
                 spyOn(TableStore, 'emitChange');
                 TableStore.dispatchRegister(payload);
 
-                expect(TableStore.setFilterValue).toHaveBeenCalledWith(payload.action.id, payload.action.data.value);
+                expect(TableStore.collection['testId'].setFilterValue).toHaveBeenCalledWith(payload.action.data.value);
                 expect(TableStore.emitChange).toHaveBeenCalledWith(payload.action.id);
             });
 
@@ -706,12 +622,13 @@ define(function(require) {
                         }
                     }
                 };
+                TableStore.collection['testId'] = {paginate: function(){}};
 
-                spyOn(TableStore, 'paginate');
+                spyOn(TableStore.collection['testId'], 'paginate');
                 spyOn(TableStore, 'emitChange');
                 TableStore.dispatchRegister(payload);
 
-                expect(TableStore.paginate).toHaveBeenCalledWith(payload.action.id, payload.action.data.direction);
+                expect(TableStore.collection['testId'].paginate).toHaveBeenCalledWith(payload.action.data.direction);
                 expect(TableStore.emitChange).toHaveBeenCalledWith(payload.action.id);
             });
 

@@ -8,80 +8,68 @@ define(function(require) {
 
     var TestUtils = React.addons.TestUtils;
 
-    var definition = {
-        url: 'table/company',
-        cols: [
-            {
-                headerLabel: 'NAME',
-                dataProperty: 'name',
-                sortDirection: 'ascending',
-                dataType: 'string',
-                width: '20%'
-            },
-            {
-                headerLabel: 'USERS',
-                dataProperty: 'users',
-                sortDirection: 'descending',
-                dataType: 'number',
-                width: '10%'
-            },
-            {
-                headerLabel: 'SESSIONS',
-                dataProperty: 'sessions',
-                sortDirection: 'descending',
-                dataType: 'number',
-                width: '10%'
-            },
-            {
-                headerLabel: 'ACTIVE',
-                dataProperty: 'activeUsers',
-                sortDirection: 'descending',
-                dataType: 'percent',
-                width: '10%'
-            },
-            {
-                headerLabel: 'PEAK',
-                dataProperty: 'peak',
-                sortDirection: 'descending',
-                dataType: 'time',
-                timeFormat: 'MMM Do, h A',
-                width: '15%'
-            }
-        ],
-        sortColIndex: 2,
-        pagination: {
-            cursor: 0,
-            size: 10
-        },
-        rowClick: {
-            callback: function() {}
-        }
-    };
-
-    function dataFormatter(data) {
-        return data;
-    }
-
-    var iconClasses = {
-        pageLeft: 'test-page-left',
-        pageRight: 'test-page-right',
-        sortAsc: 'test-sort-asc',
-        sortDesc: 'test-sort-desc',
-        statusOn: 'test-status-on',
-        statusOff: 'test-status-off'
-    };
-
-    function spyOnTableGetCalls(data, count, colDef, sortIdx, rowClick, pagination) {
-        spyOn(TableStore, 'getData').and.returnValue(data);
-        spyOn(TableStore, 'getDataCount').and.returnValue(count);
-        spyOn(TableStore, 'getColDefinitions').and.returnValue(colDef);
-        spyOn(TableStore, 'getSortColIndex').and.returnValue(sortIdx);
-        spyOn(TableStore, 'getRowClickData').and.returnValue(rowClick);
-        spyOn(TableStore, 'getPaginationData').and.returnValue(pagination);
-    }
-
     describe('Table', function() {
         var table, id;
+
+        var iconClasses = {
+            pageLeft: 'test-page-left',
+            pageRight: 'test-page-right',
+            sortAsc: 'test-sort-asc',
+            sortDesc: 'test-sort-desc',
+            statusOn: 'test-status-on',
+            statusOff: 'test-status-off'
+        };
+
+        var definition = {
+            url: 'table/company',
+            cols: [
+                {
+                    dataProperty: 'string',
+                    dataType: 'string',
+                    hoverProperty: 'string',
+                    sortDirection: 'ascending'
+                },
+                {
+                    dataProperty: 'integer',
+                    dataType: 'number',
+                    sortDirection: 'descending'
+                },
+                {
+                    dataProperty: 'mixedCase',
+                    dataType: 'string',
+                    sortDirection: 'ascending'
+                },
+                {
+                    dataProperty: 'time',
+                    dataType: 'time',
+                    sortDirection: 'ascending',
+                    timeFormat: 'MMM Do, h A'
+                },
+                {
+                    dataProperty: 'percent',
+                    dataType: 'percent',
+                    sortDirection: 'descending'
+                },
+                {
+                    dataProperty: 'status',
+                    dataType: 'status',
+                    timeFormat: 'MMM Do, h A'
+                }
+            ],
+            sortColIndex: 0,
+            pagination: {
+                cursor: 0,
+                size: 2
+            },
+            rowClick: {
+                callback: function() {}
+            }
+        };
+
+        function dataFormatter(data) {
+            return data;
+        }
+
         var tableData = [
             {string: 'aaa', integer: -2, mixedCase: 'Aaa', time: 1417455952, percent: 87, status: Moment().subtract(5, 'minutes')},
             {string: 'b', integer: 3, mixedCase: 'B', percent: 42, status: Moment().subtract(14, 'minutes')},
@@ -91,47 +79,17 @@ define(function(require) {
             {string: 'ab', integer: 1, mixedCase: 'aB', percent: 15, status: Moment().subtract(20, 'hours')},
             {string: 'aba', integer: 1, mixedCase: 'aBA', time: 1406479597, percent: 67, status: Moment().subtract(50, 'days')}
         ];
-        var dataCount = tableData.length;
-        var colDefinitions = [
-            {
-                dataProperty: 'string',
-                dataType: 'string',
-                hoverProperty: 'string',
-                sortDirection: 'ascending'
-            },
-            {
-                dataProperty: 'integer',
-                sortDirection: 'descending'
-            },
-            {
-                dataProperty: 'mixedCase',
-                dataType: 'string',
-                sortDirection: 'ascending'
-            },
-            {
-                dataProperty: 'time',
-                dataType: 'time',
-                sortDirection: 'ascending'
-            },
-            {
-                dataProperty: 'percent',
-                dataType: 'percent',
-                sortDirection: 'descending'
-            },
-            {
-                dataProperty: 'status',
-                dataType: 'status',
-                sortDirection: 'off'
-            }
-        ];
-        var sortColIndex = 0;
-        var paginationData = {
-            cursor: 0,
-            size: 2
-        };
-        var rowClick = {
-            callback: function() {}
-        };
+
+        function spyOnTableGetCalls(data, count, colDef, sortIdx, rowClick, pagination) {
+            var tableInstance = TableStore.getInstance(id);
+
+            spyOn(tableInstance, 'getData').and.returnValue(data);
+            spyOn(tableInstance, 'getDataCount').and.returnValue(count);
+            spyOn(tableInstance, 'getColDefinitions').and.returnValue(colDef);
+            spyOn(tableInstance, 'getSortColIndex').and.returnValue(sortIdx);
+            spyOn(tableInstance, 'getRowClickData').and.returnValue(rowClick);
+            spyOn(tableInstance, 'getPaginationData').and.returnValue(pagination);
+        }
 
         beforeEach(function() {
             id = 'table-' + Utils.guid();
@@ -145,6 +103,7 @@ define(function(require) {
             };
 
             table = TestUtils.renderIntoDocument(<BasicTable {...props} />);
+            table.requestData();
         });
 
         describe('getInitialState function', function() {
@@ -226,7 +185,7 @@ define(function(require) {
 
         describe('onDataReceived function', function() {
             it('should request the table state and set state for the table to render', function() {
-                spyOnTableGetCalls(tableData, dataCount, colDefinitions, sortColIndex, undefined, paginationData);
+                spyOnTableGetCalls(tableData, tableData.length, definition.cols, definition.sortColIndex, undefined, definition.pagination);
                 table.onDataReceived();
 
                 expect(table.state.data).toEqual(tableData);
@@ -235,14 +194,14 @@ define(function(require) {
 
 
             it('should error when the data returns as undefined', function() {
-                spyOnTableGetCalls(undefined, dataCount, colDefinitions, undefined, undefined, undefined);
+                spyOnTableGetCalls(undefined, tableData.length, definition.cols, undefined, undefined, undefined);
                 table.onDataReceived();
 
                 expect(table.state.data).toBeNull();
             });
 
             it('should show no results if the data returns with an empty array', function() {
-                spyOnTableGetCalls([], dataCount, colDefinitions, undefined, undefined, undefined);
+                spyOnTableGetCalls([], tableData.length, definition.cols, undefined, undefined, undefined);
                 table.onDataReceived();
 
                 expect(table.state.data).toEqual([]);
@@ -290,7 +249,7 @@ define(function(require) {
                     cursor: 1,
                     size: 2
                 };
-                spyOnTableGetCalls(tableData, dataCount, colDefinitions, undefined, undefined, pagination);
+                spyOnTableGetCalls(tableData, dataCount, definition.cols, undefined, undefined, pagination);
                 table.onDataReceived();
                 table.setState({data: null});
 
@@ -304,7 +263,7 @@ define(function(require) {
                     cursor: 1,
                     size: 2
                 };
-                spyOnTableGetCalls(tableData, dataCount, colDefinitions, undefined, undefined, pagination);
+                spyOnTableGetCalls(tableData, dataCount, definition.cols, undefined, undefined, pagination);
                 table.onDataReceived();
                 table.setState({data: []});
 
@@ -318,7 +277,7 @@ define(function(require) {
                     cursor: 1,
                     size: 2
                 };
-                spyOnTableGetCalls(tableData, dataCount, colDefinitions, undefined, undefined, pagination);
+                spyOnTableGetCalls(tableData, dataCount, definition.cols, undefined, undefined, pagination);
                 table.onDataReceived();
                 table.setState({pagination: null});
 
@@ -332,7 +291,7 @@ define(function(require) {
                     cursor: 50,
                     size: 2
                 };
-                spyOnTableGetCalls(tableData, dataCount, colDefinitions, undefined, undefined, pagination);
+                spyOnTableGetCalls(tableData, dataCount, definition.cols, undefined, undefined, pagination);
                 table.onDataReceived();
 
                 expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'left-control fa fa-chevron-left')}).not.toThrow();
@@ -347,7 +306,7 @@ define(function(require) {
                     cursor: 0,
                     size: 2
                 };
-                spyOnTableGetCalls(tableData, dataCount, colDefinitions, undefined, undefined, pagination);
+                spyOnTableGetCalls(tableData, dataCount, definition.cols, undefined, undefined, pagination);
                 table.onDataReceived();
 
                 expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'left-control disabled fa fa-chevron-left')}).not.toThrow();
@@ -360,7 +319,7 @@ define(function(require) {
                     cursor: 99,
                     size: 2
                 };
-                spyOnTableGetCalls(tableData, dataCount, colDefinitions, undefined, undefined, pagination);
+                spyOnTableGetCalls(tableData, dataCount, definition.cols, undefined, undefined, pagination);
                 table.onDataReceived();
 
                 expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'left-control disabled fa fa-chevron-left')}).toThrow();
@@ -384,7 +343,7 @@ define(function(require) {
                 };
                 table = TestUtils.renderIntoDocument(<BasicTable {...props} />);
 
-                spyOnTableGetCalls(tableData, dataCount, colDefinitions, undefined, undefined, pagination);
+                spyOnTableGetCalls(tableData, dataCount, definition.cols, undefined, undefined, pagination);
                 table.onDataReceived();
 
                 expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'test-page-left')}).not.toThrow();
@@ -395,7 +354,7 @@ define(function(require) {
         describe('getColSortDirections function', function() {
             it('should create an array of col sort directions containing "ascending", "descending", and "off"', function() {
                 var expectedDirections = ['ascending', 'descending', 'ascending', 'ascending', 'descending', 'off'];
-                spyOnTableGetCalls(tableData, dataCount, colDefinitions, sortColIndex, undefined, undefined);
+                spyOnTableGetCalls(tableData, tableData.length, definition.cols, definition.sortColIndex, undefined, undefined);
                 table.onDataReceived();
 
                 expect(table.state.colSortDirections).toEqual(expectedDirections);
@@ -404,7 +363,7 @@ define(function(require) {
 
         describe('getTableHeaderItem function', function() {
             it('should create table header elements', function() {
-                spyOnTableGetCalls(tableData, dataCount, colDefinitions, sortColIndex, undefined, undefined);
+                spyOnTableGetCalls(tableData, tableData.length, definition.cols, definition.sortColIndex, undefined, undefined);
                 table.onDataReceived();
 
                 expect(TestUtils.scryRenderedDOMComponentsWithTag(table, 'th').length).toEqual(6);
@@ -416,7 +375,7 @@ define(function(require) {
             var index = 0;
 
             it('should create table row elements', function() {
-                spyOnTableGetCalls(tableData, dataCount, colDefinitions, sortColIndex, undefined, undefined);
+                spyOnTableGetCalls(tableData, tableData.length, definition.cols, definition.sortColIndex, undefined, undefined);
                 table.onDataReceived();
 
                 expect(TestUtils.scryRenderedDOMComponentsWithTag(table, 'tr').length).toEqual(7);
@@ -469,7 +428,7 @@ define(function(require) {
 
         describe('getTableData function', function() {
             beforeEach(function() {
-                spyOnTableGetCalls(tableData, dataCount, colDefinitions, sortColIndex, undefined, undefined);
+                spyOnTableGetCalls(tableData, tableData.length, definition.cols, definition.sortColIndex, undefined, undefined);
                 table.onDataReceived();
             });
             it('should create table data elements', function() {
@@ -549,7 +508,7 @@ define(function(require) {
 
         describe('getIcon function', function() {
             beforeEach(function() {
-                spyOnTableGetCalls(tableData, dataCount, colDefinitions, sortColIndex, undefined, undefined);
+                spyOnTableGetCalls(tableData, tableData.length, definition.cols, definition.sortColIndex, undefined, undefined);
             });
 
             it('should display the fa-sort-asc icon and be active', function() {
@@ -576,14 +535,14 @@ define(function(require) {
             });
 
             it('should display the fa-sort-desc icon and be active', function() {
-                colDefinitions[0].sortDirection = 'descending';
+                definition.cols[0].sortDirection = 'descending';
                 table.onDataReceived();
 
                 expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'active fa fa-sort-asc')}).toThrow();
                 expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'active fa fa-sort-desc')}).not.toThrow();
 
                 // reset data
-                colDefinitions[0].sortDirection = 'ascending';
+                definition.cols[0].sortDirection = 'ascending';
             });
 
             it('should display the sort desc icon passed in on props and be active', function() {
@@ -595,7 +554,7 @@ define(function(require) {
                     iconClasses: iconClasses,
                     loadingIconClasses: ['icon', 'ion-loading-c']
                 };
-                colDefinitions[0].sortDirection = 'descending';
+                definition.cols[0].sortDirection = 'descending';
                 table = TestUtils.renderIntoDocument(<BasicTable {...props} />);
                 table.onDataReceived();
 
@@ -603,7 +562,7 @@ define(function(require) {
                 expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'active test-sort-desc')}).not.toThrow();
 
                 // reset data
-                colDefinitions[0].sortDirection = 'ascending';
+                definition.cols[0].sortDirection = 'ascending';
             });
 
             it('should display the fa-sort-desc icon for all columns defaulting to a ascending sort', function() {
@@ -637,7 +596,7 @@ define(function(require) {
 
         describe('handlePageLeftClick function', function() {
             it('should trigger pagination to the left', function() {
-                spyOnTableGetCalls(tableData, dataCount, colDefinitions, undefined, undefined, paginationData);
+                spyOnTableGetCalls(tableData, tableData.length, definition.cols, undefined, undefined, definition.pagination);
 
                 spyOn(TableActions, 'paginate');
                 table.handlePageLeftClick();
@@ -648,7 +607,7 @@ define(function(require) {
 
         describe('handlePageRightClick function', function() {
             it('should trigger pagination to the right', function() {
-                spyOnTableGetCalls(tableData, dataCount, colDefinitions, undefined, undefined, paginationData);
+                spyOnTableGetCalls(tableData, tableData.length, definition.cols, undefined, undefined, definition.pagination);
 
                 spyOn(TableActions, 'paginate');
                 table.handlePageRightClick();
@@ -660,9 +619,9 @@ define(function(require) {
         describe('handleSortClick function', function() {
             it('should trigger the handle sort click function when attempting to perform an ascending sort', function() {
                 var index = 0;
-                colDefinitions[0].sortDirection = 'descending';
+                definition.cols[0].sortDirection = 'descending';
 
-                spyOnTableGetCalls(tableData, dataCount, colDefinitions, sortColIndex, undefined, undefined);
+                spyOnTableGetCalls(tableData, tableData.length, definition.cols, definition.sortColIndex, undefined, undefined);
                 table.onDataReceived();
 
                 spyOn(TableActions, 'sortChange');
@@ -672,13 +631,13 @@ define(function(require) {
                 expect(TableActions.sortChange).toHaveBeenCalledWith(id, index, 'ascending');
 
                 // reset data
-                colDefinitions[0].sortDirection = 'ascending';
+                definition.cols[0].sortDirection = 'ascending';
             });
 
             it('should trigger the handle sort click function when attempting to perform a descending sort', function() {
                 var index = 0;
 
-                spyOnTableGetCalls(tableData, dataCount, colDefinitions, sortColIndex, undefined, undefined);
+                spyOnTableGetCalls(tableData, tableData.length, definition.cols, definition.sortColIndex, undefined, undefined);
                 table.onDataReceived();
 
                 spyOn(TableActions, 'sortChange');
@@ -691,7 +650,7 @@ define(function(require) {
             it('should trigger the handle sort click function when attempting to sort an inactive sortable column', function() {
                 var index = 1;
 
-                spyOnTableGetCalls(tableData, dataCount, colDefinitions, sortColIndex, undefined, undefined);
+                spyOnTableGetCalls(tableData, tableData.length, definition.cols, definition.sortColIndex, undefined, undefined);
                 table.onDataReceived();
 
                 spyOn(TableActions, 'sortChange');
@@ -707,7 +666,7 @@ define(function(require) {
                 var e = {
                     clientX: 100
                 };
-                spyOnTableGetCalls(tableData, dataCount, colDefinitions, undefined, rowClick, undefined);
+                spyOnTableGetCalls(tableData, tableData.length, definition.cols, undefined, definition.rowClick, undefined);
                 table.onDataReceived();
                 table.onMouseDown(e);
 
@@ -716,65 +675,65 @@ define(function(require) {
         });
 
         describe('handleRowClick function', function() {
-            it('should open a new tab if the row click action was to open a tab.', function() {
+            it('should trigger the rowClick callback.', function() {
                 var e = {
                     currentTarget: {
                         rowIndex: 0
                     }
                 };
-                spyOnTableGetCalls(tableData, dataCount, colDefinitions, undefined, rowClick, undefined);
-                spyOn(rowClick, 'callback');
+                spyOnTableGetCalls(tableData, tableData.length, definition.cols, undefined, definition.rowClick, undefined);
+                spyOn(definition.rowClick, 'callback');
                 table.onDataReceived();
 
                 table.handleRowClick(e);
-                expect(rowClick.callback).toHaveBeenCalled();
+                expect(definition.rowClick.callback).toHaveBeenCalled();
             });
 
             it('should throw an error if the callback is not a function.', function() {
-                spyOnTableGetCalls(tableData, dataCount, colDefinitions, undefined, 'error', undefined);
-                spyOn(rowClick, 'callback');
+                spyOnTableGetCalls(tableData, tableData.length, definition.cols, undefined, 'error', undefined);
+                spyOn(definition.rowClick, 'callback');
                 table.onDataReceived();
 
                 expect(function() {table.handleRowClick();}).toThrow();
-                expect(rowClick.callback).not.toHaveBeenCalled();
+                expect(definition.rowClick.callback).not.toHaveBeenCalled();
             });
 
             it('should not execute the rowClick callback if the user dragged the mouse more than 10 pixels.', function() {
                 var e = {
                     clientX: 111
                 };
-                spyOnTableGetCalls(tableData, dataCount, colDefinitions, undefined, rowClick, undefined);
-                spyOn(rowClick, 'callback');
+                spyOnTableGetCalls(tableData, tableData.length, definition.cols, undefined, definition.rowClick, undefined);
+                spyOn(definition.rowClick, 'callback');
                 table.onDataReceived();
 
                 // Drag right.
                 table.mouseDownX = 100;
                 table.handleRowClick(e);
-                expect(rowClick.callback).not.toHaveBeenCalled();
+                expect(definition.rowClick.callback).not.toHaveBeenCalled();
 
                 // Drag left.
                 table.mouseDownX = 122;
                 table.handleRowClick(e);
-                expect(rowClick.callback).not.toHaveBeenCalled();
+                expect(definition.rowClick.callback).not.toHaveBeenCalled();
             });
 
             it('should execute the rowClick callback if the user dragged the mouse less than 11 pixels.', function() {
                 var e = {
                     clientX: 110
                 };
-                spyOnTableGetCalls(tableData, dataCount, colDefinitions, undefined, rowClick, undefined);
-                spyOn(rowClick, 'callback');
+                spyOnTableGetCalls(tableData, tableData.length, definition.cols, undefined, definition.rowClick, undefined);
+                spyOn(definition.rowClick, 'callback');
                 table.onDataReceived();
 
                 // Drag right.
                 table.mouseDownX = 100;
                 table.handleRowClick(e);
-                expect(rowClick.callback.calls.count()).toEqual(1);
+                expect(definition.rowClick.callback.calls.count()).toEqual(1);
 
                 // Drag left.
                 table.mouseDownX = 120;
                 table.handleRowClick(e);
-                expect(rowClick.callback.calls.count()).toEqual(2);
+                expect(definition.rowClick.callback.calls.count()).toEqual(2);
             });
         });
     });
