@@ -262,8 +262,9 @@ define(function(require) {
         });
 
         describe('getQuickFilter function', function() {
-            it('should create an input element if the quickFilterEnabled property is set to true.', function() {
+            it('should create an input element if the quickFilterEnabled property is set to true and the table is not loading.', function() {
                 table.state.data = tableData;
+                table.state.loading = false;
                 table.quickFilterEnabled = true;
                 expect(table.getQuickFilter().type).toEqual('input');
                 table.state.data = null;

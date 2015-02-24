@@ -42,6 +42,7 @@ define(function(require) {
         },
 
         getInitialState: function() {
+            this.selectionEnabled = _.some(this.props.definition.cols, function(col) {return col.dataType === 'select';}) ? true : false;
             this.quickFilterEnabled = _.some(this.props.definition.cols, function(col) {return col.quickFilter === true;}) ? true : false;
             this.iconClasses = _.merge(_.clone(iconClasses), this.props.iconClasses);
 
@@ -107,7 +108,6 @@ define(function(require) {
             var sortColIndex = TableStore.getSortColIndex(this.props.componentId);
             var rowClick = TableStore.getRowClickData(this.props.componentId);
             var pagination = TableStore.getPaginationData(this.props.componentId);
-            var selectedItems = TableStore.getSelectedItems(this.props.componentId);
 
             if (!data) {
                 this.onError();
@@ -123,7 +123,7 @@ define(function(require) {
                 pagination: pagination,
                 rowClick: rowClick,
                 colSortDirections: this.getColSortDirections(colDefinitions),
-                selectedItems: selectedItems
+                selectedItems: this.selectionEnabled ? TableStore.getSelectedItems(this.props.componentId) : null
             });
         },
 
