@@ -59,7 +59,7 @@ define(function(require) {
                 quickFilter: true
             }
         ],
-        sortColIndex: 0,
+        sortColIndex: 1,
         pagination: {
             cursor: 0,
             size: 12

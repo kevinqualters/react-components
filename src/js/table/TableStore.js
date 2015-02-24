@@ -283,16 +283,14 @@ define(function(require) {
          * @param {Boolean} deselect - There are selected items in the filtered data set, so we need to deselect them.
          */
         updateBulkSelection: function(deselect) {
-            if (deselect) {
-                _.forEach(this.filteredData, function(data) {
+            _.forEach(this.filteredData, function(data) {
+                if (deselect) {
                     delete this.selectedItems[data[this.selectDataProperty]];
-                }.bind(this));
-            }
-            else {
-                _.forEach(this.filteredData, function(data) {
+                }
+                else {
                     this.selectedItems[data[this.selectDataProperty]] = true;
-                }.bind(this));
-            }
+                }
+            }, this);
         },
 
         /**

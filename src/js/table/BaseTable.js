@@ -205,72 +205,12 @@ define(function(require) {
             return colSortDirections;
         },
 
-        getTableHeaderItem: function(colData, index) {
-            var sortIndicator = null;
-            var sortActive, handleSortClick, iconClasses, filteredData, match;
-            var thStyle = {
-                width: colData.width
-            };
-            var headerClasses;
-
-            if (this.state.data && this.state.data.length > 1 && typeof this.state.sortColIndex === 'number') {
-                sortActive = this.state.sortColIndex === index;
-                if (this.state.colSortDirections[index] === 'ascending') {
-                    sortIndicator = this.getSortIndicator('ascending', sortActive);
-                }
-                else if (this.state.colSortDirections[index] === 'descending') {
-                    sortIndicator = this.getSortIndicator('descending', sortActive);
-                }
-            }
-
-            headerClasses = React.addons.classSet({
-                'indicator': !!sortIndicator,
-                'no-select': true,
-                'select-column-th': colData.iconClasses && typeof colData.iconClasses === 'object'
-            });
-
-            if (sortIndicator) {
-                handleSortClick = this.handleSortClick;
-            }
-
-            if (colData.dataType === 'select') {
-                filteredData = this.state.filteredData;
-
-                match = _.some(filteredData, function(data) {
-                    return this.state.selectedItems[data[colData.dataProperty]];
-                }.bind(this));
-
-                iconClasses = match ? this.iconClasses.deselectAll : this.iconClasses.selectAll;
-
-                return (
-                    <th className={headerClasses}
-                        title={match ? "Deselect All" : "Select All"}
-                        key={'tableHeader' + Utils.guid()}
-                        style={thStyle}
-                        onClick={this.handleBulkSelectToggleClick.bind(this, match)}>
-                        <i className={iconClasses} />
-                    </th>
-                );
-            }
-
-            return (
-                <th className={headerClasses}
-                    title={colData.headerLabel}
-                    key={'tableHeader' + Utils.guid()}
-                    style={thStyle}
-                    onClick={handleSortClick ? handleSortClick.bind(this, index) : undefined}>{colData.headerLabel}
-                    {sortIndicator}
-                </th>
-            );
-        },
-
         getTableRowItem: function(rowData, index) {
             var handleRowClick;
             var onMouseDown;
             var row = [];
 
-            var cx = React.addons.classSet;
-            var hoverClass = cx({
+            var hoverClass = React.addons.classSet({
                 'hover-enabled': this.state.rowClick,
                 'text-select': true,
                 'error-row': rowData.isError
@@ -294,6 +234,53 @@ define(function(require) {
             );
         },
 
+        getTableHeaderItem: function(colData, index) {
+            var icon, onClick;
+            var title = colData.headerLabel;
+            var headerClasses = 'no-select';
+
+            if (colData.dataType === 'select' && this.state.data && this.state.data.length) {
+                icon = this.getBulkSelectionIcon(colData);
+                onClick = this.handleBulkSelectClick.bind(this, icon._store.props.title === 'Deselect All');
+                headerClasses += ' select-column-th';
+            }
+            else if (colData.sortDirection && this.state.data && this.state.data.length) {
+                icon = this.getSortIcon(index);
+                onClick = this.handleSortClick.bind(this, index);
+                headerClasses += ' indicator';
+            }
+
+            return (
+                <th className={headerClasses}
+                    title={title}
+                    key={'tableHeader' + Utils.guid()}
+                    style={{width: colData.width}}
+                    onClick={onClick}>{colData.headerLabel}
+                    {icon}
+                </th>
+            );
+        },
+
+        getBulkSelectionIcon: function(colData) {
+            var filteredData = this.state.filteredData;
+            var match = _.some(filteredData, function(data) {
+                return this.state.selectedItems[data[colData.dataProperty]];
+            }.bind(this));
+            var iconClasses = match ? this.iconClasses.deselectAll : this.iconClasses.selectAll;
+
+            return <i className={iconClasses} title={match ? 'Deselect All' : 'Select All'} />;
+        },
+
+        getSortIcon: function(index) {
+            var defaultIconClasses = React.addons.classSet({
+                'sorting-indicator': true,
+                'active': this.state.sortColIndex === index
+            });
+            var iconClasses = this.state.colSortDirections[index] === 'ascending' ? this.iconClasses.sortAsc + ' asc' : this.iconClasses.sortDesc + ' desc';
+
+            return <i className={defaultIconClasses + ' ' + iconClasses} />;
+        },
+
         /**
          * Returns the markup necessary to display a cell in the table
          * @param  {Mixed} val         The value for the current cell
@@ -314,7 +301,7 @@ define(function(require) {
                     <td className="select-column-td no-select"
                         title={this.state.selectedItems && this.state.selectedItems[val] ? "Deselect" : "Select"}
                         key={'tableData' + Utils.guid()}
-                        onClick={this.handleSelectToggleClick}>
+                        onClick={this.handleSelectClick}>
                         <i className={iconClasses}></i>
                     </td>
                 );
@@ -334,16 +321,6 @@ define(function(require) {
                     {afterIcon}
                 </td>
             );
-        },
-
-        getSortIndicator: function(direction, sortActive) {
-            var iconClasses = React.addons.classSet({
-                'sorting-indicator': true,
-                'active': sortActive
-            });
-            var defaultIconClasses = direction === 'ascending' ? this.iconClasses.sortAsc + ' asc' : this.iconClasses.sortDesc + ' desc';
-
-            return <i className={iconClasses + ' ' + defaultIconClasses}></i>;
         },
 
         handleQuickFilterChange: function(e) {
@@ -403,7 +380,7 @@ define(function(require) {
          * @param {Boolean} deselect - If there are selected items in the filtered data set, we need to deselect them.
          * @param {Object} e - Simulated React event.
          */
-        handleBulkSelectToggleClick: function(deselect, e) {
+        handleBulkSelectClick: function(deselect, e) {
             e.stopPropagation();
             TableActions.toggleBulkSelect(this.props.componentId, deselect);
         },
@@ -412,7 +389,7 @@ define(function(require) {
          * Toggle selection for a single table row.
          * @param {Object} e - Simulated React event.
          */
-        handleSelectToggleClick: function(e) {
+        handleSelectClick: function(e) {
             e.stopPropagation();
             TableActions.toggleRowSelect(this.props.componentId, $(e.currentTarget).closest('tr')[0].rowIndex);
         }
