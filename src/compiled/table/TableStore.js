@@ -301,7 +301,12 @@ define(function(require) {
          */
         updateRowSelection: function(rowIndex) {
             var key = this.displayedData[rowIndex][this.selectDataProperty];
-            this.selectedItems[key] ? delete this.selectedItems[key] : this.selectedItems[key] = true;
+            if (this.selectedItems[key]) {
+                delete this.selectedItems[key];
+            }
+            else {
+                this.selectedItems[key] = true;
+            }
         }
     };
 

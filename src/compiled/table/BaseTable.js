@@ -310,7 +310,7 @@ define(function(require) {
 
             // This is a select column
             if (meta.dataType && meta.dataType === 'select') {
-                iconClasses = this.state.selectedItems && this.state.selectedItems[val] ? this.iconClasses.selectOn + ' on': this.iconClasses.selectOff + ' off';
+                iconClasses = this.state.selectedItems && this.state.selectedItems[val] ? this.iconClasses.selectOn + ' on' : this.iconClasses.selectOff + ' off';
 
                 return (
                     React.createElement("td", {className: "select-column-td no-select", 
