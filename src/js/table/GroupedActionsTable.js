@@ -112,7 +112,7 @@ define(function(require) {
                 var val = '--';
                 var spanClasses = React.addons.classSet({
                     content: true,
-                    'group-date': meta.dataProperty === 'groupDate'
+                    'nested-text': meta.dataProperty === 'groupDate'
                 });
 
                 if (!action.start || !action.end) {
