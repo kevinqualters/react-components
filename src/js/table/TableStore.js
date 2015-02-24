@@ -30,8 +30,12 @@ define(function(require) {
         this.cursor = definition.cursor;
         this.rowClick = definition.rowClick;
         this.data = null;
+        this.filteredData = null;
+        this.displayedData = null;
         this.dataCount = null;
         this.dataFormatter = dataFormatter;
+        this.selectedItems = {};
+        this.selectDataProperty = _.result(_.find(this.cols, {'dataType': 'select'}), 'dataProperty');
     };
 
     Table.prototype = {
@@ -94,11 +98,15 @@ define(function(require) {
                 data = this.filterData(data);
             }
 
+            this.filteredData = data;
+
             if (this.pagination) {
-                return this.sliceData(data);
+                data = this.sliceData(data);
             }
 
-            return data;
+            this.displayedData = data;
+
+            return this.displayedData;
         },
 
         /**
@@ -147,6 +155,10 @@ define(function(require) {
          */
         setFilterValue: function(value) {
             this.filterValue = value;
+
+            if (this.pagination && this.pagination.cursor !== 0) {
+                this.resetPagination();
+            }
         },
 
         /**
@@ -248,6 +260,48 @@ define(function(require) {
                 // a must be equal to b
                 return 0;
             }.bind(this));
+        },
+
+        /**
+         * Retrieves the selected items for the Table.
+         * @returns {{}|Table.selectedItems} - The object containing all of the selected keys.
+         */
+        getSelectedItems: function() {
+            return this.selectedItems;
+        },
+
+        /**
+         * Retrieves the filtered data for the Table.
+         * @returns {[]|Table.filteredData} - The subset of Table data post filtering.
+         */
+        getFilteredData: function() {
+            return this.filteredData;
+        },
+
+        /**
+         * Bulk add or remove keys to/from the Table's selected items.
+         * @param {Boolean} deselect - There are selected items in the filtered data set, so we need to deselect them.
+         */
+        updateBulkSelection: function(deselect) {
+            if (deselect) {
+                _.forEach(this.filteredData, function(data) {
+                    delete this.selectedItems[data[this.selectDataProperty]];
+                }.bind(this));
+            }
+            else {
+                _.forEach(this.filteredData, function(data) {
+                    this.selectedItems[data[this.selectDataProperty]] = true;
+                }.bind(this));
+            }
+        },
+
+        /**
+         * Add or remove a key to/from the Table's selected items.
+         * @param {Number} rowIndex - The row index within the displayed data to pull the key from.
+         */
+        updateRowSelection: function(rowIndex) {
+            var key = this.displayedData[rowIndex][this.selectDataProperty];
+            this.selectedItems[key] ? delete this.selectedItems[key] : this.selectedItems[key] = true;
         }
     };
 
@@ -358,6 +412,42 @@ define(function(require) {
         },
 
         /**
+         * Retrieves the selected items for the Table instance.
+         * @param {String} id - The unique identifier of the Table instance to get the selected items for.
+         * @returns {{}|Table.selectedItems} - The object containing all of the selected keys.
+         */
+        getSelectedItems: function(id) {
+            return this.collection[id].getSelectedItems();
+        },
+
+        /**
+         * Retrieves the filtered data for the Table instance.
+         * @param {String} id - The unique identifier of the Table instance to get the filtered data for.
+         * @returns {[]|Table.filteredData} - The subset of Table data post filtering.
+         */
+        getFilteredData: function(id) {
+            return this.collection[id].getFilteredData();
+        },
+
+        /**
+         * Adds or removes all elements
+         * @param {String} id - The unique identifier of the Table instance to toggle bulk selection for.
+         * @param {Boolean} deselect - There are selected items in the filtered data set, so we need to deselect them.
+         */
+        updateBulkSelection: function(id, deselect) {
+            this.collection[id].updateBulkSelection(deselect);
+        },
+
+        /**
+         * Adds or removes a table row from the selected table row list.
+         * @param {String} id - The unique identifier of the Table instance to select a row within.
+         * @param {Number} rowIndex - The index of the table row containing the select box that was toggled.
+         */
+        updateRowSelection: function(id, rowIndex) {
+            this.collection[id].updateRowSelection(rowIndex);
+        },
+
+        /**
          * Handles all events sent from the dispatcher. Filters out to only those sent via the Table
          * @param {Object} payload - Contains action details.
          */
@@ -382,6 +472,14 @@ define(function(require) {
                     break;
                 case ActionTypes.PAGINATE:
                     this.paginate(action.id, action.data.direction);
+                    this.emitChange(action.id);
+                    break;
+                case ActionTypes.TOGGLE_BULK_SELECT:
+                    this.updateBulkSelection(action.id, action.data.deselect);
+                    this.emitChange(action.id);
+                    break;
+                case ActionTypes.TOGGLE_ROW_SELECT:
+                    this.updateRowSelection(action.id, action.data.rowIndex);
                     this.emitChange(action.id);
                     break;
                 case ActionTypes.DESTROY_INSTANCE:

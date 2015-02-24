@@ -197,13 +197,17 @@
   /*      Action column        *
   /****************************/
   // remove the TH borders for action columns as they have no TH text that require them
-  th.action-column-th {
+  th.select-column-th {
     border-right: none;
   }
 
   // center action icons (35px width in table definition works well with this)
-  td.action-column-td {
+  td.select-column-td {
     text-align: center;
+
+    i.on {
+      padding-left: 2px;
+    }
   }
 
   /*****************************
