@@ -29,7 +29,8 @@ define(function(require) {
                 return {
                     updated: false,
                     filters: {
-                        test: 'unchanged'
+                        test1: 'unchanged',
+                        test2: 'unchanged'
                     }
                 };
             },
@@ -81,6 +82,36 @@ define(function(require) {
                     // The single call is from the initial mount.
                     expect(mock.refs.mockChild.requestData.calls.count()).toEqual(1);
                     done();
+                });
+            });
+
+            describe('componentWillUpdate function uses JSON encoding to check update status', function() {
+                var UpdateMockChild, UpdateMockParent;
+
+                beforeEach(function () {
+                    UpdateMockChild = React.createClass({displayName: 'UpdateMockChild',
+                        mixins: [DataMixins.dataRequest],
+                        render: function() {
+                            return React.createElement("div", null, "Mock Child");
+                        },
+                        requestData: function(){}
+                    });
+                    UpdateMockParent = React.createClass({displayName: 'UpdateMockParent',
+                        render: function() {
+                            return React.createElement(UpdateMockChild, {ref: "mockChild", filters: {foo: 'bar'}});
+                        }
+                    });
+                });
+
+                it('doesnt call request data if object is new object literal', function(done) {
+                    var mock = TestUtils.renderIntoDocument(React.createElement(UpdateMockParent, null));
+                    spyOn(mock.refs.mockChild, 'requestData');
+                    mock.forceUpdate();
+                    setTimeout(function(){
+                        //Should only have invoked 1 mock, even though prop is a literal object
+                        expect(mock.refs.mockChild.requestData.calls.count()).toEqual(1);
+                        done();
+                    }, 1);
                 });
             });
 

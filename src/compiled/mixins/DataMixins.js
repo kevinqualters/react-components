@@ -8,13 +8,16 @@ define(function() {
          */
         dataRequest: {
             /**
-             * Requests data for a component when the filter property changes. The setTimeout insures that
+             * Requests data for a component when the filter property changes. When comparing filters we do a direct
+             * comparison in addition to a JSON stringify comparison. This fixes issues where the filters object is a new literal
+             * object every time, but isn't actually changing. Using a JSON stringify has the downside of causing requestData to
+             * be called if the objects are in a different order, but that is pretty unlikely to happen. The setTimeout insures that
              * the currently dispatched action has completed the dispatching process before the request data
              * action is kicked off.
              * @param {object} nextProps - The set of properties that will be on the component after it updates.
              */
             componentWillUpdate: function(nextProps) {
-                if (this.props.filters !== nextProps.filters) {
+                if (this.props.filters !== nextProps.filters && JSON.stringify(this.props.filters) !== JSON.stringify(nextProps.filters)) {
                     setTimeout(function() {
                         this.requestData();
                     }.bind(this), 0);
