@@ -343,6 +343,15 @@ define(function(require) {
         },
 
         /**
+         * Retrieves a list of selected Table row items.
+         * @param {String} id - The unique identifier fo the Table instance to retrieve.
+         * @returns {Array} - The list of keys from the selected items.
+         */
+        getSelectedItems: function(id) {
+            return _.keys(this.collection[id].getSelectedItems());
+        },
+
+        /**
          * Handles all events sent from the dispatcher. Filters out to only those sent via the Table
          * @param {Object} payload - Contains action details.
          */

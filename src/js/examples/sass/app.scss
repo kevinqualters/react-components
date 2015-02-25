@@ -180,6 +180,21 @@ body {
   }
 }
 
+.bulk-action-button {
+  border: solid 1px $light-grey;
+  border-radius: 5px;
+  cursor: pointer;
+  display: inline;
+  padding: 3px;
+  position: absolute;
+  top: 18px;
+  right: 225px;
+
+  &:hover {
+    color: $light-blue;
+  }
+}
+
 .component {
   border: solid 1px $light-grey;
   border-radius: 5px;

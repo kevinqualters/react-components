@@ -5,6 +5,7 @@ define(function(require) {
     var React = require('react');
     var Search = require('drc/search/Search');
     var Table = require('drc/table/Table');
+    var TableStore = require('drc/table/TableStore');
     var Utils = require('drc/utils/Utils');
 
     var tableDefinition = {
@@ -126,6 +127,7 @@ define(function(require) {
                 case 'table':
                     componentSet = (
                         React.createElement("div", {className: "component"}, 
+                            React.createElement("div", {className: "bulk-action-button", onClick: this.handleBulkActionClick}, "Bulk Action"), 
                             React.createElement(Table, {definition: tableDefinition, 
                                    componentId: "tableId", 
                                    key: "tableId", 
@@ -159,6 +161,10 @@ define(function(require) {
                     )
                 )
             );
+        },
+
+        handleBulkActionClick: function() {
+            alert('You have selected the following items from the table:\n\n' + TableStore.getSelectedItems('tableId'));
         },
 
         handleLinkClick: function(link) {
