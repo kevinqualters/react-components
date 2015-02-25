@@ -1,5 +1,6 @@
 define(function(require) {
     var BasicTable = require('drc/table/BasicTable');
+    var _ = require('lodash');
     var Moment = require('moment');
     var React = require('react');
     var TableActions = require('drc/table/TableActions');
@@ -12,8 +13,10 @@ define(function(require) {
         var table, id;
 
         var iconClasses = {
+            deselectAll: 'test-deselect-all',
             pageLeft: 'test-page-left',
             pageRight: 'test-page-right',
+            selectAll: 'test-select-all',
             sortAsc: 'test-sort-asc',
             sortDesc: 'test-sort-desc',
             statusOn: 'test-status-on',
@@ -113,12 +116,27 @@ define(function(require) {
                 expect(table.state.dataError).toEqual(false);
             });
 
-            it('should initialize the quickFilterEnabled property to false if quickFilter is not set to true for all cols.', function() {
+            it('should set selectionEnabled to true if there is a column in the definition with a dataType of select', function() {
+                var def = _.cloneDeep(definition);
+                def.cols.unshift({dataType: 'select', dataProperty: 'string'});
+                var props = {
+                    definition: def,
+                    componentId: id,
+                    key: id,
+                    filters: {},
+                    loadingIconClasses: ['icon', 'ion-loading-c']
+                };
+                table = TestUtils.renderIntoDocument(<BasicTable {...props} />);
+
+                expect(table.selectionEnabled).toBeTruthy();
+            });
+
+            it('should initialize the quickFilterEnabled property to false if quickFilter is not set to true for all cols', function() {
                 expect(table.quickFilterEnabled).toEqual(false);
             });
 
-            it('should set the quickFilterEnabled property to true if it is quickFilter is set to true on a column definition.', function() {
-                var def = _.clone(definition);
+            it('should set the quickFilterEnabled property to true if it is quickFilter is set to true on a column definition', function() {
+                var def = _.cloneDeep(definition);
                 def.cols[0].quickFilter = true;
                 var props = {
                     definition: def,
@@ -186,12 +204,20 @@ define(function(require) {
         describe('onDataReceived function', function() {
             it('should request the table state and set state for the table to render', function() {
                 spyOnTableGetCalls(tableData, tableData.length, definition.cols, definition.sortColIndex, undefined, definition.pagination);
+                table.selectionEnabled = true;
                 table.onDataReceived();
 
+                expect(table.state.colDefinitions).toEqual(definition.cols);
+                expect(table.state.colSortDirections).toEqual(table.getColSortDirections(definition.cols));
+                expect(table.state.dataCount).toEqual(tableData.length);
                 expect(table.state.data).toEqual(tableData);
+                expect(table.state.filteredData).toBeNull();
+                expect(table.state.loading).toBeFalsy();
+                expect(table.state.pagination).toEqual(definition.pagination);
+                expect(table.state.rowClick).toBeUndefined();
+                expect(table.state.selectedItems).toBeTruthy();
+                expect(table.state.sortColIndex).toEqual(definition.sortColIndex);
             });
-
-
 
             it('should error when the data returns as undefined', function() {
                 spyOnTableGetCalls(undefined, tableData.length, definition.cols, undefined, undefined, undefined);
@@ -221,7 +247,7 @@ define(function(require) {
         });
 
         describe('getQuickFilter function', function() {
-            it('should create an input element if the quickFilterEnabled property is set to true and the table is not loading.', function() {
+            it('should create an input element if the quickFilterEnabled property is set to true and the table is not loading', function() {
                 table.state.data = tableData;
                 table.state.loading = false;
                 table.quickFilterEnabled = true;
@@ -234,7 +260,7 @@ define(function(require) {
                 expect(table.getQuickFilter()).toBeNull();
             });
 
-            it('should not create an input element if the quickFilterEnabled property is set to false.', function() {
+            it('should not create an input element if the quickFilterEnabled property is set to false', function() {
                 table.state.data = tableData;
                 table.quickFilterEnabled = false;
                 expect(table.getQuickFilter()).toBeNull();
@@ -361,15 +387,6 @@ define(function(require) {
             });
         });
 
-        describe('getTableHeaderItem function', function() {
-            it('should create table header elements', function() {
-                spyOnTableGetCalls(tableData, tableData.length, definition.cols, definition.sortColIndex, undefined, undefined);
-                table.onDataReceived();
-
-                expect(TestUtils.scryRenderedDOMComponentsWithTag(table, 'th').length).toEqual(6);
-            });
-        });
-
         describe('getTableRowItem function', function() {
             var rowData = {string: 'a', integer: 1};
             var index = 0;
@@ -423,6 +440,184 @@ define(function(require) {
                 table.getTableRowItem(rowData, index);
 
                 expect(table.getTableData.calls.count()).toEqual(2);
+            });
+        });
+
+        describe('getTableHeaderItem function', function() {
+            it('should create table header elements', function() {
+                spyOnTableGetCalls(tableData, tableData.length, definition.cols, definition.sortColIndex, undefined, undefined);
+                table.onDataReceived(tableData);
+
+                expect(TestUtils.scryRenderedDOMComponentsWithTag(table, 'th').length).toEqual(6);
+            });
+
+            it('should create a bulk select table header if a column is defined with a dataType of select', function() {
+                var def = _.cloneDeep(definition);
+                def.cols.unshift({dataType: 'select', dataProperty: 'string'});
+                spyOnTableGetCalls(tableData, tableData.length, def.cols, definition.sortColIndex, undefined, undefined);
+                spyOn(table, 'getBulkSelectionIcon').and.callThrough();
+                table.onDataReceived(tableData);
+
+                expect(table.getBulkSelectionIcon.calls.count()).toEqual(1);
+            });
+
+            it('should create column sorting table headers if sorting is defined in the table definition.', function() {
+                spyOnTableGetCalls(tableData, tableData.length, definition.cols, definition.sortColIndex, undefined, undefined);
+                spyOn(table, 'getSortIcon').and.callThrough();
+                table.onDataReceived(tableData);
+
+                expect(table.getSortIcon.calls.count()).toEqual(5);
+            });
+        });
+
+        describe('getBulkSelectionIcon function', function() {
+            it('should display the select all icon if no items in the selected list match items in the filtered data set', function() {
+                var def = _.cloneDeep(definition);
+                def.cols.unshift({dataType: 'select', dataProperty: 'string'});
+                spyOnTableGetCalls(tableData, tableData.length, def.cols, definition.sortColIndex, undefined, undefined);
+                table.onDataReceived(tableData);
+                table.state.filteredData = table.state.data;
+                // Testing no items in selected list.
+                table.state.selectedItems = {};
+
+                expect(table.getBulkSelectionIcon(def.cols[0]).type).toEqual('i');
+                expect(table.getBulkSelectionIcon(def.cols[0])._store.props.className).toEqual('fa fa fa-square-o');
+                expect(table.getBulkSelectionIcon(def.cols[0])._store.props.title).toEqual('Select All');
+
+                // Testing item in selected list that is not in filtered set.
+                table.state.selectedItems = {'notInFilteredSet': true};
+
+                expect(table.getBulkSelectionIcon(def.cols[0]).type).toEqual('i');
+                expect(table.getBulkSelectionIcon(def.cols[0])._store.props.className).toEqual('fa fa fa-square-o');
+                expect(table.getBulkSelectionIcon(def.cols[0])._store.props.title).toEqual('Select All');
+            });
+
+            it('should display the select all icon passed in on props', function() {
+                var props = {
+                    definition: definition,
+                    componentId: id,
+                    key: id,
+                    filters: {},
+                    iconClasses: iconClasses,
+                    loadingIconClasses: ['icon', 'ion-loading-c']
+                };
+                var def = _.cloneDeep(definition);
+                def.cols.unshift({dataType: 'select', dataProperty: 'string'});
+                table = TestUtils.renderIntoDocument(<BasicTable {...props} />);
+                spyOnTableGetCalls(tableData, tableData.length, def.cols, definition.sortColIndex, undefined, undefined);
+                table.onDataReceived();
+                table.state.filteredData = table.state.data;
+                table.state.selectedItems = {};
+
+                expect(table.getBulkSelectionIcon(def.cols[0])._store.props.className).toEqual('test-select-all');
+            });
+
+            it('should display the deselect all icon if items in the selected list match items in the filtered data set', function() {
+                var def = _.cloneDeep(definition);
+                def.cols.unshift({dataType: 'select', dataProperty: 'string'});
+                spyOnTableGetCalls(tableData, tableData.length, def.cols, definition.sortColIndex, undefined, undefined);
+                table.onDataReceived(tableData);
+                table.state.filteredData = table.state.data;
+                table.state.selectedItems = {};
+                table.state.selectedItems[table.state.data[0].string] = true;
+
+                expect(table.getBulkSelectionIcon(def.cols[0]).type).toEqual('i');
+                expect(table.getBulkSelectionIcon(def.cols[0])._store.props.className).toEqual('fa fa-minus-square-o');
+                expect(table.getBulkSelectionIcon(def.cols[0])._store.props.title).toEqual('Deselect All');
+            });
+
+            it('should display the deselect all icon passed in on props', function() {
+                var props = {
+                    definition: definition,
+                    componentId: id,
+                    key: id,
+                    filters: {},
+                    iconClasses: iconClasses,
+                    loadingIconClasses: ['icon', 'ion-loading-c']
+                };
+                var def = _.cloneDeep(definition);
+                def.cols.unshift({dataType: 'select', dataProperty: 'string'});
+                table = TestUtils.renderIntoDocument(<BasicTable {...props} />);
+                spyOnTableGetCalls(tableData, tableData.length, def.cols, definition.sortColIndex, undefined, undefined);
+                table.onDataReceived();
+                table.state.filteredData = table.state.data;
+                table.state.selectedItems = {};
+                table.state.selectedItems[table.state.data[0].string] = true;
+
+                expect(table.getBulkSelectionIcon(def.cols[0])._store.props.className).toEqual('test-deselect-all');
+            });
+        });
+
+        describe('getSortIcon function', function() {
+            beforeEach(function() {
+                spyOnTableGetCalls(tableData, tableData.length, definition.cols, definition.sortColIndex, undefined, undefined);
+            });
+
+            it('should display the fa-sort-asc icon and be active', function() {
+                table.onDataReceived();
+
+                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'active fa fa-sort-asc')}).not.toThrow();
+                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'active fa fa-sort-desc')}).toThrow();
+            });
+
+            it('should display the sort asc icon passed in on props and be active', function() {
+                var props = {
+                    definition: definition,
+                    componentId: id,
+                    key: id,
+                    filters: {},
+                    iconClasses: iconClasses,
+                    loadingIconClasses: ['icon', 'ion-loading-c']
+                };
+                table = TestUtils.renderIntoDocument(<BasicTable {...props} />);
+                table.onDataReceived();
+
+                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'active test-sort-asc')}).not.toThrow();
+                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'active test-sort-desc')}).toThrow();
+            });
+
+            it('should display the fa-sort-desc icon and be active', function() {
+                definition.cols[0].sortDirection = 'descending';
+                table.onDataReceived();
+
+                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'active fa fa-sort-asc')}).toThrow();
+                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'active fa fa-sort-desc')}).not.toThrow();
+
+                // reset data
+                definition.cols[0].sortDirection = 'ascending';
+            });
+
+            it('should display the sort desc icon passed in on props and be active', function() {
+                var props = {
+                    definition: definition,
+                    componentId: id,
+                    key: id,
+                    filters: {},
+                    iconClasses: iconClasses,
+                    loadingIconClasses: ['icon', 'ion-loading-c']
+                };
+                definition.cols[0].sortDirection = 'descending';
+                table = TestUtils.renderIntoDocument(<BasicTable {...props} />);
+                table.onDataReceived();
+
+                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'active test-sort-asc')}).toThrow();
+                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'active test-sort-desc')}).not.toThrow();
+
+                // reset data
+                definition.cols[0].sortDirection = 'ascending';
+            });
+
+            it('should display the fa-sort-desc icon for all columns defaulting to a ascending sort', function() {
+                table.onDataReceived();
+
+                expect(TestUtils.scryRenderedDOMComponentsWithClass(table, 'fa-sort-asc').length).toEqual(3);
+
+            });
+
+            it('should display the fa-sort-desc icon for all columns defaulting to a descending sort', function() {
+                table.onDataReceived();
+
+                expect(TestUtils.scryRenderedDOMComponentsWithClass(table, 'fa-sort-desc').length).toEqual(2);
             });
         });
 
@@ -506,81 +701,8 @@ define(function(require) {
             });
         });
 
-        describe('getIcon function', function() {
-            beforeEach(function() {
-                spyOnTableGetCalls(tableData, tableData.length, definition.cols, definition.sortColIndex, undefined, undefined);
-            });
-
-            it('should display the fa-sort-asc icon and be active', function() {
-                table.onDataReceived();
-
-                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'active fa fa-sort-asc')}).not.toThrow();
-                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'active fa fa-sort-desc')}).toThrow();
-            });
-
-            it('should display the sort asc icon passed in on props and be active', function() {
-                var props = {
-                    definition: definition,
-                    componentId: id,
-                    key: id,
-                    filters: {},
-                    iconClasses: iconClasses,
-                    loadingIconClasses: ['icon', 'ion-loading-c']
-                };
-                table = TestUtils.renderIntoDocument(<BasicTable {...props} />);
-                table.onDataReceived();
-
-                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'active test-sort-asc')}).not.toThrow();
-                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'active test-sort-desc')}).toThrow();
-            });
-
-            it('should display the fa-sort-desc icon and be active', function() {
-                definition.cols[0].sortDirection = 'descending';
-                table.onDataReceived();
-
-                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'active fa fa-sort-asc')}).toThrow();
-                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'active fa fa-sort-desc')}).not.toThrow();
-
-                // reset data
-                definition.cols[0].sortDirection = 'ascending';
-            });
-
-            it('should display the sort desc icon passed in on props and be active', function() {
-                var props = {
-                    definition: definition,
-                    componentId: id,
-                    key: id,
-                    filters: {},
-                    iconClasses: iconClasses,
-                    loadingIconClasses: ['icon', 'ion-loading-c']
-                };
-                definition.cols[0].sortDirection = 'descending';
-                table = TestUtils.renderIntoDocument(<BasicTable {...props} />);
-                table.onDataReceived();
-
-                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'active test-sort-asc')}).toThrow();
-                expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'active test-sort-desc')}).not.toThrow();
-
-                // reset data
-                definition.cols[0].sortDirection = 'ascending';
-            });
-
-            it('should display the fa-sort-desc icon for all columns defaulting to a ascending sort', function() {
-                table.onDataReceived();
-
-                expect(TestUtils.scryRenderedDOMComponentsWithClass(table, 'fa-sort-asc').length).toEqual(3);
-
-            });
-
-            it('should display the fa-sort-desc icon for all columns defaulting to a descending sort', function() {
-                table.onDataReceived();
-
-                expect(TestUtils.scryRenderedDOMComponentsWithClass(table, 'fa-sort-desc').length).toEqual(2);
-            });
-        });
-
         describe('handleQuickFilterChange function', function() {
-            it('should trigger filtering.', function() {
+            it('should trigger filtering', function() {
                 var event = {
                     target: {
                         value: 'testFilter'
@@ -662,7 +784,7 @@ define(function(require) {
         });
 
         describe('onMouseDown function', function() {
-            it('should store the client x value of the mouse down event.', function() {
+            it('should store the client x value of the mouse down event', function() {
                 var e = {
                     clientX: 100
                 };
@@ -675,7 +797,7 @@ define(function(require) {
         });
 
         describe('handleRowClick function', function() {
-            it('should trigger the rowClick callback.', function() {
+            it('should trigger the rowClick callback', function() {
                 var e = {
                     currentTarget: {
                         rowIndex: 0
@@ -689,7 +811,7 @@ define(function(require) {
                 expect(definition.rowClick.callback).toHaveBeenCalled();
             });
 
-            it('should throw an error if the callback is not a function.', function() {
+            it('should throw an error if the callback is not a function', function() {
                 spyOnTableGetCalls(tableData, tableData.length, definition.cols, undefined, 'error', undefined);
                 spyOn(definition.rowClick, 'callback');
                 table.onDataReceived();
@@ -698,7 +820,7 @@ define(function(require) {
                 expect(definition.rowClick.callback).not.toHaveBeenCalled();
             });
 
-            it('should not execute the rowClick callback if the user dragged the mouse more than 10 pixels.', function() {
+            it('should not execute the rowClick callback if the user dragged the mouse more than 10 pixels', function() {
                 var e = {
                     clientX: 111
                 };
@@ -717,7 +839,7 @@ define(function(require) {
                 expect(definition.rowClick.callback).not.toHaveBeenCalled();
             });
 
-            it('should execute the rowClick callback if the user dragged the mouse less than 11 pixels.', function() {
+            it('should execute the rowClick callback if the user dragged the mouse less than 11 pixels', function() {
                 var e = {
                     clientX: 110
                 };
@@ -734,6 +856,40 @@ define(function(require) {
                 table.mouseDownX = 120;
                 table.handleRowClick(e);
                 expect(definition.rowClick.callback.calls.count()).toEqual(2);
+            });
+        });
+
+        describe('handleBulkSelectClick', function() {
+            it('should execute the table actions toggleBulkSelect function and not propagate the click through to the row', function() {
+                var deselect = false;
+                var e = {stopPropagation: function(){}};
+                spyOn(e, 'stopPropagation');
+                spyOn(TableActions, 'toggleBulkSelect');
+                spyOnTableGetCalls(tableData, tableData.length, definition.cols, undefined, definition.rowClick, undefined);
+                table.onDataReceived();
+
+                table.handleBulkSelectClick(deselect, e);
+
+                expect(e.stopPropagation).toHaveBeenCalled();
+                expect(TableActions.toggleBulkSelect).toHaveBeenCalledWith(id, deselect);
+            });
+        });
+
+        describe('handleSelectClick', function() {
+            it('should execute the table actions toggleRowSelect function and not propagate the click through to the row', function() {
+                var e = {
+                    stopPropagation: function(){},
+                    currentTarget: {parentNode: {rowIndex: 0}}
+                };
+                spyOn(e, 'stopPropagation');
+                spyOn(TableActions, 'toggleRowSelect');
+                spyOnTableGetCalls(tableData, tableData.length, definition.cols, undefined, definition.rowClick, undefined);
+                table.onDataReceived();
+
+                table.handleSelectClick(e);
+
+                expect(e.stopPropagation).toHaveBeenCalled();
+                expect(TableActions.toggleRowSelect).toHaveBeenCalledWith(id, 0);
             });
         });
     });

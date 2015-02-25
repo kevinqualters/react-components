@@ -106,5 +106,45 @@ define(function(require) {
                 });
             });
         });
+
+        describe('toggleBulkSelect function', function() {
+            it('should request that an action be dispatched', function() {
+                var id = 'testID';
+                var deselect = false;
+
+                spyOn(AppDispatcher, 'handleViewAction');
+
+                TableActions.toggleBulkSelect(id, deselect);
+
+                expect(AppDispatcher.handleViewAction).toHaveBeenCalledWith({
+                    actionType: ActionTypes.TOGGLE_BULK_SELECT,
+                    component: 'Table',
+                    id: id,
+                    data: {
+                        deselect: deselect
+                    }
+                });
+            });
+        });
+
+        describe('toggleRowSelect function', function() {
+            it('should request that an action be dispatched', function() {
+                var id = 'testID';
+                var rowIndex = 0;
+
+                spyOn(AppDispatcher, 'handleViewAction');
+
+                TableActions.toggleRowSelect(id, rowIndex);
+
+                expect(AppDispatcher.handleViewAction).toHaveBeenCalledWith({
+                    actionType: ActionTypes.TOGGLE_ROW_SELECT,
+                    component: 'Table',
+                    id: id,
+                    data: {
+                        rowIndex: rowIndex
+                    }
+                });
+            });
+        });
     });
 });

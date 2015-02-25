@@ -391,7 +391,7 @@ define(function(require) {
          */
         handleSelectClick: function(e) {
             e.stopPropagation();
-            TableActions.toggleRowSelect(this.props.componentId, $(e.currentTarget).closest('tr')[0].rowIndex);
+            TableActions.toggleRowSelect(this.props.componentId, e.currentTarget.parentNode.rowIndex);
         }
     };
 });

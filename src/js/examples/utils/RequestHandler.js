@@ -1,6 +1,7 @@
 define(function(require) {
     'use strict';
 
+    var _ = require('lodash');
     var Moment = require('moment');
 
     var testTableData = [
@@ -250,19 +251,19 @@ define(function(require) {
             setTimeout(function() {
                 switch (url) {
                     case '/test/table':
-                        successCallback(testTableData);
+                        successCallback(_.cloneDeep(testTableData));
                         break;
                     case '/test/piechart':
-                        successCallback(pieChartData);
+                        successCallback(_.cloneDeep(pieChartData));
                         break;
                     case '/test/search':
-                        successCallback(searchData);
+                        successCallback(_.cloneDeep(searchData));
                         break;
                 }
                 return {
                     abort: function(){}
                 };
-            }, 1000);
+            }, 500);
         }
     };
 });

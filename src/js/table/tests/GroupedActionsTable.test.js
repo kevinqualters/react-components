@@ -258,7 +258,7 @@ define(function(require) {
             it('should not return table data if there is not a start time on the action.', function() {
                 spyOn(Utils, 'calculateTimeString').and.callThrough();
                 spyOn(table, 'calculateDurationString').and.callThrough();
-                var action = _.clone(tableData[0].actions[0]);
+                var action = _.cloneDeep(tableData[0].actions[0]);
                 delete action.start;
                 var nestedTableDataElement = table.getNestedRowTableData(action, definition.cols[0], 0);
                 expect(nestedTableDataElement).toBeUndefined();
@@ -269,7 +269,7 @@ define(function(require) {
             it('should not return table data if there is not an end time on the action.', function() {
                 spyOn(Utils, 'calculateTimeString').and.callThrough();
                 spyOn(table, 'calculateDurationString').and.callThrough();
-                var action = _.clone(tableData[0].actions[0]);
+                var action = _.cloneDeep(tableData[0].actions[0]);
                 delete action.end;
                 var nestedTableDataElement = table.getNestedRowTableData(action, definition.cols[0], 0);
                 expect(nestedTableDataElement).toBeUndefined();

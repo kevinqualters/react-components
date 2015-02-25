@@ -92,7 +92,7 @@ define(function(require) {
          * @returns {Array} - A potentially filtered and paginated subset of table data.
          */
         getData: function() {
-            var data = _.clone(this.data);
+            var data = _.cloneDeep(this.data);
             this.dataCount = data.length;
 
             if (this.filterValue) {

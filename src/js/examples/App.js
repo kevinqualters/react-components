@@ -147,7 +147,7 @@ define(function(require) {
                         </div>
                     </div>
                     <div className="sidebar">
-                        <ul className="nav">
+                        <ul className="nav no-select">
                             <li className={this.state.selectedComponentSet === 'piechart' ? 'active' : null}
                                 onClick={this.handleLinkClick.bind(this, 'piechart')}>Pie Chart</li>
                             <li className={this.state.selectedComponentSet === 'search' ? 'active' : null}

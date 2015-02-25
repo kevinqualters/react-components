@@ -147,7 +147,7 @@ define(function(require) {
                         )
                     ), 
                     React.createElement("div", {className: "sidebar"}, 
-                        React.createElement("ul", {className: "nav"}, 
+                        React.createElement("ul", {className: "nav no-select"}, 
                             React.createElement("li", {className: this.state.selectedComponentSet === 'piechart' ? 'active' : null, 
                                 onClick: this.handleLinkClick.bind(this, 'piechart')}, "Pie Chart"), 
                             React.createElement("li", {className: this.state.selectedComponentSet === 'search' ? 'active' : null, 

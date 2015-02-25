@@ -77,7 +77,7 @@ define(function(require) {
      * @returns {Object} - A React Class
      */
     function extendReactClass(base, clobber, add) {
-        add.mixins = [_.extend(_.clone(base), clobber)];
+        add.mixins = [_.extend(_.cloneDeep(base), clobber)];
 
         return React.createClass(add);
     }
