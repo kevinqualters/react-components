@@ -5,17 +5,23 @@ define(function(require) {
     var React = require('react');
     var Search = require('drc/search/Search');
     var Table = require('drc/table/Table');
+    var TableStore = require('drc/table/TableStore');
     var Utils = require('drc/utils/Utils');
 
     var tableDefinition = {
         url: '/test/table',
         cols: [
             {
+                dataType: 'select',
+                dataProperty: 'name',
+                width: '35px'
+            },
+            {
                 headerLabel: 'NAME',
                 dataProperty: 'name',
                 sortDirection: 'ascending',
                 dataType: 'string',
-                width: '25%',
+                width: '20%',
                 quickFilter: true
             },
             {
@@ -23,7 +29,7 @@ define(function(require) {
                 dataProperty: 'messages',
                 sortDirection: 'descending',
                 dataType: 'number',
-                width: '10%',
+                width: '15%',
                 quickFilter: true
             },
             {
@@ -50,11 +56,11 @@ define(function(require) {
                 dataType: 'status',
                 onlineLimit: 4,
                 timeFormat: 'MMM Do, h:mm A',
-                width: '30%',
+                width: '24%',
                 quickFilter: true
             }
         ],
-        sortColIndex: 0,
+        sortColIndex: 1,
         pagination: {
             cursor: 0,
             size: 12
@@ -121,6 +127,7 @@ define(function(require) {
                 case 'table':
                     componentSet = (
                         React.createElement("div", {className: "component"}, 
+                            React.createElement("div", {className: "bulk-action-button", onClick: this.handleBulkActionClick}, "Bulk Action"), 
                             React.createElement(Table, {definition: tableDefinition, 
                                    componentId: "tableId", 
                                    key: "tableId", 
@@ -140,7 +147,7 @@ define(function(require) {
                         )
                     ), 
                     React.createElement("div", {className: "sidebar"}, 
-                        React.createElement("ul", {className: "nav"}, 
+                        React.createElement("ul", {className: "nav no-select"}, 
                             React.createElement("li", {className: this.state.selectedComponentSet === 'piechart' ? 'active' : null, 
                                 onClick: this.handleLinkClick.bind(this, 'piechart')}, "Pie Chart"), 
                             React.createElement("li", {className: this.state.selectedComponentSet === 'search' ? 'active' : null, 
@@ -154,6 +161,10 @@ define(function(require) {
                     )
                 )
             );
+        },
+
+        handleBulkActionClick: function() {
+            alert('You have selected the following items from the table:\n\n' + TableStore.getSelectedItems('tableId'));
         },
 
         handleLinkClick: function(link) {

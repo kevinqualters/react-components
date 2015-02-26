@@ -78,11 +78,11 @@ define(function(require) {
             var table;
 
             beforeEach(function() {
-                table = new TableStore.Table(id, definition, dataFormatter);
+                table = new TableStore.Table(id, definition, null);
             });
 
             describe('onDataReceived function', function() {
-                var origDefinition = _.clone(definition);
+                var origDefinition = _.cloneDeep(definition);
                 var val = 'data';
                 var val2 = 'data2';
                 var data = [{test: val}, {test2: val2}];
@@ -95,8 +95,9 @@ define(function(require) {
                 });
 
                 it('should call formatter if present', function() {
+                    table = new TableStore.Table(id, definition, dataFormatter);
                     spyOn(table, 'sortData');
-                    spyOn(table, 'dataFormatter');
+                    spyOn(table, 'dataFormatter').and.returnValue(data);
 
                     table.onDataReceived(data);
                     expect(table.dataFormatter).toHaveBeenCalled();
@@ -179,7 +180,7 @@ define(function(require) {
                 });
 
                 // Reset definition
-                definition = _.clone(origDefinition);
+                definition = origDefinition;
             });
 
             describe('errorFunction function', function() {
@@ -282,8 +283,49 @@ define(function(require) {
                 });
             });
 
+            describe('setFilterValue', function() {
+                it('should set the filter value and reset pagination if it is in the definition and the cursor is not at 0', function() {
+                    var val = 'testFilterValue';
+                    var def = _.cloneDeep(definition);
+                    def.pagination.cursor = 4;
+                    table = new TableStore.Table(id, def, null);
+                    spyOn(table, 'resetPagination');
+
+                    table.setFilterValue(val);
+
+                    expect(table.filterValue).toEqual(val);
+                    expect(table.resetPagination).toHaveBeenCalled();
+                });
+
+                it('should set the filter value and not reset pagination if it is in the definition and the cursor is at 0', function() {
+                    var val = 'testFilterValue';
+                    var def = _.cloneDeep(definition);
+                    def.pagination.cursor = 0;
+                    table = new TableStore.Table(id, def, null);
+                    spyOn(table, 'resetPagination');
+
+                    table.setFilterValue(val);
+
+                    expect(table.filterValue).toEqual(val);
+                    expect(table.resetPagination).not.toHaveBeenCalled();
+                });
+
+                it('should set the filter value and not reset pagination if it is not in the definition', function() {
+                    var val = 'testFilterValue';
+                    var def = _.cloneDeep(definition);
+                    def.pagination = null;
+                    table = new TableStore.Table(id, def, null);
+                    spyOn(table, 'resetPagination');
+
+                    table.setFilterValue(val);
+
+                    expect(table.filterValue).toEqual(val);
+                    expect(table.resetPagination).not.toHaveBeenCalled();
+                });
+            });
+
             describe('filterData function', function() {
-                var origDefinition = _.clone(definition);
+                var origDefinition = _.cloneDeep(definition);
 
                 beforeEach(function() {
                     definition.cols[0].quickFilter = true;
@@ -306,7 +348,7 @@ define(function(require) {
                 });
 
                 // Reset definition
-                definition = _.clone(origDefinition);
+                definition = origDefinition;
             });
 
             describe('paginate function', function() {
@@ -513,6 +555,58 @@ define(function(require) {
                     expect(table.data[6].timestamp).toBeNull();
                 });
             });
+
+            describe('getSelectedItems', function() {
+                it ('should return the selected items for the table instance', function() {
+                    var selectedItems = {'item1': true, 'item2': true};
+                    var table = new TableStore.Table(id, definition, null);
+                    table.selectedItems = selectedItems;
+
+                    expect(table.getSelectedItems()).toEqual(selectedItems);
+                });
+            });
+
+            describe('getFilteredData', function() {
+                it ('should return the filtered data for the table instance', function() {
+                    var filteredData = {'item1': true, 'item2': true};
+                    var table = new TableStore.Table(id, definition, null);
+                    table.filteredData = filteredData;
+
+                    expect(table.getFilteredData()).toEqual(filteredData);
+                });
+            });
+
+            describe('updateBulkSelection', function() {
+                it ('should add or remove all filtered data elements to/from the selected items object', function() {
+                    var filteredData = [{'item': 'test1'}, {'item': 'test2'}];
+                    var table = new TableStore.Table(id, definition, null);
+                    table.filteredData = filteredData;
+                    table.selectDataProperty = 'item';
+
+                    table.updateBulkSelection(false);
+
+                    expect(table.selectedItems).toEqual({'test1': true, 'test2': true});
+
+                    table.updateBulkSelection(true);
+                    expect(table.selectedItems).toEqual({});
+                });
+            });
+
+            describe('updateRowSelection', function() {
+                it ('should add or remove a single filtered data element to/from the selected items object', function() {
+                    var displayedData = [{'item': 'test1'}, {'item': 'test2'}];
+                    var table = new TableStore.Table(id, definition, null);
+                    table.displayedData = displayedData;
+                    table.selectDataProperty = 'item';
+
+                    table.updateRowSelection(0);
+
+                    expect(table.selectedItems).toEqual({'test1': true});
+
+                    table.updateRowSelection(0);
+                    expect(table.selectedItems).toEqual({});
+                });
+            });
         });
 
         describe('createInstance function', function() {
@@ -528,89 +622,22 @@ define(function(require) {
             });
         });
 
-        describe('getData function', function() {
-            it('should trigger the getData function for the table instance', function() {
-                spyOn(TableStore.collection[id], 'getData');
-                TableStore.getData(id);
-
-                expect(TableStore.collection[id].getData).toHaveBeenCalled();
+        describe('getInstance function', function() {
+            it('should return the table instance', function() {
+                expect(TableStore.getInstance(id).id).toEqual(id);
             });
         });
 
-        describe('getDataCount function', function() {
-            it('should trigger the getDataCount function for the table instance', function() {
-                spyOn(TableStore.collection[id], 'getDataCount');
-                TableStore.getDataCount(id);
+        describe('getSelectedItems function', function() {
+            it('should return an array of selected row keys', function() {
+                var table = new TableStore.Table(id, definition, null);
+                table.selectedItems = {'item1': true, 'item2': true};
+                TableStore.collection[id] = table;
 
-                expect(TableStore.collection[id].getDataCount).toHaveBeenCalled();
-            });
-        });
+                expect(TableStore.getSelectedItems(id)).toEqual(['item1', 'item2']);
 
-        describe('getColDefinitions function', function() {
-            it('should trigger the getColDefinitions function for the table instance', function() {
-                spyOn(TableStore.collection[id], 'getColDefinitions');
-                TableStore.getColDefinitions(id);
-
-                expect(TableStore.collection[id].getColDefinitions).toHaveBeenCalled();
-            });
-        });
-
-        describe('getSortColIndex function', function() {
-            it('should trigger the getSortColIndex function for the table instance', function() {
-                spyOn(TableStore.collection[id], 'getSortColIndex');
-                TableStore.getSortColIndex(id);
-
-                expect(TableStore.collection[id].getSortColIndex).toHaveBeenCalled();
-            });
-        });
-
-        describe('getRowClickData function', function() {
-            it('should trigger the getRowClickData function for the table instance', function() {
-                spyOn(TableStore.collection[id], 'getRowClickData');
-                TableStore.getRowClickData(id);
-
-                expect(TableStore.collection[id].getRowClickData).toHaveBeenCalled();
-            });
-        });
-
-        describe('getPaginationData function', function() {
-            it('should trigger the getPaginationData function for the table instance', function() {
-                spyOn(TableStore.collection[id], 'getPaginationData');
-                TableStore.getPaginationData(id);
-
-                expect(TableStore.collection[id].getPaginationData).toHaveBeenCalled();
-            });
-        });
-
-        describe('setFilterValue function', function() {
-            it('should set the filter value for the table instance', function() {
-                var val = 'testFilter';
-                TableStore.setFilterValue(id, val);
-
-                expect(TableStore.collection[id].filterValue).toEqual(val);
-            });
-        });
-
-        describe('paginate function', function() {
-            it('should trigger the paginate function for the table instance', function() {
-                var direction = 'ascending';
-
-                spyOn(TableStore.collection[id], 'paginate');
-                TableStore.paginate(id, direction);
-
-                expect(TableStore.collection[id].paginate).toHaveBeenCalledWith(direction);
-            });
-        });
-
-        describe('sortData function', function() {
-            it('should trigger the sortData function for the table instance', function() {
-                var colIndex = 0;
-                var direction = 'descending';
-
-                spyOn(TableStore.collection[id], 'sortData');
-                TableStore.sortData(id, colIndex, direction);
-
-                expect(TableStore.collection[id].sortData).toHaveBeenCalledWith(colIndex, direction);
+                // Reset collection;
+                TableStore.collection = {};
             });
         });
 
@@ -666,12 +693,13 @@ define(function(require) {
                         }
                     }
                 };
+                TableStore.collection['testId'] = {sortData: function(){}};
 
-                spyOn(TableStore, 'sortData');
+                spyOn(TableStore.collection['testId'], 'sortData');
                 spyOn(TableStore, 'emitChange');
                 TableStore.dispatchRegister(payload);
 
-                expect(TableStore.sortData).toHaveBeenCalledWith(payload.action.id, payload.action.data.colIndex, payload.action.data.direction);
+                expect(TableStore.collection['testId'].sortData).toHaveBeenCalledWith(payload.action.data.colIndex, payload.action.data.direction);
                 expect(TableStore.emitChange).toHaveBeenCalledWith(payload.action.id);
             });
 
@@ -686,12 +714,13 @@ define(function(require) {
                         }
                     }
                 };
+                TableStore.collection['testId'] = {setFilterValue: function(){}};
 
-                spyOn(TableStore, 'setFilterValue');
+                spyOn(TableStore.collection['testId'], 'setFilterValue');
                 spyOn(TableStore, 'emitChange');
                 TableStore.dispatchRegister(payload);
 
-                expect(TableStore.setFilterValue).toHaveBeenCalledWith(payload.action.id, payload.action.data.value);
+                expect(TableStore.collection['testId'].setFilterValue).toHaveBeenCalledWith(payload.action.data.value);
                 expect(TableStore.emitChange).toHaveBeenCalledWith(payload.action.id);
             });
 
@@ -706,12 +735,55 @@ define(function(require) {
                         }
                     }
                 };
+                TableStore.collection['testId'] = {paginate: function(){}};
 
-                spyOn(TableStore, 'paginate');
+                spyOn(TableStore.collection['testId'], 'paginate');
                 spyOn(TableStore, 'emitChange');
                 TableStore.dispatchRegister(payload);
 
-                expect(TableStore.paginate).toHaveBeenCalledWith(payload.action.id, payload.action.data.direction);
+                expect(TableStore.collection['testId'].paginate).toHaveBeenCalledWith(payload.action.data.direction);
+                expect(TableStore.emitChange).toHaveBeenCalledWith(payload.action.id);
+            });
+
+            it('should call the update bulk selection function and emit a change when the action is requesting bulk selection', function() {
+                var payload = {
+                    action: {
+                        actionType: ActionTypes.TOGGLE_BULK_SELECT,
+                        component: 'Table',
+                        id: 'testId',
+                        data: {
+                            deselect: false
+                        }
+                    }
+                };
+                TableStore.collection['testId'] = {updateBulkSelection: function(){}};
+
+                spyOn(TableStore.collection['testId'], 'updateBulkSelection');
+                spyOn(TableStore, 'emitChange');
+                TableStore.dispatchRegister(payload);
+
+                expect(TableStore.collection['testId'].updateBulkSelection).toHaveBeenCalledWith(payload.action.data.deselect);
+                expect(TableStore.emitChange).toHaveBeenCalledWith(payload.action.id);
+            });
+
+            it('should call the update row selection function and emit a change when the action is requesting row selection', function() {
+                var payload = {
+                    action: {
+                        actionType: ActionTypes.TOGGLE_ROW_SELECT,
+                        component: 'Table',
+                        id: 'testId',
+                        data: {
+                            rowIndex: 0
+                        }
+                    }
+                };
+                TableStore.collection['testId'] = {updateRowSelection: function(){}};
+
+                spyOn(TableStore.collection['testId'], 'updateRowSelection');
+                spyOn(TableStore, 'emitChange');
+                TableStore.dispatchRegister(payload);
+
+                expect(TableStore.collection['testId'].updateRowSelection).toHaveBeenCalledWith(payload.action.data.rowIndex);
                 expect(TableStore.emitChange).toHaveBeenCalledWith(payload.action.id);
             });
 

@@ -9,7 +9,9 @@ define(function(require) {
             DESTROY_INSTANCE: 'DESTROY_INSTANCE',
             FILTER: 'FILTER',
             PAGINATE: 'PAGINATE',
-            TABLE_SORT: 'TABLE_SORT'
+            TABLE_SORT: 'TABLE_SORT',
+            TOGGLE_BULK_SELECT: 'TOGGLE_BULK_SELECT',
+            TOGGLE_ROW_SELECT: 'TOGGLE_ROW_SELECT'
         },
 
         /**
@@ -90,6 +92,38 @@ define(function(require) {
                 data: {
                     colIndex: colIndex,
                     direction: direction
+                }
+            });
+        },
+
+        /**
+         * Bulk toggle selection for table rows.
+         * @param {String} id - The unique identifier of the Table instance to toggle bulk selection for.
+         * @param {Boolean} deselect - There are selected items in the filtered data set, so we need to deselect them.
+         */
+        toggleBulkSelect: function(id, deselect) {
+            AppDispatcher.handleViewAction({
+                actionType: this.actionTypes.TOGGLE_BULK_SELECT,
+                component: 'Table',
+                id: id,
+                data: {
+                    deselect: deselect
+                }
+            });
+        },
+
+        /**
+         * Selects or deselects a table row.
+         * @param {String} id - The unique identifier of the Table instance to select a row within.
+         * @param {Number} rowIndex - The index of the table row containing the select box that was toggled.
+         */
+        toggleRowSelect: function(id, rowIndex) {
+            AppDispatcher.handleViewAction({
+                actionType: this.actionTypes.TOGGLE_ROW_SELECT,
+                component: 'Table',
+                id: id,
+                data: {
+                    rowIndex: rowIndex
                 }
             });
         }

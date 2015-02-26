@@ -9,10 +9,14 @@ define(function(require) {
     var Utils = require('drc/utils/Utils');
 
     var iconClasses = {
+        deselectAll: 'fa fa-minus-square-o',
         pageLeft: 'fa fa-chevron-left',
         pageRight: 'fa fa-chevron-right',
         rowsCollapsed: 'fa fa-chevron-right',
         rowsExpanded: 'fa fa-chevron-down',
+        selectAll: 'fa fa fa-square-o',
+        selectOn: 'fa fa-check-square-o',
+        selectOff: 'fa fa-square-o',
         sortAsc: 'fa fa-sort-asc',
         sortDesc: 'fa fa-sort-desc',
         statusOn: 'fa fa-circle',
@@ -38,13 +42,15 @@ define(function(require) {
         },
 
         getInitialState: function() {
+            this.selectionEnabled = _.some(this.props.definition.cols, function(col) {return col.dataType === 'select';}) ? true : false;
             this.quickFilterEnabled = _.some(this.props.definition.cols, function(col) {return col.quickFilter === true;}) ? true : false;
             this.iconClasses = _.merge(_.clone(iconClasses), this.props.iconClasses);
 
             return {
                 loading: true,
                 data: null,
-                dataError: false
+                dataError: false,
+                selectedItems: {}
             };
         },
 
@@ -84,6 +90,9 @@ define(function(require) {
             );
         },
 
+        /**
+         * Puts the table in a loading state and triggers the table's request data action.
+         */
         requestData: function() {
             this.setState({
                 loading: true,
@@ -96,12 +105,9 @@ define(function(require) {
          * Handle store change event.
          */
         onDataReceived: function() {
-            var data = TableStore.getData(this.props.componentId);
-            var dataCount = TableStore.getDataCount(this.props.componentId);
-            var colDefinitions = TableStore.getColDefinitions(this.props.componentId);
-            var sortColIndex = TableStore.getSortColIndex(this.props.componentId);
-            var rowClick = TableStore.getRowClickData(this.props.componentId);
-            var pagination = TableStore.getPaginationData(this.props.componentId);
+            var table = TableStore.getInstance(this.props.componentId);
+            var data = table.getData();
+            var colDefs = table.getColDefinitions();
 
             if (!data) {
                 this.onError();
@@ -109,14 +115,16 @@ define(function(require) {
             }
 
             this.setState({
-                loading: false,
+                colDefinitions: colDefs,
+                colSortDirections: this.getColSortDirections(colDefs),
+                dataCount: table.getDataCount(),
                 data: data,
-                dataCount: dataCount,
-                colDefinitions: colDefinitions,
-                sortColIndex: sortColIndex,
-                pagination: pagination,
-                rowClick: rowClick,
-                colSortDirections: this.getColSortDirections(colDefinitions)
+                filteredData: table.getFilteredData(),
+                loading: false,
+                pagination: table.getPaginationData(),
+                rowClick: table.getRowClickData(),
+                selectedItems: this.selectionEnabled ? table.getSelectedItems() : null,
+                sortColIndex: table.getSortColIndex()
             });
         },
 
@@ -127,14 +135,23 @@ define(function(require) {
             this.setState({loading: false, dataError: true});
         },
 
+        /**
+         * Creates the quick filter input for searching/filtering through the table data if any of the columns have
+         * quickFilter set to true.
+         * @returns {XML} - A React input element.
+         */
         getQuickFilter: function() {
-            if (!this.quickFilterEnabled || !this.state.data || !this.state.data.length) {
+            if (!this.quickFilterEnabled || this.state.loading) {
                 return null;
             }
 
             return React.createElement("input", {ref: "filter", className: "quick-filter", type: "text", placeholder: this.props.quickFilterPlaceholder, onChange: this.handleQuickFilterChange});
         },
 
+        /**
+         * Creates pagination controls if the table has data and pagination was definied in the table definition.
+         * @returns {XML} - A React div element containing the pagination controls.
+         */
         getPaginationControls: function() {
             if (!this.state.data || !this.state.data.length || !this.state.pagination) {
                 return null;
@@ -183,6 +200,11 @@ define(function(require) {
             );
         },
 
+        /**
+         * Creates an array for the table to easily access column sorting directions.
+         * @param {Object} colDefinitions - The tables column definitions that were sent in with the table definition.
+         * @returns {Array} - The list of sort directions ordered by column index.
+         */
         getColSortDirections: function(colDefinitions) {
             var colSortDirections = [];
 
@@ -200,50 +222,18 @@ define(function(require) {
             return colSortDirections;
         },
 
-        getTableHeaderItem: function(colData, index) {
-            var icon = null;
-            var sortActive;
-            var handleSortClick;
-            var thStyle = {
-                width: colData.width
-            };
-            var headerClasses;
-
-            if (this.state.data && this.state.data.length > 1 && typeof this.state.sortColIndex === 'number') {
-                sortActive = this.state.sortColIndex === index;
-                if (this.state.colSortDirections[index] === 'ascending') {
-                    icon = this.getIcon('ascending', sortActive);
-                }
-                else if (this.state.colSortDirections[index] === 'descending') {
-                    icon = this.getIcon('descending', sortActive);
-                }
-            }
-
-            headerClasses = React.addons.classSet({
-                'indicator': !!icon,
-                'no-select': true
-            });
-
-            if (icon) {
-                handleSortClick = this.handleSortClick;
-            }
-
-            return (
-                React.createElement("th", {className: headerClasses, 
-                    key: 'tableHeader' + Utils.guid(), 
-                    style: thStyle, 
-                    onClick: handleSortClick ? handleSortClick.bind(this, index) : undefined}, colData.headerLabel, " ", icon
-                )
-            );
-        },
-
+        /**
+         * Creates a table row.
+         * @param {Object} rowData - The data element to build a table row from.
+         * @param {Number} index - The current row index.
+         * @returns {XML} - A React table row.
+         */
         getTableRowItem: function(rowData, index) {
             var handleRowClick;
             var onMouseDown;
             var row = [];
 
-            var cx = React.addons.classSet;
-            var hoverClass = cx({
+            var hoverClass = React.addons.classSet({
                 'hover-enabled': this.state.rowClick,
                 'text-select': true,
                 'error-row': rowData.isError
@@ -268,53 +258,136 @@ define(function(require) {
         },
 
         /**
-         * Returns the markup necessary to display a cell in the table
-         * @param  {Mixed} val         The value for the current cell
-         * @param  {Object} meta       Details about the value (format, type, etc)
-         * @param  {Mixed=} hoverValue Optional value to show in hover state of cell
-         * @param {Number} index
-         * @return {Object}            Cell markup
+         * Creates a table header.
+         * @param {Object} colData - The associated column definition from the definition on props.
+         * @param {Number} index - The column index to build a table header element for.
+         * @returns {XML} - A React table header element.
+         */
+        getTableHeaderItem: function(colData, index) {
+            var icon, onClick;
+            var headerClasses = 'no-select';
+
+            if (colData.dataType === 'select' && this.state.data && this.state.data.length) {
+                icon = this.getBulkSelectionIcon(colData);
+                onClick = this.handleBulkSelectClick.bind(this, icon._store.props.title === 'Deselect All');
+                headerClasses += ' select-column-th';
+            }
+            else if (colData.sortDirection && this.state.data && this.state.data.length) {
+                icon = this.getSortIcon(index);
+                onClick = this.handleSortClick.bind(this, index);
+                headerClasses += ' indicator';
+            }
+
+            return (
+                React.createElement("th", {className: headerClasses, 
+                    title: colData.headerLabel, 
+                    key: 'tableHeader' + Utils.guid(), 
+                    style: {width: colData.width}, 
+                    onClick: onClick}, colData.headerLabel, 
+                    icon
+                )
+            );
+        },
+
+        /**
+         * Creates the bulk select/deselect icon if the column has a dataType of select.
+         * @param {Object} colData - The associated column definition from the definition on props.
+         * @returns {XML} - A React icon element.
+         */
+        getBulkSelectionIcon: function(colData) {
+            var filteredData = this.state.filteredData;
+            var match = _.some(filteredData, function(data) {
+                return this.state.selectedItems[data[colData.dataProperty]];
+            }.bind(this));
+            var iconClasses = match ? this.iconClasses.deselectAll : this.iconClasses.selectAll;
+
+            return React.createElement("i", {className: iconClasses, title: match ? 'Deselect All' : 'Select All'});
+        },
+
+        /**
+         * Creates the sorting indicator for the table headers that have sorting enabled.
+         * @param {number} index - The associated column index that the icon will be placed in.
+         * @returns {XML} - A React icon element.
+         */
+        getSortIcon: function(index) {
+            var defaultIconClasses = React.addons.classSet({
+                'sorting-indicator': true,
+                'active': this.state.sortColIndex === index
+            });
+            var iconClasses = this.state.colSortDirections[index] === 'ascending' ? this.iconClasses.sortAsc + ' asc' : this.iconClasses.sortDesc + ' desc';
+
+            return React.createElement("i", {className: defaultIconClasses + ' ' + iconClasses});
+        },
+
+        /**
+         * Creates a table data element.
+         * @param  {Mixed} val - The value for the current cell
+         * @param  {Object} meta - Details about the value (format, type, etc).
+         * @param  {Mixed=} hoverValue - Optional value to show in hover state of cell.
+         * @param {Number} index - The current column index.
+         * @return {Object} - A React table data element.
          */
         getTableData: function(val, meta, hoverValue, index) {
-            var afterIcon, defaultIconClasses;
+            var afterIcon, iconClasses;
+            var contentClasses = 'content';
+
+            // This is a select column
+            if (meta.dataType && meta.dataType === 'select') {
+                iconClasses = this.state.selectedItems && this.state.selectedItems[val] ? this.iconClasses.selectOn + ' on' : this.iconClasses.selectOff + ' off';
+
+                return (
+                    React.createElement("td", {className: "select-column-td no-select", 
+                        title: this.state.selectedItems && this.state.selectedItems[val] ? "Deselect" : "Select", 
+                        key: 'tableData' + Utils.guid(), 
+                        onClick: this.handleSelectClick}, 
+                        React.createElement("i", {className: iconClasses})
+                    )
+                );
+            }
 
             if (meta.dataType === 'status') {
-                defaultIconClasses = this.state.data[index].online ? this.iconClasses.statusOn : this.iconClasses.statusOff;
+                contentClasses += ' before-icon';
+                iconClasses = this.state.data[index].online ? this.iconClasses.statusOn + ' status-on' : this.iconClasses.statusOff + ' status-off';
 
-                afterIcon = (React.createElement("span", {className: "after-icon"}, React.createElement("i", {className: defaultIconClasses})));
+                afterIcon = React.createElement("i", {className: 'after-icon ' + iconClasses});
             }
             hoverValue = hoverValue || val;
 
             return (
                 React.createElement("td", {className: "status", key: 'tableData' + Utils.guid()}, 
-                    React.createElement("span", {className: "content", title: hoverValue}, val), 
+                    React.createElement("span", {className: contentClasses, title: hoverValue}, val), 
                     afterIcon
                 )
             );
         },
 
-        getIcon: function(direction, sortActive) {
-            var iconClasses = React.addons.classSet({
-                'sorting-indicator': true,
-                'active': sortActive
-            });
-            var defaultIconClasses = direction === 'ascending' ? this.iconClasses.sortAsc : this.iconClasses.sortDesc;
-
-            return React.createElement("i", {className: iconClasses + ' ' + defaultIconClasses});
-        },
-
+        /**
+         * Filters out the rows that do not contain the input within any of the columns that have quickFilter enabled.
+         * @param {Object} e - The simulated React event.
+         */
         handleQuickFilterChange: function(e) {
             TableActions.filter(this.props.componentId, e.target.value);
         },
 
+        /**
+         * Paginate to the left.
+         */
         handlePageLeftClick: function() {
             TableActions.paginate(this.props.componentId, 'left');
         },
 
+        /**
+         * Paginate to the right.
+         */
         handlePageRightClick: function() {
             TableActions.paginate(this.props.componentId, 'right');
         },
 
+        /**
+         * Activates the column and sorts on the current sort direction of that column if it was not already active.
+         * If the column is already the active sorting column, it will change the direction of the sort.
+         * @param {Number} index - The column index that was clicked.
+         */
         handleSortClick: function(index) {
             var direction;
 
@@ -330,7 +403,7 @@ define(function(require) {
 
         /**
          * Tracks the mouse down x value to detect dragging on a table row to highlight text.
-         * @param {Object} e - The event simulated by React.
+         * @param {Object} e - Simulated React event.
          */
         onMouseDown: function(e) {
             this.mouseDownX = e.clientX;
@@ -338,7 +411,7 @@ define(function(require) {
 
         /**
          * Will trigger the rowClick's callback function if a drag hasn't occurred.
-         * @param {Object} e - The event simulated by React.
+         * @param {Object} e - Simulated React event.
          */
         handleRowClick: function(e) {
             // Do not allow the click functionality to be triggered when the user is highlighting text.
@@ -353,6 +426,25 @@ define(function(require) {
             else {
                 this.state.rowClick.callback(e, this.props, this.state);
             }
+        },
+
+        /**
+         * Bulk toggle selection for table rows.
+         * @param {Boolean} deselect - If there are selected items in the filtered data set, we need to deselect them.
+         * @param {Object} e - Simulated React event.
+         */
+        handleBulkSelectClick: function(deselect, e) {
+            e.stopPropagation();
+            TableActions.toggleBulkSelect(this.props.componentId, deselect);
+        },
+
+        /**
+         * Toggle selection for a single table row.
+         * @param {Object} e - Simulated React event.
+         */
+        handleSelectClick: function(e) {
+            e.stopPropagation();
+            TableActions.toggleRowSelect(this.props.componentId, e.currentTarget.parentNode.rowIndex);
         }
     };
 });

@@ -1,6 +1,7 @@
 define(function(require) {
     'use strict';
 
+    var _ = require('lodash');
     var Moment = require('moment');
 
     var testTableData = [
@@ -247,20 +248,22 @@ define(function(require) {
          * @param  {object|null} scope - Scope to execute callbacks
          */
         request: function(url, data, successCallback, errorCallback, scope) {
-            switch (url) {
-                case '/test/table':
-                    successCallback(testTableData);
-                    break;
-                case '/test/piechart':
-                    successCallback(pieChartData);
-                    break;
-                case '/test/search':
-                    successCallback(searchData);
-                    break;
-            }
-            return {
-                abort: function(){}
-            };
+            setTimeout(function() {
+                switch (url) {
+                    case '/test/table':
+                        successCallback(_.cloneDeep(testTableData));
+                        break;
+                    case '/test/piechart':
+                        successCallback(_.cloneDeep(pieChartData));
+                        break;
+                    case '/test/search':
+                        successCallback(_.cloneDeep(searchData));
+                        break;
+                }
+                return {
+                    abort: function(){}
+                };
+            }, 500);
         }
     };
 });

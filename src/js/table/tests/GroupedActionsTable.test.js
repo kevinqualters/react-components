@@ -8,14 +8,18 @@ define(function(require) {
 
     var TestUtils = React.addons.TestUtils;
 
-    describe('Table', function() {
+    describe('Grouped Actions Table', function() {
+        var table, id;
+
         function spyOnTableGetCalls(data, count, colDef, sortIdx, rowClick, pagination) {
-            spyOn(TableStore, 'getData').and.returnValue(data);
-            spyOn(TableStore, 'getDataCount').and.returnValue(count);
-            spyOn(TableStore, 'getColDefinitions').and.returnValue(colDef);
-            spyOn(TableStore, 'getSortColIndex').and.returnValue(sortIdx);
-            spyOn(TableStore, 'getRowClickData').and.returnValue(rowClick);
-            spyOn(TableStore, 'getPaginationData').and.returnValue(pagination);
+            var tableInstance = TableStore.getInstance(id);
+
+            spyOn(tableInstance, 'getData').and.returnValue(data);
+            spyOn(tableInstance, 'getDataCount').and.returnValue(count);
+            spyOn(tableInstance, 'getColDefinitions').and.returnValue(colDef);
+            spyOn(tableInstance, 'getSortColIndex').and.returnValue(sortIdx);
+            spyOn(tableInstance, 'getRowClickData').and.returnValue(rowClick);
+            spyOn(tableInstance, 'getPaginationData').and.returnValue(pagination);
         }
 
         var definition = {
@@ -102,7 +106,6 @@ define(function(require) {
             rowsCollapsed: 'test-rows-collapsed',
             rowsExpanded: 'test-rows-expanded'
         };
-        var table, id;
 
         beforeEach(function() {
             id = 'table-' + Utils.guid();
@@ -116,6 +119,7 @@ define(function(require) {
             };
 
             table = TestUtils.renderIntoDocument(<GroupedActionsTable {...props} />);
+            table.requestData();
             spyOnTableGetCalls(tableData, dataCount, definition.cols, definition.sortColIndex, definition.rowClick, definition.pagination);
             table.onDataReceived();
         });
@@ -170,26 +174,6 @@ define(function(require) {
         });
 
         describe('getTableData function', function() {
-            it('should set the value to the formatted Moment if the dataType is "time" and there is a val.', function() {
-                var tableDataElement = table.getTableData(tableData[0], definition.cols[0], 0);
-                var tableDataContents = tableDataElement._store.props.children[1];
-                var title = tableDataContents._store.props.title;
-                var str = tableDataContents._store.props.children;
-                expect(title).toBeNonEmptyString();
-                expect(str.split(' ').length).toEqual(3);
-            });
-
-            it('should set the value to "--" if the meta dataType is "time" and there is no val.', function() {
-                var meta = _.clone(definition.cols[0]);
-                delete meta.dataProperty;
-                var tableDataElement = table.getTableData(tableData[0], meta, 0);
-                var tableDataContents = tableDataElement._store.props.children[1];
-                var title = tableDataContents._store.props.title;
-                var str = tableDataContents._store.props.children;
-                expect(title).toBeNonEmptyString();
-                expect(str).toEqual('--');
-            });
-
             it('should set the value to a calculated duration string if the dataProperty is "duration".', function() {
                 var tableDataElement = table.getTableData(tableData[0], definition.cols[1], 0);
                 var tableDataContents = tableDataElement._store.props.children[1];
@@ -274,7 +258,7 @@ define(function(require) {
             it('should not return table data if there is not a start time on the action.', function() {
                 spyOn(Utils, 'calculateTimeString').and.callThrough();
                 spyOn(table, 'calculateDurationString').and.callThrough();
-                var action = _.clone(tableData[0].actions[0]);
+                var action = _.cloneDeep(tableData[0].actions[0]);
                 delete action.start;
                 var nestedTableDataElement = table.getNestedRowTableData(action, definition.cols[0], 0);
                 expect(nestedTableDataElement).toBeUndefined();
@@ -285,7 +269,7 @@ define(function(require) {
             it('should not return table data if there is not an end time on the action.', function() {
                 spyOn(Utils, 'calculateTimeString').and.callThrough();
                 spyOn(table, 'calculateDurationString').and.callThrough();
-                var action = _.clone(tableData[0].actions[0]);
+                var action = _.cloneDeep(tableData[0].actions[0]);
                 delete action.end;
                 var nestedTableDataElement = table.getNestedRowTableData(action, definition.cols[0], 0);
                 expect(nestedTableDataElement).toBeUndefined();

@@ -61,10 +61,6 @@ define(function(require) {
                     'group-date': meta.dataProperty === 'groupDate'
                 });
 
-                if (meta.dataType === 'time') {
-                    val = val ? Moment(val).format(meta.timeFormat) : "--";
-                }
-
                 if (meta.dataProperty === 'duration') {
                     val = this.calculateDurationString(val);
                 }
@@ -112,7 +108,7 @@ define(function(require) {
                 var val = '--';
                 var spanClasses = React.addons.classSet({
                     content: true,
-                    'group-date': meta.dataProperty === 'groupDate'
+                    'nested-text': meta.dataProperty === 'groupDate'
                 });
 
                 if (!action.start || !action.end) {

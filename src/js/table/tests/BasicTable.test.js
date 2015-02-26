@@ -1,5 +1,6 @@
 define(function(require) {
     var BasicTable = require('drc/table/BasicTable');
+    var _ = require('lodash');
     var Moment = require('moment');
     var React = require('react');
     var TableActions = require('drc/table/TableActions');
@@ -8,80 +9,70 @@ define(function(require) {
 
     var TestUtils = React.addons.TestUtils;
 
-    var definition = {
-        url: 'table/company',
-        cols: [
-            {
-                headerLabel: 'NAME',
-                dataProperty: 'name',
-                sortDirection: 'ascending',
-                dataType: 'string',
-                width: '20%'
-            },
-            {
-                headerLabel: 'USERS',
-                dataProperty: 'users',
-                sortDirection: 'descending',
-                dataType: 'number',
-                width: '10%'
-            },
-            {
-                headerLabel: 'SESSIONS',
-                dataProperty: 'sessions',
-                sortDirection: 'descending',
-                dataType: 'number',
-                width: '10%'
-            },
-            {
-                headerLabel: 'ACTIVE',
-                dataProperty: 'activeUsers',
-                sortDirection: 'descending',
-                dataType: 'percent',
-                width: '10%'
-            },
-            {
-                headerLabel: 'PEAK',
-                dataProperty: 'peak',
-                sortDirection: 'descending',
-                dataType: 'time',
-                timeFormat: 'MMM Do, h A',
-                width: '15%'
-            }
-        ],
-        sortColIndex: 2,
-        pagination: {
-            cursor: 0,
-            size: 10
-        },
-        rowClick: {
-            callback: function() {}
-        }
-    };
-
-    function dataFormatter(data) {
-        return data;
-    }
-
-    var iconClasses = {
-        pageLeft: 'test-page-left',
-        pageRight: 'test-page-right',
-        sortAsc: 'test-sort-asc',
-        sortDesc: 'test-sort-desc',
-        statusOn: 'test-status-on',
-        statusOff: 'test-status-off'
-    };
-
-    function spyOnTableGetCalls(data, count, colDef, sortIdx, rowClick, pagination) {
-        spyOn(TableStore, 'getData').and.returnValue(data);
-        spyOn(TableStore, 'getDataCount').and.returnValue(count);
-        spyOn(TableStore, 'getColDefinitions').and.returnValue(colDef);
-        spyOn(TableStore, 'getSortColIndex').and.returnValue(sortIdx);
-        spyOn(TableStore, 'getRowClickData').and.returnValue(rowClick);
-        spyOn(TableStore, 'getPaginationData').and.returnValue(pagination);
-    }
-
     describe('Table', function() {
         var table, id;
+
+        var iconClasses = {
+            deselectAll: 'test-deselect-all',
+            pageLeft: 'test-page-left',
+            pageRight: 'test-page-right',
+            selectAll: 'test-select-all',
+            sortAsc: 'test-sort-asc',
+            sortDesc: 'test-sort-desc',
+            statusOn: 'test-status-on',
+            statusOff: 'test-status-off'
+        };
+
+        var definition = {
+            url: 'table/company',
+            cols: [
+                {
+                    dataProperty: 'string',
+                    dataType: 'string',
+                    hoverProperty: 'string',
+                    sortDirection: 'ascending'
+                },
+                {
+                    dataProperty: 'integer',
+                    dataType: 'number',
+                    sortDirection: 'descending'
+                },
+                {
+                    dataProperty: 'mixedCase',
+                    dataType: 'string',
+                    sortDirection: 'ascending'
+                },
+                {
+                    dataProperty: 'time',
+                    dataType: 'time',
+                    sortDirection: 'ascending',
+                    timeFormat: 'MMM Do, h A'
+                },
+                {
+                    dataProperty: 'percent',
+                    dataType: 'percent',
+                    sortDirection: 'descending'
+                },
+                {
+                    dataProperty: 'status',
+                    dataType: 'status',
+                    timeFormat: 'MMM Do, h A'
+                }
+            ],
+            sortColIndex: 0,
+            pagination: {
+                cursor: 0,
+                size: 2
+            },
+            rowClick: {
+                callback: function() {}
+            }
+        };
+
+        function dataFormatter(data) {
+            return data;
+        }
+
         var tableData = [
             {string: 'aaa', integer: -2, mixedCase: 'Aaa', time: 1417455952, percent: 87, status: Moment().subtract(5, 'minutes')},
             {string: 'b', integer: 3, mixedCase: 'B', percent: 42, status: Moment().subtract(14, 'minutes')},
@@ -91,47 +82,17 @@ define(function(require) {
             {string: 'ab', integer: 1, mixedCase: 'aB', percent: 15, status: Moment().subtract(20, 'hours')},
             {string: 'aba', integer: 1, mixedCase: 'aBA', time: 1406479597, percent: 67, status: Moment().subtract(50, 'days')}
         ];
-        var dataCount = tableData.length;
-        var colDefinitions = [
-            {
-                dataProperty: 'string',
-                dataType: 'string',
-                hoverProperty: 'string',
-                sortDirection: 'ascending'
-            },
-            {
-                dataProperty: 'integer',
-                sortDirection: 'descending'
-            },
-            {
-                dataProperty: 'mixedCase',
-                dataType: 'string',
-                sortDirection: 'ascending'
-            },
-            {
-                dataProperty: 'time',
-                dataType: 'time',
-                sortDirection: 'ascending'
-            },
-            {
-                dataProperty: 'percent',
-                dataType: 'percent',
-                sortDirection: 'descending'
-            },
-            {
-                dataProperty: 'status',
-                dataType: 'status',
-                sortDirection: 'off'
-            }
-        ];
-        var sortColIndex = 0;
-        var paginationData = {
-            cursor: 0,
-            size: 2
-        };
-        var rowClick = {
-            callback: function() {}
-        };
+
+        function spyOnTableGetCalls(data, count, colDef, sortIdx, rowClick, pagination) {
+            var tableInstance = TableStore.getInstance(id);
+
+            spyOn(tableInstance, 'getData').and.returnValue(data);
+            spyOn(tableInstance, 'getDataCount').and.returnValue(count);
+            spyOn(tableInstance, 'getColDefinitions').and.returnValue(colDef);
+            spyOn(tableInstance, 'getSortColIndex').and.returnValue(sortIdx);
+            spyOn(tableInstance, 'getRowClickData').and.returnValue(rowClick);
+            spyOn(tableInstance, 'getPaginationData').and.returnValue(pagination);
+        }
 
         beforeEach(function() {
             id = 'table-' + Utils.guid();
@@ -145,6 +106,7 @@ define(function(require) {
             };
 
             table = TestUtils.renderIntoDocument(<BasicTable {...props} />);
+            table.requestData();
         });
 
         describe('getInitialState function', function() {
@@ -154,12 +116,27 @@ define(function(require) {
                 expect(table.state.dataError).toEqual(false);
             });
 
-            it('should initialize the quickFilterEnabled property to false if quickFilter is not set to true for all cols.', function() {
+            it('should set selectionEnabled to true if there is a column in the definition with a dataType of select', function() {
+                var def = _.cloneDeep(definition);
+                def.cols.unshift({dataType: 'select', dataProperty: 'string'});
+                var props = {
+                    definition: def,
+                    componentId: id,
+                    key: id,
+                    filters: {},
+                    loadingIconClasses: ['icon', 'ion-loading-c']
+                };
+                table = TestUtils.renderIntoDocument(<BasicTable {...props} />);
+
+                expect(table.selectionEnabled).toBeTruthy();
+            });
+
+            it('should initialize the quickFilterEnabled property to false if quickFilter is not set to true for all cols', function() {
                 expect(table.quickFilterEnabled).toEqual(false);
             });
 
-            it('should set the quickFilterEnabled property to true if it is quickFilter is set to true on a column definition.', function() {
-                var def = _.clone(definition);
+            it('should set the quickFilterEnabled property to true if it is quickFilter is set to true on a column definition', function() {
+                var def = _.cloneDeep(definition);
                 def.cols[0].quickFilter = true;
                 var props = {
                     definition: def,
@@ -226,23 +203,31 @@ define(function(require) {
 
         describe('onDataReceived function', function() {
             it('should request the table state and set state for the table to render', function() {
-                spyOnTableGetCalls(tableData, dataCount, colDefinitions, sortColIndex, undefined, paginationData);
+                spyOnTableGetCalls(tableData, tableData.length, definition.cols, definition.sortColIndex, undefined, definition.pagination);
+                table.selectionEnabled = true;
                 table.onDataReceived();
 
+                expect(table.state.colDefinitions).toEqual(definition.cols);
+                expect(table.state.colSortDirections).toEqual(table.getColSortDirections(definition.cols));
+                expect(table.state.dataCount).toEqual(tableData.length);
                 expect(table.state.data).toEqual(tableData);
+                expect(table.state.filteredData).toBeNull();
+                expect(table.state.loading).toBeFalsy();
+                expect(table.state.pagination).toEqual(definition.pagination);
+                expect(table.state.rowClick).toBeUndefined();
+                expect(table.state.selectedItems).toBeTruthy();
+                expect(table.state.sortColIndex).toEqual(definition.sortColIndex);
             });
 
-
-
             it('should error when the data returns as undefined', function() {
-                spyOnTableGetCalls(undefined, dataCount, colDefinitions, undefined, undefined, undefined);
+                spyOnTableGetCalls(undefined, tableData.length, definition.cols, undefined, undefined, undefined);
                 table.onDataReceived();
 
                 expect(table.state.data).toBeNull();
             });
 
             it('should show no results if the data returns with an empty array', function() {
-                spyOnTableGetCalls([], dataCount, colDefinitions, undefined, undefined, undefined);
+                spyOnTableGetCalls([], tableData.length, definition.cols, undefined, undefined, undefined);
                 table.onDataReceived();
 
                 expect(table.state.data).toEqual([]);
@@ -262,8 +247,9 @@ define(function(require) {
         });
 
         describe('getQuickFilter function', function() {
-            it('should create an input element if the quickFilterEnabled property is set to true.', function() {
+            it('should create an input element if the quickFilterEnabled property is set to true and the table is not loading', function() {
                 table.state.data = tableData;
+                table.state.loading = false;
                 table.quickFilterEnabled = true;
                 expect(table.getQuickFilter().type).toEqual('input');
                 table.state.data = null;
@@ -274,7 +260,7 @@ define(function(require) {
                 expect(table.getQuickFilter()).toBeNull();
             });
 
-            it('should not create an input element if the quickFilterEnabled property is set to false.', function() {
+            it('should not create an input element if the quickFilterEnabled property is set to false', function() {
                 table.state.data = tableData;
                 table.quickFilterEnabled = false;
                 expect(table.getQuickFilter()).toBeNull();
@@ -289,7 +275,7 @@ define(function(require) {
                     cursor: 1,
                     size: 2
                 };
-                spyOnTableGetCalls(tableData, dataCount, colDefinitions, undefined, undefined, pagination);
+                spyOnTableGetCalls(tableData, dataCount, definition.cols, undefined, undefined, pagination);
                 table.onDataReceived();
                 table.setState({data: null});
 
@@ -303,7 +289,7 @@ define(function(require) {
                     cursor: 1,
                     size: 2
                 };
-                spyOnTableGetCalls(tableData, dataCount, colDefinitions, undefined, undefined, pagination);
+                spyOnTableGetCalls(tableData, dataCount, definition.cols, undefined, undefined, pagination);
                 table.onDataReceived();
                 table.setState({data: []});
 
@@ -317,7 +303,7 @@ define(function(require) {
                     cursor: 1,
                     size: 2
                 };
-                spyOnTableGetCalls(tableData, dataCount, colDefinitions, undefined, undefined, pagination);
+                spyOnTableGetCalls(tableData, dataCount, definition.cols, undefined, undefined, pagination);
                 table.onDataReceived();
                 table.setState({pagination: null});
 
@@ -331,7 +317,7 @@ define(function(require) {
                     cursor: 50,
                     size: 2
                 };
-                spyOnTableGetCalls(tableData, dataCount, colDefinitions, undefined, undefined, pagination);
+                spyOnTableGetCalls(tableData, dataCount, definition.cols, undefined, undefined, pagination);
                 table.onDataReceived();
 
                 expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'left-control fa fa-chevron-left')}).not.toThrow();
@@ -346,7 +332,7 @@ define(function(require) {
                     cursor: 0,
                     size: 2
                 };
-                spyOnTableGetCalls(tableData, dataCount, colDefinitions, undefined, undefined, pagination);
+                spyOnTableGetCalls(tableData, dataCount, definition.cols, undefined, undefined, pagination);
                 table.onDataReceived();
 
                 expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'left-control disabled fa fa-chevron-left')}).not.toThrow();
@@ -359,7 +345,7 @@ define(function(require) {
                     cursor: 99,
                     size: 2
                 };
-                spyOnTableGetCalls(tableData, dataCount, colDefinitions, undefined, undefined, pagination);
+                spyOnTableGetCalls(tableData, dataCount, definition.cols, undefined, undefined, pagination);
                 table.onDataReceived();
 
                 expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'left-control disabled fa fa-chevron-left')}).toThrow();
@@ -383,7 +369,7 @@ define(function(require) {
                 };
                 table = TestUtils.renderIntoDocument(<BasicTable {...props} />);
 
-                spyOnTableGetCalls(tableData, dataCount, colDefinitions, undefined, undefined, pagination);
+                spyOnTableGetCalls(tableData, dataCount, definition.cols, undefined, undefined, pagination);
                 table.onDataReceived();
 
                 expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'test-page-left')}).not.toThrow();
@@ -394,19 +380,10 @@ define(function(require) {
         describe('getColSortDirections function', function() {
             it('should create an array of col sort directions containing "ascending", "descending", and "off"', function() {
                 var expectedDirections = ['ascending', 'descending', 'ascending', 'ascending', 'descending', 'off'];
-                spyOnTableGetCalls(tableData, dataCount, colDefinitions, sortColIndex, undefined, undefined);
+                spyOnTableGetCalls(tableData, tableData.length, definition.cols, definition.sortColIndex, undefined, undefined);
                 table.onDataReceived();
 
                 expect(table.state.colSortDirections).toEqual(expectedDirections);
-            });
-        });
-
-        describe('getTableHeaderItem function', function() {
-            it('should create table header elements', function() {
-                spyOnTableGetCalls(tableData, dataCount, colDefinitions, sortColIndex, undefined, undefined);
-                table.onDataReceived();
-
-                expect(TestUtils.scryRenderedDOMComponentsWithTag(table, 'th').length).toEqual(6);
             });
         });
 
@@ -415,7 +392,7 @@ define(function(require) {
             var index = 0;
 
             it('should create table row elements', function() {
-                spyOnTableGetCalls(tableData, dataCount, colDefinitions, sortColIndex, undefined, undefined);
+                spyOnTableGetCalls(tableData, tableData.length, definition.cols, definition.sortColIndex, undefined, undefined);
                 table.onDataReceived();
 
                 expect(TestUtils.scryRenderedDOMComponentsWithTag(table, 'tr').length).toEqual(7);
@@ -466,93 +443,114 @@ define(function(require) {
             });
         });
 
-        describe('getTableData function', function() {
-            beforeEach(function() {
-                spyOnTableGetCalls(tableData, dataCount, colDefinitions, sortColIndex, undefined, undefined);
-                table.onDataReceived();
-            });
-            it('should create table data elements', function() {
-                expect(TestUtils.scryRenderedDOMComponentsWithTag(table, 'td').length).toEqual(42);
-            });
+        describe('getTableHeaderItem function', function() {
+            it('should create table header elements', function() {
+                spyOnTableGetCalls(tableData, tableData.length, definition.cols, definition.sortColIndex, undefined, undefined);
+                table.onDataReceived(tableData);
 
-            it('should render fa-circle icons after the status of an online user', function() {
-                var val = Date.now() - 899999;
-                var meta = {dataType: 'status', timeFormat: 'MMM Do, h A', online: true};
-                table.state.data = [];
-                table.state.data.push(meta);
-                var tableDataComponent = table.getTableData(val, meta, null, 0);
-
-
-                expect(tableDataComponent.props.children[1].props.className).toEqual('after-icon');
-                expect(tableDataComponent.props.children[1].props.children.props.className).toEqual('fa fa-circle');
+                expect(TestUtils.scryRenderedDOMComponentsWithTag(table, 'th').length).toEqual(6);
             });
 
-            it('should use the status on icon passed in on props', function() {
-                var props = {
-                    definition: definition,
-                    componentId: id,
-                    key: id,
-                    filters: {},
-                    iconClasses: iconClasses,
-                    loadingIconClasses: ['icon', 'ion-loading-c']
-                };
-                table = TestUtils.renderIntoDocument(<BasicTable {...props} />);
-                table.onDataReceived();
+            it('should create a bulk select table header if a column is defined with a dataType of select', function() {
+                var def = _.cloneDeep(definition);
+                def.cols.unshift({dataType: 'select', dataProperty: 'string'});
+                spyOnTableGetCalls(tableData, tableData.length, def.cols, definition.sortColIndex, undefined, undefined);
+                spyOn(table, 'getBulkSelectionIcon').and.callThrough();
+                table.onDataReceived(tableData);
 
-                var val = Date.now() - 899999;
-                var meta = {dataType: 'status', timeFormat: 'MMM Do, h A', online: true};
-                table.state.data = [];
-                table.state.data.push(meta);
-                var tableDataComponent = table.getTableData(val, meta, null, 0);
-
-                expect(tableDataComponent.props.children[1].props.className).toEqual('after-icon');
-                expect(tableDataComponent.props.children[1].props.children.props.className).toEqual('test-status-on');
+                expect(table.getBulkSelectionIcon.calls.count()).toEqual(1);
             });
 
-            it('should render fa-circle-o icons after the status of an offline user', function() {
-                var val = Date.now() - 900001;
-                var meta = {dataType: 'status', timeFormat: 'MMM Do, h A', online: false};
-                table.state.data = [];
-                table.state.data.push(meta);
-                var tableDataComponent = table.getTableData(val, meta, null, 0);
+            it('should create column sorting table headers if sorting is defined in the table definition.', function() {
+                spyOnTableGetCalls(tableData, tableData.length, definition.cols, definition.sortColIndex, undefined, undefined);
+                spyOn(table, 'getSortIcon').and.callThrough();
+                table.onDataReceived(tableData);
 
-                expect(tableDataComponent.props.children[1].props.className).toEqual('after-icon');
-                expect(tableDataComponent.props.children[1].props.children.props.className).toEqual('fa fa-circle-o');
-            });
-
-            it('should use the status off icon passed in on props', function() {
-                var props = {
-                    definition: definition,
-                    componentId: id,
-                    key: id,
-                    filters: {},
-                    iconClasses: iconClasses,
-                    loadingIconClasses: ['icon', 'ion-loading-c']
-                };
-                table = TestUtils.renderIntoDocument(<BasicTable {...props} />);
-                table.onDataReceived();
-
-                var val = Date.now() - 900001;
-                var meta = {dataType: 'status', timeFormat: 'MMM Do, h A', online: false};
-                table.state.data = [];
-                table.state.data.push(meta);
-                var tableDataComponent = table.getTableData(val, meta, null, 0);
-
-                expect(tableDataComponent.props.children[1].props.className).toEqual('after-icon');
-                expect(tableDataComponent.props.children[1].props.children.props.className).toEqual('test-status-off');
-            });
-
-            it('should set different title attribute when hover value is passed in', function(){
-                var tableDataComponent = table.getTableData('abc', {}, 'def');
-
-                expect(tableDataComponent.props.children[0].props.children).toEqual('abc');
-                expect(tableDataComponent.props.children[0].props.title).toEqual('def');
+                expect(table.getSortIcon.calls.count()).toEqual(5);
             });
         });
 
-        describe('getIcon function', function() {
+        describe('getBulkSelectionIcon function', function() {
+            it('should display the select all icon if no items in the selected list match items in the filtered data set', function() {
+                var def = _.cloneDeep(definition);
+                def.cols.unshift({dataType: 'select', dataProperty: 'string'});
+                spyOnTableGetCalls(tableData, tableData.length, def.cols, definition.sortColIndex, undefined, undefined);
+                table.onDataReceived(tableData);
+                table.state.filteredData = table.state.data;
+                // Testing no items in selected list.
+                table.state.selectedItems = {};
+
+                expect(table.getBulkSelectionIcon(def.cols[0]).type).toEqual('i');
+                expect(table.getBulkSelectionIcon(def.cols[0])._store.props.className).toEqual('fa fa fa-square-o');
+                expect(table.getBulkSelectionIcon(def.cols[0])._store.props.title).toEqual('Select All');
+
+                // Testing item in selected list that is not in filtered set.
+                table.state.selectedItems = {'notInFilteredSet': true};
+
+                expect(table.getBulkSelectionIcon(def.cols[0]).type).toEqual('i');
+                expect(table.getBulkSelectionIcon(def.cols[0])._store.props.className).toEqual('fa fa fa-square-o');
+                expect(table.getBulkSelectionIcon(def.cols[0])._store.props.title).toEqual('Select All');
+            });
+
+            it('should display the select all icon passed in on props', function() {
+                var props = {
+                    definition: definition,
+                    componentId: id,
+                    key: id,
+                    filters: {},
+                    iconClasses: iconClasses,
+                    loadingIconClasses: ['icon', 'ion-loading-c']
+                };
+                var def = _.cloneDeep(definition);
+                def.cols.unshift({dataType: 'select', dataProperty: 'string'});
+                table = TestUtils.renderIntoDocument(<BasicTable {...props} />);
+                spyOnTableGetCalls(tableData, tableData.length, def.cols, definition.sortColIndex, undefined, undefined);
+                table.onDataReceived();
+                table.state.filteredData = table.state.data;
+                table.state.selectedItems = {};
+
+                expect(table.getBulkSelectionIcon(def.cols[0])._store.props.className).toEqual('test-select-all');
+            });
+
+            it('should display the deselect all icon if items in the selected list match items in the filtered data set', function() {
+                var def = _.cloneDeep(definition);
+                def.cols.unshift({dataType: 'select', dataProperty: 'string'});
+                spyOnTableGetCalls(tableData, tableData.length, def.cols, definition.sortColIndex, undefined, undefined);
+                table.onDataReceived(tableData);
+                table.state.filteredData = table.state.data;
+                table.state.selectedItems = {};
+                table.state.selectedItems[table.state.data[0].string] = true;
+
+                expect(table.getBulkSelectionIcon(def.cols[0]).type).toEqual('i');
+                expect(table.getBulkSelectionIcon(def.cols[0])._store.props.className).toEqual('fa fa-minus-square-o');
+                expect(table.getBulkSelectionIcon(def.cols[0])._store.props.title).toEqual('Deselect All');
+            });
+
+            it('should display the deselect all icon passed in on props', function() {
+                var props = {
+                    definition: definition,
+                    componentId: id,
+                    key: id,
+                    filters: {},
+                    iconClasses: iconClasses,
+                    loadingIconClasses: ['icon', 'ion-loading-c']
+                };
+                var def = _.cloneDeep(definition);
+                def.cols.unshift({dataType: 'select', dataProperty: 'string'});
+                table = TestUtils.renderIntoDocument(<BasicTable {...props} />);
+                spyOnTableGetCalls(tableData, tableData.length, def.cols, definition.sortColIndex, undefined, undefined);
+                table.onDataReceived();
+                table.state.filteredData = table.state.data;
+                table.state.selectedItems = {};
+                table.state.selectedItems[table.state.data[0].string] = true;
+
+                expect(table.getBulkSelectionIcon(def.cols[0])._store.props.className).toEqual('test-deselect-all');
+            });
+        });
+
+        describe('getSortIcon function', function() {
             beforeEach(function() {
-                spyOnTableGetCalls(tableData, dataCount, colDefinitions, sortColIndex, undefined, undefined);
+                spyOnTableGetCalls(tableData, tableData.length, definition.cols, definition.sortColIndex, undefined, undefined);
             });
 
             it('should display the fa-sort-asc icon and be active', function() {
@@ -579,14 +577,14 @@ define(function(require) {
             });
 
             it('should display the fa-sort-desc icon and be active', function() {
-                colDefinitions[0].sortDirection = 'descending';
+                definition.cols[0].sortDirection = 'descending';
                 table.onDataReceived();
 
                 expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'active fa fa-sort-asc')}).toThrow();
                 expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'active fa fa-sort-desc')}).not.toThrow();
 
                 // reset data
-                colDefinitions[0].sortDirection = 'ascending';
+                definition.cols[0].sortDirection = 'ascending';
             });
 
             it('should display the sort desc icon passed in on props and be active', function() {
@@ -598,7 +596,7 @@ define(function(require) {
                     iconClasses: iconClasses,
                     loadingIconClasses: ['icon', 'ion-loading-c']
                 };
-                colDefinitions[0].sortDirection = 'descending';
+                definition.cols[0].sortDirection = 'descending';
                 table = TestUtils.renderIntoDocument(<BasicTable {...props} />);
                 table.onDataReceived();
 
@@ -606,7 +604,7 @@ define(function(require) {
                 expect(function(){TestUtils.findRenderedDOMComponentWithClass(table, 'active test-sort-desc')}).not.toThrow();
 
                 // reset data
-                colDefinitions[0].sortDirection = 'ascending';
+                definition.cols[0].sortDirection = 'ascending';
             });
 
             it('should display the fa-sort-desc icon for all columns defaulting to a ascending sort', function() {
@@ -623,8 +621,88 @@ define(function(require) {
             });
         });
 
+        describe('getTableData function', function() {
+            beforeEach(function() {
+                spyOnTableGetCalls(tableData, tableData.length, definition.cols, definition.sortColIndex, undefined, undefined);
+                table.onDataReceived();
+            });
+            it('should create table data elements', function() {
+                expect(TestUtils.scryRenderedDOMComponentsWithTag(table, 'td').length).toEqual(42);
+            });
+
+            it('should render fa-circle icons after the status of an online user', function() {
+                var val = Date.now() - 899999;
+                var meta = {dataType: 'status', timeFormat: 'MMM Do, h A', online: true};
+                table.state.data = [];
+                table.state.data.push(meta);
+                var tableDataComponent = table.getTableData(val, meta, null, 0);
+
+
+                expect(tableDataComponent.props.children[1].props.className).toEqual('after-icon fa fa-circle status-on');
+            });
+
+            it('should use the status on icon passed in on props', function() {
+                var props = {
+                    definition: definition,
+                    componentId: id,
+                    key: id,
+                    filters: {},
+                    iconClasses: iconClasses,
+                    loadingIconClasses: ['icon', 'ion-loading-c']
+                };
+                table = TestUtils.renderIntoDocument(<BasicTable {...props} />);
+                table.onDataReceived();
+
+                var val = Date.now() - 899999;
+                var meta = {dataType: 'status', timeFormat: 'MMM Do, h A', online: true};
+                table.state.data = [];
+                table.state.data.push(meta);
+                var tableDataComponent = table.getTableData(val, meta, null, 0);
+
+                expect(tableDataComponent.props.children[1].props.className).toEqual('after-icon test-status-on status-on');
+            });
+
+            it('should render fa-circle-o icons after the status of an offline user', function() {
+                var val = Date.now() - 900001;
+                var meta = {dataType: 'status', timeFormat: 'MMM Do, h A', online: false};
+                table.state.data = [];
+                table.state.data.push(meta);
+                var tableDataComponent = table.getTableData(val, meta, null, 0);
+
+                expect(tableDataComponent.props.children[1].props.className).toEqual('after-icon fa fa-circle-o status-off');
+            });
+
+            it('should use the status off icon passed in on props', function() {
+                var props = {
+                    definition: definition,
+                    componentId: id,
+                    key: id,
+                    filters: {},
+                    iconClasses: iconClasses,
+                    loadingIconClasses: ['icon', 'ion-loading-c']
+                };
+                table = TestUtils.renderIntoDocument(<BasicTable {...props} />);
+                table.onDataReceived();
+
+                var val = Date.now() - 900001;
+                var meta = {dataType: 'status', timeFormat: 'MMM Do, h A', online: false};
+                table.state.data = [];
+                table.state.data.push(meta);
+                var tableDataComponent = table.getTableData(val, meta, null, 0);
+
+                expect(tableDataComponent.props.children[1].props.className).toEqual('after-icon test-status-off status-off');
+            });
+
+            it('should set different title attribute when hover value is passed in', function(){
+                var tableDataComponent = table.getTableData('abc', {}, 'def');
+
+                expect(tableDataComponent.props.children[0].props.children).toEqual('abc');
+                expect(tableDataComponent.props.children[0].props.title).toEqual('def');
+            });
+        });
+
         describe('handleQuickFilterChange function', function() {
-            it('should trigger filtering.', function() {
+            it('should trigger filtering', function() {
                 var event = {
                     target: {
                         value: 'testFilter'
@@ -640,7 +718,7 @@ define(function(require) {
 
         describe('handlePageLeftClick function', function() {
             it('should trigger pagination to the left', function() {
-                spyOnTableGetCalls(tableData, dataCount, colDefinitions, undefined, undefined, paginationData);
+                spyOnTableGetCalls(tableData, tableData.length, definition.cols, undefined, undefined, definition.pagination);
 
                 spyOn(TableActions, 'paginate');
                 table.handlePageLeftClick();
@@ -651,7 +729,7 @@ define(function(require) {
 
         describe('handlePageRightClick function', function() {
             it('should trigger pagination to the right', function() {
-                spyOnTableGetCalls(tableData, dataCount, colDefinitions, undefined, undefined, paginationData);
+                spyOnTableGetCalls(tableData, tableData.length, definition.cols, undefined, undefined, definition.pagination);
 
                 spyOn(TableActions, 'paginate');
                 table.handlePageRightClick();
@@ -663,9 +741,9 @@ define(function(require) {
         describe('handleSortClick function', function() {
             it('should trigger the handle sort click function when attempting to perform an ascending sort', function() {
                 var index = 0;
-                colDefinitions[0].sortDirection = 'descending';
+                definition.cols[0].sortDirection = 'descending';
 
-                spyOnTableGetCalls(tableData, dataCount, colDefinitions, sortColIndex, undefined, undefined);
+                spyOnTableGetCalls(tableData, tableData.length, definition.cols, definition.sortColIndex, undefined, undefined);
                 table.onDataReceived();
 
                 spyOn(TableActions, 'sortChange');
@@ -675,13 +753,13 @@ define(function(require) {
                 expect(TableActions.sortChange).toHaveBeenCalledWith(id, index, 'ascending');
 
                 // reset data
-                colDefinitions[0].sortDirection = 'ascending';
+                definition.cols[0].sortDirection = 'ascending';
             });
 
             it('should trigger the handle sort click function when attempting to perform a descending sort', function() {
                 var index = 0;
 
-                spyOnTableGetCalls(tableData, dataCount, colDefinitions, sortColIndex, undefined, undefined);
+                spyOnTableGetCalls(tableData, tableData.length, definition.cols, definition.sortColIndex, undefined, undefined);
                 table.onDataReceived();
 
                 spyOn(TableActions, 'sortChange');
@@ -694,7 +772,7 @@ define(function(require) {
             it('should trigger the handle sort click function when attempting to sort an inactive sortable column', function() {
                 var index = 1;
 
-                spyOnTableGetCalls(tableData, dataCount, colDefinitions, sortColIndex, undefined, undefined);
+                spyOnTableGetCalls(tableData, tableData.length, definition.cols, definition.sortColIndex, undefined, undefined);
                 table.onDataReceived();
 
                 spyOn(TableActions, 'sortChange');
@@ -706,11 +784,11 @@ define(function(require) {
         });
 
         describe('onMouseDown function', function() {
-            it('should store the client x value of the mouse down event.', function() {
+            it('should store the client x value of the mouse down event', function() {
                 var e = {
                     clientX: 100
                 };
-                spyOnTableGetCalls(tableData, dataCount, colDefinitions, undefined, rowClick, undefined);
+                spyOnTableGetCalls(tableData, tableData.length, definition.cols, undefined, definition.rowClick, undefined);
                 table.onDataReceived();
                 table.onMouseDown(e);
 
@@ -719,65 +797,99 @@ define(function(require) {
         });
 
         describe('handleRowClick function', function() {
-            it('should open a new tab if the row click action was to open a tab.', function() {
+            it('should trigger the rowClick callback', function() {
                 var e = {
                     currentTarget: {
                         rowIndex: 0
                     }
                 };
-                spyOnTableGetCalls(tableData, dataCount, colDefinitions, undefined, rowClick, undefined);
-                spyOn(rowClick, 'callback');
+                spyOnTableGetCalls(tableData, tableData.length, definition.cols, undefined, definition.rowClick, undefined);
+                spyOn(definition.rowClick, 'callback');
                 table.onDataReceived();
 
                 table.handleRowClick(e);
-                expect(rowClick.callback).toHaveBeenCalled();
+                expect(definition.rowClick.callback).toHaveBeenCalled();
             });
 
-            it('should throw an error if the callback is not a function.', function() {
-                spyOnTableGetCalls(tableData, dataCount, colDefinitions, undefined, 'error', undefined);
-                spyOn(rowClick, 'callback');
+            it('should throw an error if the callback is not a function', function() {
+                spyOnTableGetCalls(tableData, tableData.length, definition.cols, undefined, 'error', undefined);
+                spyOn(definition.rowClick, 'callback');
                 table.onDataReceived();
 
                 expect(function() {table.handleRowClick();}).toThrow();
-                expect(rowClick.callback).not.toHaveBeenCalled();
+                expect(definition.rowClick.callback).not.toHaveBeenCalled();
             });
 
-            it('should not execute the rowClick callback if the user dragged the mouse more than 10 pixels.', function() {
+            it('should not execute the rowClick callback if the user dragged the mouse more than 10 pixels', function() {
                 var e = {
                     clientX: 111
                 };
-                spyOnTableGetCalls(tableData, dataCount, colDefinitions, undefined, rowClick, undefined);
-                spyOn(rowClick, 'callback');
+                spyOnTableGetCalls(tableData, tableData.length, definition.cols, undefined, definition.rowClick, undefined);
+                spyOn(definition.rowClick, 'callback');
                 table.onDataReceived();
 
                 // Drag right.
                 table.mouseDownX = 100;
                 table.handleRowClick(e);
-                expect(rowClick.callback).not.toHaveBeenCalled();
+                expect(definition.rowClick.callback).not.toHaveBeenCalled();
 
                 // Drag left.
                 table.mouseDownX = 122;
                 table.handleRowClick(e);
-                expect(rowClick.callback).not.toHaveBeenCalled();
+                expect(definition.rowClick.callback).not.toHaveBeenCalled();
             });
 
-            it('should execute the rowClick callback if the user dragged the mouse less than 11 pixels.', function() {
+            it('should execute the rowClick callback if the user dragged the mouse less than 11 pixels', function() {
                 var e = {
                     clientX: 110
                 };
-                spyOnTableGetCalls(tableData, dataCount, colDefinitions, undefined, rowClick, undefined);
-                spyOn(rowClick, 'callback');
+                spyOnTableGetCalls(tableData, tableData.length, definition.cols, undefined, definition.rowClick, undefined);
+                spyOn(definition.rowClick, 'callback');
                 table.onDataReceived();
 
                 // Drag right.
                 table.mouseDownX = 100;
                 table.handleRowClick(e);
-                expect(rowClick.callback.calls.count()).toEqual(1);
+                expect(definition.rowClick.callback.calls.count()).toEqual(1);
 
                 // Drag left.
                 table.mouseDownX = 120;
                 table.handleRowClick(e);
-                expect(rowClick.callback.calls.count()).toEqual(2);
+                expect(definition.rowClick.callback.calls.count()).toEqual(2);
+            });
+        });
+
+        describe('handleBulkSelectClick', function() {
+            it('should execute the table actions toggleBulkSelect function and not propagate the click through to the row', function() {
+                var deselect = false;
+                var e = {stopPropagation: function(){}};
+                spyOn(e, 'stopPropagation');
+                spyOn(TableActions, 'toggleBulkSelect');
+                spyOnTableGetCalls(tableData, tableData.length, definition.cols, undefined, definition.rowClick, undefined);
+                table.onDataReceived();
+
+                table.handleBulkSelectClick(deselect, e);
+
+                expect(e.stopPropagation).toHaveBeenCalled();
+                expect(TableActions.toggleBulkSelect).toHaveBeenCalledWith(id, deselect);
+            });
+        });
+
+        describe('handleSelectClick', function() {
+            it('should execute the table actions toggleRowSelect function and not propagate the click through to the row', function() {
+                var e = {
+                    stopPropagation: function(){},
+                    currentTarget: {parentNode: {rowIndex: 0}}
+                };
+                spyOn(e, 'stopPropagation');
+                spyOn(TableActions, 'toggleRowSelect');
+                spyOnTableGetCalls(tableData, tableData.length, definition.cols, undefined, definition.rowClick, undefined);
+                table.onDataReceived();
+
+                table.handleSelectClick(e);
+
+                expect(e.stopPropagation).toHaveBeenCalled();
+                expect(TableActions.toggleRowSelect).toHaveBeenCalledWith(id, 0);
             });
         });
     });

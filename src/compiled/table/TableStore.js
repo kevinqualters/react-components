@@ -30,8 +30,12 @@ define(function(require) {
         this.cursor = definition.cursor;
         this.rowClick = definition.rowClick;
         this.data = null;
+        this.filteredData = null;
+        this.displayedData = null;
         this.dataCount = null;
         this.dataFormatter = dataFormatter;
+        this.selectedItems = {};
+        this.selectDataProperty = _.result(_.find(this.cols, {'dataType': 'select'}), 'dataProperty');
     };
 
     Table.prototype = {
@@ -41,12 +45,13 @@ define(function(require) {
          */
         onDataReceived: function(data) {
             this.data = _.values(data);
-            this.dataCount = data.length;
 
             // Run data through definition formatter if it exists.
             if (this.dataFormatter) {
                 this.data = this.dataFormatter(data);
             }
+
+            this.dataCount = this.data.length;
 
             // Run data through built in data formatters.
             _.forEach(this.cols, function(col) {
@@ -54,7 +59,7 @@ define(function(require) {
                 if (col.dataType === 'status' && (typeof col.onlineLimit !== 'number' || col.onlineLimit < 1)) {
                     col.onlineLimit = 15;
                 }
-                _.forEach(data, function(item) {
+                _.forEach(this.data, function(item) {
                     if (col.dataType === 'percent') {
                         item[col.dataProperty] += '%';
                     }
@@ -68,7 +73,7 @@ define(function(require) {
                         item[col.dataProperty] = item[col.dataProperty] ? Moment(item[col.dataProperty]).format(col.timeFormat) : '--';
                     }
                 });
-            });
+            }, this);
 
             if (typeof this.sortColIndex === 'number') {
                 this.sortData(this.sortColIndex, this.cols[this.sortColIndex].sortDirection);
@@ -87,18 +92,22 @@ define(function(require) {
          * @returns {Array} - A potentially filtered and paginated subset of table data.
          */
         getData: function() {
-            var data = _.clone(this.data);
+            var data = _.cloneDeep(this.data);
             this.dataCount = data.length;
 
             if (this.filterValue) {
                 data = this.filterData(data);
             }
 
+            this.filteredData = data;
+
             if (this.pagination) {
-                return this.sliceData(data);
+                data = this.sliceData(data);
             }
 
-            return data;
+            this.displayedData = data;
+
+            return this.displayedData;
         },
 
         /**
@@ -147,6 +156,10 @@ define(function(require) {
          */
         setFilterValue: function(value) {
             this.filterValue = value;
+
+            if (this.pagination && this.pagination.cursor !== 0) {
+                this.resetPagination();
+            }
         },
 
         /**
@@ -248,6 +261,51 @@ define(function(require) {
                 // a must be equal to b
                 return 0;
             }.bind(this));
+        },
+
+        /**
+         * Retrieves the selected items for the Table.
+         * @returns {{}|Table.selectedItems} - The object containing all of the selected keys.
+         */
+        getSelectedItems: function() {
+            return this.selectedItems;
+        },
+
+        /**
+         * Retrieves the filtered data for the Table.
+         * @returns {[]|Table.filteredData} - The subset of Table data post filtering.
+         */
+        getFilteredData: function() {
+            return this.filteredData;
+        },
+
+        /**
+         * Bulk add or remove keys to/from the Table's selected items.
+         * @param {Boolean} deselect - There are selected items in the filtered data set, so we need to deselect them.
+         */
+        updateBulkSelection: function(deselect) {
+            _.forEach(this.filteredData, function(data) {
+                if (deselect) {
+                    delete this.selectedItems[data[this.selectDataProperty]];
+                }
+                else {
+                    this.selectedItems[data[this.selectDataProperty]] = true;
+                }
+            }, this);
+        },
+
+        /**
+         * Add or remove a key to/from the Table's selected items.
+         * @param {Number} rowIndex - The row index within the displayed data to pull the key from.
+         */
+        updateRowSelection: function(rowIndex) {
+            var key = this.displayedData[rowIndex][this.selectDataProperty];
+            if (this.selectedItems[key]) {
+                delete this.selectedItems[key];
+            }
+            else {
+                this.selectedItems[key] = true;
+            }
         }
     };
 
@@ -276,85 +334,21 @@ define(function(require) {
         },
 
         /**
-         * Retrieves the data for the table (also triggers pagination).
-         * @param {String} id - The unique identifier of the Table instance to request data for.
-         * @returns {Array|Null} - Table.data or null if data hasn't been received from the server yet.
+         * Retrieves a Table instance.
+         * @param {String} id - The unique identifier fo the Table instance to retrieve.
+         * @returns {Table}
          */
-        getData: function(id) {
-            return this.collection[id].getData();
+        getInstance: function(id) {
+            return this.collection[id];
         },
 
         /**
-         * Retrieves the number of data rows that need to be inserted into the table.
-         * @param {String} id - The unique identifier of the Table instance to get a data count for.
-         * @returns {Number} - The length of the Table.data array.
+         * Retrieves a list of selected Table row items.
+         * @param {String} id - The unique identifier fo the Table instance to retrieve.
+         * @returns {Array} - The list of keys from the selected items.
          */
-        getDataCount: function(id) {
-            return this.collection[id].getDataCount();
-        },
-
-        /**
-         * Retrieves the column definitions for the table.
-         * @param {String} id - The unique identifier of the Table instance to get the column definition for.
-         * @returns {Array} - List of column objects containing key information to render the table.
-         */
-        getColDefinitions: function(id) {
-            return this.collection[id].getColDefinitions();
-        },
-
-        /**
-         * Retrieves the column index that the table is set to be sorting off of.
-         * @param {String} id - The unique identifier of the Table instance to get the sorting column index for.
-         * @returns {Number} - The Table.sortColIndex.
-         */
-        getSortColIndex: function(id) {
-            return this.collection[id].getSortColIndex();
-        },
-
-        /**
-         * Retrieves a value representing if table rows are clickable (for style and behavior).
-         * @param {String} id - The unique identifier of the Table instance to get row click data for.
-         * @returns {Object} - Contains properties used in the row click handler of the table component.
-         */
-        getRowClickData: function(id) {
-            return this.collection[id].getRowClickData();
-        },
-
-        /**
-         * Retrieves the pagination data for the table. This includes cursor and size.
-         * @param {String} id - The unique identifier of the Table instance to request pagination data for.
-         * @returns {{cursor: number, size:number}}
-         */
-        getPaginationData: function(id) {
-            return this.collection[id].getPaginationData();
-        },
-
-        /**
-         * Sets the value used for filtering a Table instance.
-         * @param {String} id - The unique identifier of the Table instance to request filtering data for.
-         * @param {String|Number} value - The string or number used to filter out table rows that are not a match.
-         */
-        setFilterValue: function(id, value) {
-            this.collection[id].setFilterValue(value);
-        },
-
-        /**
-         * Moves the cursor forwards or backwards through paginated data.
-         * @param {String} id - The unique identifier of the Table instance to paginate.
-         * @param {String} direction - the direction paginate (right or left).
-         */
-        paginate: function(id, direction) {
-            this.collection[id].paginate(direction);
-        },
-
-        /**
-         * Sorts the array of data for the Table based on the sort column index and the direction.
-         * @param {String} id - The unique identifier of the Table instance to be sorted.
-         * @param {Number} colIndex - The index of the table column that is to sorted.
-         * @param {String} direction - The direction to sort (ascending or descending).
-         */
-        sortData: function(id, colIndex, direction) {
-            this.collection[id].sortData(colIndex, direction);
+        getSelectedItems: function(id) {
+            return _.keys(this.collection[id].getSelectedItems());
         },
 
         /**
@@ -373,15 +367,23 @@ define(function(require) {
                     this.handleRequestDataAction(action);
                     break;
                 case ActionTypes.TABLE_SORT:
-                    this.sortData(action.id, action.data.colIndex, action.data.direction);
+                    this.collection[action.id].sortData(action.data.colIndex, action.data.direction);
                     this.emitChange(action.id);
                     break;
                 case ActionTypes.FILTER:
-                    this.setFilterValue(action.id, action.data.value);
+                    this.collection[action.id].setFilterValue(action.data.value);
                     this.emitChange(action.id);
                     break;
                 case ActionTypes.PAGINATE:
-                    this.paginate(action.id, action.data.direction);
+                    this.collection[action.id].paginate(action.data.direction);
+                    this.emitChange(action.id);
+                    break;
+                case ActionTypes.TOGGLE_BULK_SELECT:
+                    this.collection[action.id].updateBulkSelection(action.data.deselect);
+                    this.emitChange(action.id);
+                    break;
+                case ActionTypes.TOGGLE_ROW_SELECT:
+                    this.collection[action.id].updateRowSelection(action.data.rowIndex);
                     this.emitChange(action.id);
                     break;
                 case ActionTypes.DESTROY_INSTANCE:
