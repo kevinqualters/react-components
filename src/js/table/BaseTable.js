@@ -90,6 +90,9 @@ define(function(require) {
             );
         },
 
+        /**
+         * Puts the table in a loading state and triggers the table's request data action.
+         */
         requestData: function() {
             this.setState({
                 loading: true,
@@ -132,6 +135,11 @@ define(function(require) {
             this.setState({loading: false, dataError: true});
         },
 
+        /**
+         * Creates the quick filter input for searching/filtering through the table data if any of the columns have
+         * quickFilter set to true.
+         * @returns {XML} - A React input element.
+         */
         getQuickFilter: function() {
             if (!this.quickFilterEnabled || this.state.loading) {
                 return null;
@@ -140,6 +148,10 @@ define(function(require) {
             return <input ref="filter" className="quick-filter" type="text" placeholder={this.props.quickFilterPlaceholder} onChange={this.handleQuickFilterChange} />;
         },
 
+        /**
+         * Creates pagination controls if the table has data and pagination was definied in the table definition.
+         * @returns {XML} - A React div element containing the pagination controls.
+         */
         getPaginationControls: function() {
             if (!this.state.data || !this.state.data.length || !this.state.pagination) {
                 return null;
@@ -188,6 +200,11 @@ define(function(require) {
             );
         },
 
+        /**
+         * Creates an array for the table to easily access column sorting directions.
+         * @param {Object} colDefinitions - The tables column definitions that were sent in with the table definition.
+         * @returns {Array} - The list of sort directions ordered by column index.
+         */
         getColSortDirections: function(colDefinitions) {
             var colSortDirections = [];
 
@@ -205,6 +222,12 @@ define(function(require) {
             return colSortDirections;
         },
 
+        /**
+         * Creates a table row.
+         * @param {Object} rowData - The data element to build a table row from.
+         * @param {Number} index - The current row index.
+         * @returns {XML} - A React table row.
+         */
         getTableRowItem: function(rowData, index) {
             var handleRowClick;
             var onMouseDown;
@@ -234,9 +257,14 @@ define(function(require) {
             );
         },
 
+        /**
+         * Creates a table header.
+         * @param {Object} colData - The associated column definition from the definition on props.
+         * @param {Number} index - The column index to build a table header element for.
+         * @returns {XML} - A React table header element.
+         */
         getTableHeaderItem: function(colData, index) {
             var icon, onClick;
-            var title = colData.headerLabel;
             var headerClasses = 'no-select';
 
             if (colData.dataType === 'select' && this.state.data && this.state.data.length) {
@@ -252,7 +280,7 @@ define(function(require) {
 
             return (
                 <th className={headerClasses}
-                    title={title}
+                    title={colData.headerLabel}
                     key={'tableHeader' + Utils.guid()}
                     style={{width: colData.width}}
                     onClick={onClick}>{colData.headerLabel}
@@ -261,6 +289,11 @@ define(function(require) {
             );
         },
 
+        /**
+         * Creates the bulk select/deselect icon if the column has a dataType of select.
+         * @param {Object} colData - The associated column definition from the definition on props.
+         * @returns {XML} - A React icon element.
+         */
         getBulkSelectionIcon: function(colData) {
             var filteredData = this.state.filteredData;
             var match = _.some(filteredData, function(data) {
@@ -271,6 +304,11 @@ define(function(require) {
             return <i className={iconClasses} title={match ? 'Deselect All' : 'Select All'} />;
         },
 
+        /**
+         * Creates the sorting indicator for the table headers that have sorting enabled.
+         * @param {number} index - The associated column index that the icon will be placed in.
+         * @returns {XML} - A React icon element.
+         */
         getSortIcon: function(index) {
             var defaultIconClasses = React.addons.classSet({
                 'sorting-indicator': true,
@@ -282,12 +320,12 @@ define(function(require) {
         },
 
         /**
-         * Returns the markup necessary to display a cell in the table
-         * @param  {Mixed} val         The value for the current cell
-         * @param  {Object} meta       Details about the value (format, type, etc)
-         * @param  {Mixed=} hoverValue Optional value to show in hover state of cell
-         * @param {Number} index
-         * @return {Object}            Cell markup
+         * Creates a table data element.
+         * @param  {Mixed} val - The value for the current cell
+         * @param  {Object} meta - Details about the value (format, type, etc).
+         * @param  {Mixed=} hoverValue - Optional value to show in hover state of cell.
+         * @param {Number} index - The current column index.
+         * @return {Object} - A React table data element.
          */
         getTableData: function(val, meta, hoverValue, index) {
             var afterIcon, iconClasses;
@@ -323,18 +361,33 @@ define(function(require) {
             );
         },
 
+        /**
+         * Filters out the rows that do not contain the input within any of the columns that have quickFilter enabled.
+         * @param {Object} e - The simulated React event.
+         */
         handleQuickFilterChange: function(e) {
             TableActions.filter(this.props.componentId, e.target.value);
         },
 
+        /**
+         * Paginate to the left.
+         */
         handlePageLeftClick: function() {
             TableActions.paginate(this.props.componentId, 'left');
         },
 
+        /**
+         * Paginate to the right.
+         */
         handlePageRightClick: function() {
             TableActions.paginate(this.props.componentId, 'right');
         },
 
+        /**
+         * Activates the column and sorts on the current sort direction of that column if it was not already active.
+         * If the column is already the active sorting column, it will change the direction of the sort.
+         * @param {Number} index - The column index that was clicked.
+         */
         handleSortClick: function(index) {
             var direction;
 
