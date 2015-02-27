@@ -183,7 +183,7 @@ MIT
 
 ## Special Thanks To:
 
-The developers that made this project possible by contributing the the following libraries and frameworks:
+The developers that made this project possible by contributing to the the following libraries and frameworks:
 
 [React](http://facebook.github.io/react/), [Flux](https://facebook.github.io/flux/), [Compass](http://compass-style.org/), 
 [Sass](http://sass-lang.com/), [Require](http://requirejs.org/), [Grunt](http://gruntjs.com/), [Jasmine](http://jasmine.github.io/2.2/introduction.html),
