@@ -1,1 +1,1 @@
-# dataminr-react-components
+# react-components

@@ -1,10 +1,7 @@
 {
-  "name": "dataminr-react-components",
-  "version": "0.0.0",
-  "main": "dist/dataminr-react-components.css",
-  "ignore": [
-    "**/*.txt"
-  ],
+  "name": "react-components",
+  "version": "0.1.0",
+  "main": "dist/react-components.css",
   "devDependencies": {
     "jasmine-expect": "1.22.3"
   },
