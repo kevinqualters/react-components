@@ -29,6 +29,17 @@ define(function(require) {
      * PieChart React Class
      */
     var PieChart = React.createClass({displayName: 'PieChart',
+        propTypes: {
+            componentId: React.PropTypes.string,
+            colors: React.PropTypes.array,
+            definition: React.PropTypes.object,
+            filters: React.PropTypes.object,
+            loadingIconClasses: React.PropTypes.oneOfType([
+                React.PropTypes.string,
+                React.PropTypes.array
+            ])
+        },
+
         mixins: [
             DataMixins.dataRequest,
             DataMixins.destroySelfOnUnmount(PieChartActions),
