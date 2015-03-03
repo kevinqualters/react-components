@@ -21,9 +21,9 @@ define(function(require) {
         },
 
         propTypes: {
-            componentId: React.PropTypes.string,
+            componentId: React.PropTypes.string.isRequired,
             dataFormatter: React.PropTypes.func,
-            definition: React.PropTypes.object,
+            definition: React.PropTypes.object.isRequired,
             filters: React.PropTypes.object,
             iconClasses: React.PropTypes.object,
             loadingIconClasses: React.PropTypes.oneOfType([

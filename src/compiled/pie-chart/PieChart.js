@@ -30,9 +30,9 @@ define(function(require) {
      */
     var PieChart = React.createClass({displayName: 'PieChart',
         propTypes: {
-            componentId: React.PropTypes.string,
+            componentId: React.PropTypes.string.isRequired,
             colors: React.PropTypes.array,
-            definition: React.PropTypes.object,
+            definition: React.PropTypes.object.isRequired,
             filters: React.PropTypes.object,
             loadingIconClasses: React.PropTypes.oneOfType([
                 React.PropTypes.string,
