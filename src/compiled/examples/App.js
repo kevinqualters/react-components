@@ -1,7 +1,9 @@
 define(function(require) {
     'use strict';
 
+    var Modal = require('drc/modal/Modal');
     var PieChart = require('drc/pie-chart/PieChart');
+    var PortalMixins = require('drc/mixins/PortalMixins');
     var React = require('react');
     var Search = require('drc/search/Search');
     var Table = require('drc/table/Table');
@@ -95,6 +97,8 @@ define(function(require) {
     return React.createClass({
         displayName: 'App',
 
+        mixins: [PortalMixins],
+
         getInitialState: function() {
             return {
                 selectedComponentSet: window.location.hash.split('#')[1] || 'piechart'
@@ -109,6 +113,13 @@ define(function(require) {
             var componentSet;
 
             switch (this.state.selectedComponentSet) {
+                case 'modal':
+                    componentSet = (
+                        React.createElement("div", {className: "component modal"}, 
+                            React.createElement("input", {type: "button", className: "modal-button", onClick: this.openModal, value: "Open Modal"})
+                        )
+                    );
+                    break;
                 case 'piechart':
                     componentSet = (
                         React.createElement("div", {className: "component"}, 
@@ -136,6 +147,7 @@ define(function(require) {
                         )
                     );
             }
+
             return (
                 React.createElement("div", {className: "app-component"}, 
                     React.createElement("div", {id: "header-component"}, 
@@ -148,6 +160,8 @@ define(function(require) {
                     ), 
                     React.createElement("div", {className: "sidebar"}, 
                         React.createElement("ul", {className: "nav no-select"}, 
+                            React.createElement("li", {className: this.state.selectedComponentSet === 'modal' ? 'active' : null, 
+                                onClick: this.handleLinkClick.bind(this, 'modal')}, "Modal"), 
                             React.createElement("li", {className: this.state.selectedComponentSet === 'piechart' ? 'active' : null, 
                                 onClick: this.handleLinkClick.bind(this, 'piechart')}, "Pie Chart"), 
                             React.createElement("li", {className: this.state.selectedComponentSet === 'search' ? 'active' : null, 
@@ -159,6 +173,18 @@ define(function(require) {
                     React.createElement("div", {className: "content-component"}, 
                         componentSet
                     )
+                )
+            );
+        },
+
+        openModal: function() {
+            this.openPortal(
+                React.createElement(Modal, {title: "Modal Title", closeModalCallback: this.closePortal}, 
+                    "Paleo hella meditation Thundercats. Artisan Wes Anderson plaid, meggings trust fund sartorial" + ' ' +
+                    "slow-carb flexitarian direct trade skateboard. Gentrify sriracha Kickstarter Godard butcher" + ' ' +
+                    "McSweeney's. Etsy keffiyeh hoodie irony vinyl. Ugh VHS hella, mlkshk craft beer meh banh mi." + ' ' +
+                    "Whatever normcore Truffaut sustainable lo-fi literally, Vice leggings XOXO. Wayfarers Austin" + ' ' +
+                    "tattooed mlkshk asymmetrical plaid butcher, chia stumptown post-ironic."
                 )
             );
         },

@@ -47,7 +47,13 @@ define(function(require) {
 
         closeModelHandler: function(e) {
             e.stopPropagation();
-            React.unmountComponentAtNode(this.getDOMNode().parentNode);
+
+            if (typeof this.props.closeModalCallback === 'function') {
+                this.props.closeModalCallback();
+            }
+            else {
+                React.unmountComponentAtNode(this.getDOMNode().parentNode);
+            }
         }
     });
 });
