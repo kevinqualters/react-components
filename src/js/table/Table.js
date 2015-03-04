@@ -21,7 +21,18 @@ define(function(require) {
         },
 
         propTypes: {
-            type: React.PropTypes.oneOf([TABLE_TYPES.BASIC, TABLE_TYPES.GROUPED_ACTIONS])
+            componentId: React.PropTypes.string.isRequired,
+            dataFormatter: React.PropTypes.func,
+            definition: React.PropTypes.object.isRequired,
+            filters: React.PropTypes.object,
+            iconClasses: React.PropTypes.object,
+            loadingIconClasses: React.PropTypes.oneOfType([
+                React.PropTypes.string,
+                React.PropTypes.array
+            ]),
+            noResultsText: React.PropTypes.string,
+            type: React.PropTypes.oneOf([TABLE_TYPES.BASIC, TABLE_TYPES.GROUPED_ACTIONS]),
+            quickFilterPlaceholder: React.PropTypes.string
         },
 
         getTable: function() {
