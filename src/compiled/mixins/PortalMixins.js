@@ -18,9 +18,11 @@ define(function(require) {
          * Unmounts the components rendered in the portal and removes the associated DOM node.
          */
         closePortal: function() {
-            React.unmountComponentAtNode(this.portalNode);
-            this.portalNode.parentNode.removeChild(this.portalNode);
-            this.portalNode = null;
+            if (this.portalNode && this.portalNode.parentNode) {
+                React.unmountComponentAtNode(this.portalNode);
+                this.portalNode.parentNode.removeChild(this.portalNode);
+                this.portalNode = null;
+            }
         }
     };
 });

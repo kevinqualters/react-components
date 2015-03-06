@@ -21,7 +21,7 @@
     margin: auto;
     max-width: 960px;
     min-height: 150px;
-    padding: 5px;
+    padding: 10px;
     position: relative;
     text-align: left;
 
@@ -31,11 +31,12 @@
 
     .header {
       .title {
+        color: $light-blue;
         display: inline-block;
-        margin: 2px 5px;
+        font-size: 22pt;
+        margin-bottom: 15px;
         text-align: left;
         width: 100%;
-        font-size: 17px;
       }
 
       .close {
