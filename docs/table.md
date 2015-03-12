@@ -3,13 +3,6 @@
 <img src="../src/js/examples/images/demo/table.gif" />
 
 ### Usage
-```javascript
-<Table definition={tableDefinition}
-                   componentId='tableId'
-                   key='tableId'
-                   loadingIconClasses={['icon', 'ion-loading-c']}
-                   quickFilterPlaceholder='Quick Filter' />
-```
 
 ```
 componentId
@@ -145,6 +138,7 @@ definition
 ```
 
 #### Example Usage
+
 ```javascript
 var tableDefinition = {
         url: '/test/table',
@@ -217,6 +211,14 @@ var tableDefinition = {
             }
         }
     };
+```
+
+```javascript
+<Table definition={tableDefinition}
+                   componentId='tableId'
+                   key='tableId'
+                   loadingIconClasses={['icon', 'ion-loading-c']}
+                   quickFilterPlaceholder='Quick Filter' />
 ```
 
 #### Example Data
