@@ -78,13 +78,145 @@ var tableDefinition = {
 ```
 
 ### Usage
-
 ```javascript
 <Table definition={tableDefinition}
                    componentId='tableId'
                    key='tableId'
                    loadingIconClasses={['icon', 'ion-loading-c']}
                    quickFilterPlaceholder='Quick Filter' />
+```
+
+```
+componentId
+    type: string
+    required: true
+    description: Used by the TableStore to keep track of Table state
+    
+key
+    type: string
+    required: true
+    description: Used by React when there are more than one table displayed consecutively by a component
+    
+definition
+    type: object
+    required: true
+    definition: This defines the look, feel, and display of the table
+    
+    dataFormatter
+        type: function
+        required: false
+        description: Will be called first whenever data is received from the server for custom post processing of data
+    
+    filters
+        type: object
+        required: false
+        description: Sent as data with requests to the server
+            
+    pagination
+        type: object
+        required: false
+        description: Enables Table pagination
+        
+        cursor
+            type: number
+            required: true
+            description: The starting index of the table pagination (usually this is initially set to 0)
+            
+        size
+            type: number
+            required: true
+            description: The number of elements to show within a paginated view of the table
+            
+    sortColIndex
+        type: number
+        required: false
+        description: The default column to sort which requires sortDirection to be depicted in at least one object in definition.cols
+        
+    rowClick
+        type: object
+        required: false
+        description: Enables row clicks on a Table
+        
+        callback
+            type: function
+            required: true
+            description: A custom function to be called when a row is clicked
+        
+    noResultsText
+        type: string
+        required: false
+        default: "No results found."
+        description: The text that will be displayed when there are no items in the table
+        
+    quickFilterPlaceholder
+        type: string
+        required: false
+        default: "Filter"
+        description: The placeholder text to display in the filter input field
+        
+    iconClasses
+        type: object
+        required: false
+        default: {
+            deselectAll: 'fa fa-minus-square-o',
+            pageLeft: 'fa fa-chevron-left',
+            pageRight: 'fa fa-chevron-right',
+            rowsCollapsed: 'fa fa-chevron-right',
+            rowsExpanded: 'fa fa-chevron-down',
+            selectAll: 'fa fa fa-square-o',
+            selectOn: 'fa fa-check-square-o',
+            selectOff: 'fa fa-square-o',
+            sortAsc: 'fa fa-sort-asc',
+            sortDesc: 'fa fa-sort-desc',
+            statusOn: 'fa fa-circle',
+            statusOff: 'fa fa-circle-o'
+        }
+        description: Used to override default icons
+        
+    loadingIconClasses
+        type: array|string
+        required: false
+        default: 'icon ion-loading-c'
+        description: Used to override the loading icon
+        
+    cols
+        type: array
+        required: true
+        description: An array of column definitions
+        
+        dataType
+            type: string
+            required: true
+            description: one of ['string', 'number', 'percent', 'time', 'status', 'select']
+        dataProperty
+            type: string
+            required: true
+            description: The property to use as the value from the data that came from the server
+        headerLabel
+            type: string
+            required: false
+            description: The label displayed in the header of the column
+        onlineLimit
+            type: number
+            required: false
+            description: Used with dataType of status to depict the time frame for the online indicator to display
+        quickFilter
+            type: boolean
+            required: false
+            description: Depicts if the column is filterable (defaults to False)
+        sortDirection
+            type: string
+            required: false
+            description: one of ['ascending', 'descending'] for the default sorting direction of a column
+        timeFormat
+            type: string
+            required: false
+            description: see [Momentjs](http://momentjs.com/docs/#/displaying/) used for dataTypes of time and status to display timestamps
+        
+        width
+            type: string
+            required: false
+            description: css width for the column
 ```
 
 ### Data
