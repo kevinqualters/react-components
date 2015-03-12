@@ -2,81 +2,6 @@
 
 <img src="../src/js/examples/images/demo/table.gif" />
 
-### Setup
-```javascript
-var tableDefinition = {
-        url: '/test/table',
-        cols: [
-            {
-                dataType: 'select',
-                dataProperty: 'name',
-                width: '35px'
-            },
-            {
-                headerLabel: 'NAME',
-                dataProperty: 'name',
-                sortDirection: 'ascending',
-                dataType: 'string',
-                width: '20%',
-                quickFilter: true
-            },
-            {
-                headerLabel: 'MESSAGES',
-                dataProperty: 'messages',
-                sortDirection: 'descending',
-                dataType: 'number',
-                width: '15%',
-                quickFilter: true
-            },
-            {
-                headerLabel: 'USAGE',
-                dataProperty: 'usage',
-                sortDirection: 'descending',
-                dataType: 'percent',
-                width: '10%',
-                quickFilter: true
-            },
-            {
-                headerLabel: 'LAST LOGIN',
-                dataProperty: 'lastLogin',
-                sortDirection: 'descending',
-                dataType: 'time',
-                timeFormat: 'MMM Do, h A',
-                width: '25%',
-                quickFilter: true
-            },
-            {
-                headerLabel: 'LAST MESSAGE',
-                dataProperty: 'lastMessage',
-                sortDirection: 'descending',
-                dataType: 'status',
-                onlineLimit: 4,
-                timeFormat: 'MMM Do, h:mm A',
-                width: '24%',
-                quickFilter: true
-            }
-        ],
-        sortColIndex: 1,
-        pagination: {
-            cursor: 0,
-            size: 12
-        },
-        rowClick: {
-            callback: function(event, props, state) {
-                var idx = event.currentTarget.rowIndex;
-                alert(
-                    'You just clicked on ' + state.data[idx][state.rowClick.labelKey || 'name'] + '.' +
-                    'We just executed the user defined rowClick.callback:\n\n' +
-                    'callback: function(event, props, state) {\n' +
-                    '    var idx = event.currentTarget.rowIndex;\n' +
-                    '    alert(\'You just clicked on +\'\n    state.data[idx][state.rowClick.labelKey \n    || \'name\'] + \'.\');\n' +
-                    '}'
-                );
-            }
-        }
-    };
-```
-
 ### Usage
 ```javascript
 <Table definition={tableDefinition}
@@ -219,7 +144,82 @@ definition
             description: css width for the column
 ```
 
-### Data
+#### Example Usage
+```javascript
+var tableDefinition = {
+        url: '/test/table',
+        cols: [
+            {
+                dataType: 'select',
+                dataProperty: 'name',
+                width: '35px'
+            },
+            {
+                headerLabel: 'NAME',
+                dataProperty: 'name',
+                sortDirection: 'ascending',
+                dataType: 'string',
+                width: '20%',
+                quickFilter: true
+            },
+            {
+                headerLabel: 'MESSAGES',
+                dataProperty: 'messages',
+                sortDirection: 'descending',
+                dataType: 'number',
+                width: '15%',
+                quickFilter: true
+            },
+            {
+                headerLabel: 'USAGE',
+                dataProperty: 'usage',
+                sortDirection: 'descending',
+                dataType: 'percent',
+                width: '10%',
+                quickFilter: true
+            },
+            {
+                headerLabel: 'LAST LOGIN',
+                dataProperty: 'lastLogin',
+                sortDirection: 'descending',
+                dataType: 'time',
+                timeFormat: 'MMM Do, h A',
+                width: '25%',
+                quickFilter: true
+            },
+            {
+                headerLabel: 'LAST MESSAGE',
+                dataProperty: 'lastMessage',
+                sortDirection: 'descending',
+                dataType: 'status',
+                onlineLimit: 4,
+                timeFormat: 'MMM Do, h:mm A',
+                width: '24%',
+                quickFilter: true
+            }
+        ],
+        sortColIndex: 1,
+        pagination: {
+            cursor: 0,
+            size: 12
+        },
+        rowClick: {
+            callback: function(event, props, state) {
+                var idx = event.currentTarget.rowIndex;
+                alert(
+                    'You just clicked on ' + state.data[idx][state.rowClick.labelKey || 'name'] + '.' +
+                    'We just executed the user defined rowClick.callback:\n\n' +
+                    'callback: function(event, props, state) {\n' +
+                    '    var idx = event.currentTarget.rowIndex;\n' +
+                    '    alert(\'You just clicked on +\'\n    state.data[idx][state.rowClick.labelKey \n    || \'name\'] + \'.\');\n' +
+                    '}'
+                );
+            }
+        }
+    };
+```
+
+#### Example Data
 
 ```javascript
 var testTableData = [
