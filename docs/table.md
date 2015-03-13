@@ -20,6 +20,11 @@ definition
     required: true
     definition: This defines the look, feel, and display of the table
     
+    url
+        type: string
+        required: true
+        description: The endpoint for requesting data
+    
     dataFormatter
         type: function
         required: false
@@ -106,26 +111,32 @@ definition
             type: string
             required: true
             description: one of ['string', 'number', 'percent', 'time', 'status', 'select']
+            
         dataProperty
             type: string
             required: true
             description: The property to use as the value from the data that came from the server
+        
         headerLabel
             type: string
             required: false
             description: The label displayed in the header of the column
+        
         onlineLimit
             type: number
             required: false
             description: Used with dataType of status to depict the time frame for the online indicator to display
+        
         quickFilter
             type: boolean
             required: false
             description: Depicts if the column is filterable (defaults to False)
+        
         sortDirection
             type: string
             required: false
             description: one of ['ascending', 'descending'] for the default sorting direction of a column
+        
         timeFormat
             type: string
             required: false
