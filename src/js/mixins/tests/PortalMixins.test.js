@@ -2,7 +2,6 @@ define(function(require) {
     'use strict';
 
     var PortalMixins = require('drc/mixins/PortalMixins');
-    var React = require('react');
 
     describe('PortalMixins', function() {
         describe('openPortal function', function() {
