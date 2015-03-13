@@ -3,7 +3,6 @@ define(function(require) {
 
     var PortalMixins = require('drc/mixins/PortalMixins');
     var React = require('react');
-    var TestUtils = React.addons.TestUtils;
 
     describe('PortalMixins', function() {
         describe('openPortal function', function() {
