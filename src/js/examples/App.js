@@ -19,53 +19,61 @@ define(function(require) {
                 width: '35px'
             },
             {
+                headerLabel: 'SPACECRAFT',
+                dataProperty: 'spacecraft',
+                sortDirection: 'ascending',
+                dataType: 'string',
+                width: '12%',
+                quickFilter: true
+            },
+            {
                 headerLabel: 'NAME',
                 dataProperty: 'name',
+                sortDirection: 'ascending',
+                dataType: 'string',
+                width: '12%',
+                quickFilter: true
+            },
+            {
+                headerLabel: 'MISSION',
+                dataProperty: 'mission',
                 sortDirection: 'ascending',
                 dataType: 'string',
                 width: '20%',
                 quickFilter: true
             },
             {
-                headerLabel: 'MESSAGES',
-                dataProperty: 'messages',
+                headerLabel: 'LAUNCHED',
+                dataProperty: 'launched',
                 sortDirection: 'descending',
                 dataType: 'number',
-                width: '15%',
+                width: '12%',
                 quickFilter: true
             },
             {
-                headerLabel: 'USAGE',
-                dataProperty: 'usage',
-                sortDirection: 'descending',
-                dataType: 'percent',
-                width: '10%',
-                quickFilter: true
-            },
-            {
-                headerLabel: 'LAST LOGIN',
-                dataProperty: 'lastLogin',
+                headerLabel: 'LAST LAUNCH DATE',
+                dataProperty: 'lastLaunchDate',
                 sortDirection: 'descending',
                 dataType: 'time',
-                timeFormat: 'MMM Do, h A',
-                width: '25%',
+                timeFormat: 'MMM Do YYYY',
+                width: '20%',
                 quickFilter: true
             },
             {
-                headerLabel: 'LAST MESSAGE',
-                dataProperty: 'lastMessage',
+                headerLabel: 'LAST COMMUNICATION',
+                dataProperty: 'lastCommunication',
                 sortDirection: 'descending',
                 dataType: 'status',
                 onlineLimit: 4,
-                timeFormat: 'MMM Do, h:mm A',
-                width: '24%',
+                timeFormat: 'MMM Do, h:mm A YYYY',
+                width: '20%',
                 quickFilter: true
             }
         ],
         sortColIndex: 1,
         pagination: {
             cursor: 0,
-            size: 12
+            size: 5
         },
         rowClick: {
             callback: function(event, props, state) {
