@@ -152,76 +152,84 @@ definition
 
 ```javascript
 var tableDefinition = {
-        url: '/test/table',
-        cols: [
-            {
-                dataType: 'select',
-                dataProperty: 'name',
-                width: '35px'
-            },
-            {
-                headerLabel: 'NAME',
-                dataProperty: 'name',
-                sortDirection: 'ascending',
-                dataType: 'string',
-                width: '20%',
-                quickFilter: true
-            },
-            {
-                headerLabel: 'MESSAGES',
-                dataProperty: 'messages',
-                sortDirection: 'descending',
-                dataType: 'number',
-                width: '15%',
-                quickFilter: true
-            },
-            {
-                headerLabel: 'USAGE',
-                dataProperty: 'usage',
-                sortDirection: 'descending',
-                dataType: 'percent',
-                width: '10%',
-                quickFilter: true
-            },
-            {
-                headerLabel: 'LAST LOGIN',
-                dataProperty: 'lastLogin',
-                sortDirection: 'descending',
-                dataType: 'time',
-                timeFormat: 'MMM Do, h A',
-                width: '25%',
-                quickFilter: true
-            },
-            {
-                headerLabel: 'LAST MESSAGE',
-                dataProperty: 'lastMessage',
-                sortDirection: 'descending',
-                dataType: 'status',
-                onlineLimit: 4,
-                timeFormat: 'MMM Do, h:mm A',
-                width: '24%',
-                quickFilter: true
-            }
-        ],
-        sortColIndex: 1,
-        pagination: {
-            cursor: 0,
-            size: 12
+    url: '/test/table',
+    cols: [
+        {
+            dataType: 'select',
+            dataProperty: 'name',
+            width: '35px'
         },
-        rowClick: {
-            callback: function(event, props, state) {
-                var idx = event.currentTarget.rowIndex;
-                alert(
-                    'You just clicked on ' + state.data[idx][state.rowClick.labelKey || 'name'] + '.' +
-                    'We just executed the user defined rowClick.callback:\n\n' +
-                    'callback: function(event, props, state) {\n' +
-                    '    var idx = event.currentTarget.rowIndex;\n' +
-                    '    alert(\'You just clicked on +\'\n    state.data[idx][state.rowClick.labelKey \n    || \'name\'] + \'.\');\n' +
-                    '}'
-                );
-            }
+        {
+            headerLabel: 'SPACECRAFT',
+            dataProperty: 'spacecraft',
+            sortDirection: 'ascending',
+            dataType: 'string',
+            width: '12%',
+            quickFilter: true
+        },
+        {
+            headerLabel: 'NAME',
+            dataProperty: 'name',
+            sortDirection: 'ascending',
+            dataType: 'string',
+            width: '12%',
+            quickFilter: true
+        },
+        {
+            headerLabel: 'MISSION',
+            dataProperty: 'mission',
+            sortDirection: 'ascending',
+            dataType: 'string',
+            width: '20%',
+            quickFilter: true
+        },
+        {
+            headerLabel: 'LAUNCHED',
+            dataProperty: 'launched',
+            sortDirection: 'descending',
+            dataType: 'number',
+            width: '12%',
+            quickFilter: true
+        },
+        {
+            headerLabel: 'LAST LAUNCH DATE',
+            dataProperty: 'lastLaunchDate',
+            sortDirection: 'descending',
+            dataType: 'time',
+            timeFormat: 'MMM Do YYYY',
+            width: '20%',
+            quickFilter: true
+        },
+        {
+            headerLabel: 'LAST COMMUNICATION',
+            dataProperty: 'lastCommunication',
+            sortDirection: 'descending',
+            dataType: 'status',
+            onlineLimit: 4,
+            timeFormat: 'MMM Do, h:mm A YYYY',
+            width: '20%',
+            quickFilter: true
         }
-    };
+    ],
+    sortColIndex: 1,
+    pagination: {
+        cursor: 0,
+        size: 5
+    },
+    rowClick: {
+        callback: function(event, props, state) {
+            var idx = event.currentTarget.rowIndex;
+            alert(
+                'You just clicked on ' + state.data[idx][state.rowClick.labelKey || 'name'] + '.' +
+                'We just executed the user defined rowClick.callback:\n\n' +
+                'callback: function(event, props, state) {\n' +
+                '    var idx = event.currentTarget.rowIndex;\n' +
+                '    alert(\'You just clicked on +\'\n    state.data[idx][state.rowClick.labelKey \n    || \'name\'] + \'.\');\n' +
+                '}'
+            );
+        }
+    }
+};
 ```
 
 ```javascript
@@ -236,9 +244,17 @@ var tableDefinition = {
 
 ```javascript
 var testTableData = [
-    {"name": "Lory Borkholder", "messages": 4, "usage": 0, "lastLogin": 1423168675800, "lastMessage": 1423168675800},
-    {"name": "Ethyl Rolan", "messages": 44, "usage": 5, "lastLogin": 1423165124993, "lastMessage": 1423165124993},
-    {"name": "Remona Molloy", "messages": 3, "usage": 75, "lastLogin": 1422672380477, "lastMessage": 1422672380477},
-    {"name": "Trista Stricker", "messages": 13, "usage": 3, "lastLogin": 1423023947375, "lastMessage": 1423023947375}
+    {"spacecraft": "Amos", "name": "Amos", "mission": 'Communications sat, Israel', "launched": 5, "lastLaunchDate": 832204800000, "lastCommunication": Moment().subtract(3, 'minutes').valueOf()},
+    {"spacecraft": "Hipparcos", "name": "Hipparcos", "mission": 'Astrometry (ESA)', "launched": 1, "lastLaunchDate": 618537600000, "lastCommunication": Moment().subtract(4, 'minutes').valueOf()},
+    {"spacecraft": "Universitetskiy", "name": "Tatyana", "mission": 'Student satellite, Russia', "launched": 1, "lastLaunchDate": 1253145600000, "lastCommunication": Moment().subtract(1, 'minutes').valueOf()},
+    {"spacecraft": "ISS", "name": "Aryabhata", "mission": 'Test satellite (India)', "launched": 1, "lastLaunchDate": 167097600000, "lastCommunication": 167529600000},
+    {"spacecraft": "SEO", "name": "Bhaskara", "mission": 'Earth observing sat (India)', "launched": 1, "lastLaunchDate": 297561600000, "lastCommunication": 624585602301},
+    {"spacecraft": "STARS-2", "name": "Kukai", "mission": 'Tether experiment', "launched": 2, "lastLaunchDate": 1393459200000, "lastCommunication": Moment().subtract(2, 'minutes').valueOf()},
+    {"spacecraft": "Sina", "name": "Sina(h)-1", "mission": 'Test satellite', "launched": 1, "lastLaunchDate": 1130371200000, "lastCommunication": 1145577603301},
+    {"spacecraft": "Ghauri", "name": "Ghauri", "mission": 'Missile', "launched": 2, "lastLaunchDate": 924048000000},
+    {"spacecraft": "Marcopolo", "name": "Marcopolo", "mission": 'Communications sat, England', "launched": 2, "lastLaunchDate": 650937600000, "lastCommunication": 104353920521},
+    {"spacecraft": "Giotto", "name": "Giotto", "mission": 'Comet probe (ESA)', "launched": 1, "lastLaunchDate": 489110400000, "lastCommunication": 711849600040},
+    {"spacecraft": "MPLM-3", "name": "Donatello", "mission": 'Space station module, not flown', "launched": 0},
+    {"spacecraft": "XMM", "name": "XMM-Newton", "mission": 'X-ray astronomy', "launched": 1, "lastLaunchDate": 962409610000, "lastCommunication": Moment().subtract(1, 'second').valueOf()},
 ];
 ```
