@@ -5,8 +5,6 @@ define(function(require) {
     var StringUtils = require('drc/utils/StringUtils');
     var Utils = require('drc/utils/Utils');
 
-    var ReactCSSTransitionGroup = React.addons.CSSTransitionGroup;
-
     var iconClasses = {
         close: 'fa fa-close'
     };
@@ -39,7 +37,7 @@ define(function(require) {
                     <div ref="content" className="content" tabIndex="-1" onKeyDown={this.keyDownHandler}>
                         <div className="header">
                             <span className="title">{this.props.title}</span>
-                            <span className="close" onClick={this.closeModelHandler}>
+                            <span className="close" onClick={this.closeModalHandler}>
                                 <span className="close-text">esc to close</span> | <i className={this.iconClasses.close} />
                             </span>
                         </div>
@@ -58,7 +56,7 @@ define(function(require) {
         keyDownHandler: function(e) {
             // escape key pressed
             if (e.keyCode === 27) {
-                this.closeModelHandler(e);
+                this.closeModalHandler(e);
             }
         },
 
@@ -68,7 +66,7 @@ define(function(require) {
          */
         backgroundClickHandler: function(e) {
             if (e.target.getAttribute('data-clickcatcher')) {
-                this.closeModelHandler(e);
+                this.closeModalHandler(e);
             }
         },
 
@@ -76,7 +74,7 @@ define(function(require) {
          * Triggered when clicking outside the modal, clicking on the close button, and when pressing escape.
          * @param e - The simulated React event.
          */
-        closeModelHandler: function(e) {
+        closeModalHandler: function(e) {
             e.stopPropagation();
 
             if (typeof this.props.closeModalCallback === 'function') {
