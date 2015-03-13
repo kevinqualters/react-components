@@ -22,7 +22,7 @@ define(function(require) {
         getInitialState: function() {
             this.iconClasses = _.merge(_.clone(iconClasses), this.props.iconClasses);
 
-            return null;
+            return {};
         },
 
         componentDidMount: function() {
@@ -48,7 +48,7 @@ define(function(require) {
                         </div>
                     </div>
                 </div>
-                );
+            );
         },
 
         /**
