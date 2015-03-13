@@ -3,11 +3,11 @@ define(function() {
 
     return {
         /**
-         * Capitalise the first letter of a string.
+         * Capitalize the first letter of a string.
          * @param {String} string
          * @returns {String}
          */
-        capitaliseFirstLetter: function (string) {
+        capitalizeFirstLetter: function (string) {
             return string.charAt(0).toUpperCase() + string.slice(1);
         }
     };

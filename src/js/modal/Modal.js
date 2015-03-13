@@ -14,6 +14,7 @@ define(function(require) {
 
         propTypes: {
             closeModalCallback: React.PropTypes.func,
+            iconClasses: React.PropTypes.object,
             title: React.PropTypes.string
         },
 
