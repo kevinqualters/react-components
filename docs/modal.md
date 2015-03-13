@@ -1,4 +1,4 @@
-# Table Component
+# Modal Component
 
 <img src="../src/js/examples/images/demo/modal.gif" />
 
@@ -47,7 +47,7 @@ return React.createClass({
             <Modal title="Modal Title" closeModalCallback={this.closePortal}>
                 Paleo hella meditation Thundercats. Artisan Wes Anderson plaid, meggings trust fund sartorial
                 slow-carb flexitarian direct trade skateboard. Gentrify sriracha Kickstarter Godard butcher
-                McSweeney's. Etsy keffiyeh hoodie irony vinyl. Ugh VHS hella, mlkshk craft beer meh banh mi.
+                McSweeneys. Etsy keffiyeh hoodie irony vinyl. Ugh VHS hella, mlkshk craft beer meh banh mi.
                 Whatever normcore Truffaut sustainable lo-fi literally, Vice leggings XOXO. Wayfarers Austin
                 tattooed mlkshk asymmetrical plaid butcher, chia stumptown post-ironic.
             </Modal>
