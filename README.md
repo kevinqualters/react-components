@@ -20,6 +20,10 @@ Search against large sets of data, populate results, and take action with all th
 
 Display complex data with our pie chart's drill in/out functionality, hover animations, and result list.
 
+#### [Modal Component](./docs/modal.md)
+
+A simple single page modal that renders in it's own DOM tree and operates outside the render cycles of an application.
+
 ## Getting Started
 
 #### Install Bower if it is not already installed
