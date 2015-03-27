@@ -4,7 +4,7 @@
 
 ##### Try our [Yeoman](http://yeoman.io) generator for testing, linting, watchers, and more!
 
-> [generator-react-flux](https://github.com/dataminr/generator-react-flux) for Facebook's React framework and Flux application architecture.
+> [generator-reactjs-flux](https://github.com/dataminr/generator-reactjs-flux) for Facebook's React framework and Flux application architecture.
 
 ## What's inside react-components?
 
