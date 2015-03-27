@@ -1,5 +1,11 @@
 # react-components
 
+## Just getting your project started?
+
+##### Try our [Yeoman](http://yeoman.io) generator for testing, linting, watchers, and more!
+
+> [generator-react-flux](https://github.com/dataminr/generator-react-flux) for Facebook's React framework and Flux application architecture.
+
 ## What's inside react-components?
 
 #### [Table Component](./docs/table.md)
