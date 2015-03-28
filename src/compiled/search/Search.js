@@ -8,7 +8,7 @@ define(function(require) {
 
     var Search = React.createClass({displayName: 'Search',
         /**
-         * Prop vaildation
+         * Prop validation
          * @type {Object}
          */
         propTypes: {
