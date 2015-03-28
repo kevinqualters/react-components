@@ -8,6 +8,8 @@
 
 ## What's inside react-components?
 
+[Try the Demo](http://dataminr.github.io/react-components)
+
 #### [Table Component](./docs/table.md)
 
 From a simple table to multi-column filtering, column sorting, row selection, client side pagination, and more.
