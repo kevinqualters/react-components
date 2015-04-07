@@ -70,7 +70,7 @@ $ git checkout master
 * Pull requests should be made to the `master` branch with proper unit tests.
 * Do not include the minified files in your pull request. We build these when we tag a release.
 
-#### We use the following libraries within out project
+#### We use the following libraries within our project
 
 * [React](http://facebook.github.io/react/) JavaScript library for building user interfaces
 * [Flux](https://facebook.github.io/flux/) Application architecture for building user interfaces
