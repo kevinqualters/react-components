@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/dataminr/react-components.svg?branch=master)](https://travis-ci.org/dataminr/react-components)
 # react-components
 
 ## Just getting your project started?
