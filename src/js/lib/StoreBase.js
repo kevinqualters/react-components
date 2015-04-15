@@ -34,10 +34,11 @@ define(function(require) {
          * Fire change events for data. Fires two events, a generic 'change' event, and a
          * specific change event for the component that is changing.
          * @param {string=} namespace - The name or identifier to associate with the change event.
+         * * @param {...mixed} var_args - Additional arguments.
          */
         emitChange: function(namespace) {
-            var args = Array.prototype.slice.call(arguments);
-            args[0] = 'change';
+            var args = Array.prototype.slice.call(arguments, 1);
+            args.unshift('change');
             this.emit.apply(this, args);
             if(namespace !== null && namespace !== undefined){
                 args[0] = 'change:' + namespace;
@@ -50,10 +51,11 @@ define(function(require) {
          * specific fail event for the component that erred out. These event names would
          * be called 'error' but those are reserved in the EventEmitter we're using.
          * @param {string} namespace - The name or identifier to associate with the change event.
+         * @param {...mixed} var_args - Additional arguments.
          */
         emitFail: function(namespace) {
-            var args = Array.prototype.slice.call(arguments);
-            args[0] = 'fail';
+            var args = Array.prototype.slice.call(arguments, 1);
+            args.unshift('fail');
             this.emit.apply(this, args);
             if(namespace !== null && namespace !== undefined){
                 args[0] = 'fail:' + namespace;
