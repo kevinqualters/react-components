@@ -34,7 +34,7 @@ define(function(require) {
          * Fire change events for data. Fires two events, a generic 'change' event, and a
          * specific change event for the component that is changing.
          * @param {string=} namespace - The name or identifier to associate with the change event.
-         * * @param {...mixed} var_args - Additional arguments.
+         * @param {...mixed} var_args - Additional arguments.
          */
         emitChange: function(namespace) {
             var args = Array.prototype.slice.call(arguments, 1);
