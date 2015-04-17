@@ -1,5 +1,21 @@
 'use strict';
 
+//On OSX sed -i requires a different argument signature
+var sedOptions = '-i';
+if (process.platform === 'darwin') {
+    sedOptions += " ''";
+}
+
+var buildCommands = function() {
+    return [
+        './init.sh',
+        'grunt test',
+        'grunt compass',
+        'chmod 777 dist',
+        'grunt uglify:min'
+    ];
+};
+
 module.exports = function(grunt, options) {
     return {
         tasks: {
@@ -18,6 +34,24 @@ module.exports = function(grunt, options) {
                             return destBase + destPath.replace('.js', '.min.js');
                         }
                     })
+                }
+            },
+            /**
+             * Shell command for building the minified files
+             */
+            shell:{
+                build: {
+                    command: [
+                        buildCommands().join('&&')
+                    ],
+                    options: {
+                        async: false
+                    }
+                },
+                options: {
+                    execOptions: {
+                        detached: true
+                    }
                 }
             }
         }

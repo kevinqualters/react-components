@@ -25,22 +25,22 @@
   "devDependencies": {
     "jasmine-expect": "1.22.3"
   },
-    "ignore": [
-      ".*",
-      "Gruntfile.js",
-      "init.sh",
-      "package.json",
-      "README.md",
-      "bin",
-      "docs",
-      "grunt",
-      "src/require.config.js",
-      "src/js",
-      "src/sass",
-      "src/compiled/**/tests",
-      "!src/compiled/tests",
-      "src/compiled/examples"
-    ],
+  "ignore": [
+    ".*",
+    "Gruntfile.js",
+    "init.sh",
+    "package.json",
+    "README.md",
+    "bin",
+    "docs",
+    "grunt",
+    "src/require.config.js",
+    "src/js",
+    "src/sass",
+    "src/compiled/**/tests",
+    "!src/compiled/tests",
+    "src/compiled/examples"
+  ],
   "dependencies": {
     "d3": "3.5.5",
     "lodash": "3.7.0",
