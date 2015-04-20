@@ -1,9 +1,28 @@
-'use strict';
+//On OSX sed -i requires a different argument signature
+var sedOptions = '-i';
+if (process.platform === 'darwin') {
+    sedOptions += " ''";
+}
+
+var buildCommands = function() {
+    return [
+        './init.sh',
+        'grunt test',
+        'grunt compass',
+        'chmod 777 dist',
+        'grunt uglify:min',
+        // Modify require paths to use minified files.
+        "find src\/compiled -name \'*.min.js\' -print0 | xargs -0 sed " + sedOptions + " \"s#\\(require[(][\'|\\\"]drc\/[^\'\\\"]*\\)#\\1.min#g\""
+    ];
+};
 
 module.exports = function(grunt, options) {
     return {
         tasks: {
             uglify: {
+                options: {
+                    mangle: false
+                },
                 min: {
                     files: grunt.file.expandMapping(['src/compiled/**/*.js',
                                                      '!src/compiled/**/*.test.js',
@@ -15,6 +34,24 @@ module.exports = function(grunt, options) {
                             return destBase + destPath.replace('.js', '.min.js');
                         }
                     })
+                }
+            },
+            /**
+             * Shell command for building the minified files
+             */
+            shell:{
+                build: {
+                    command: [
+                        buildCommands().join('&&')
+                    ],
+                    options: {
+                        async: false
+                    }
+                },
+                options: {
+                    execOptions: {
+                        detached: true
+                    }
                 }
             }
         }

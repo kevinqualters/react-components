@@ -26,12 +26,6 @@ module.exports.tasks = {
     },
 
     shell: {
-        build: {
-            command: 'grunt uglify:min',
-            options: {
-                async: false
-            }
-        },
         cleanCompiledDirectory: {
             command: 'rm -rf src/compiled',
             options: {

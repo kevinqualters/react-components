@@ -61,8 +61,6 @@ module.exports = function(grunt) {
      * Creates minified files of all necessary source files if and only if testing passes
      */
     grunt.registerTask('build', [
-        'test',
-        'compass',
         'shell:build'
     ]);
 };
