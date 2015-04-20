@@ -1,14 +1,14 @@
 define(function(require) {
     'use strict';
 
-    var Modal = require('drc/modal/Modal');
-    var PieChart = require('drc/pie-chart/PieChart');
-    var PortalMixins = require('drc/mixins/PortalMixins');
+    var Modal = require('drc/modal/Modal.min');
+    var PieChart = require('drc/pie-chart/PieChart.min');
+    var PortalMixins = require('drc/mixins/PortalMixins.min');
     var React = require('react');
-    var Search = require('drc/search/Search');
-    var Table = require('drc/table/Table');
-    var TableStore = require('drc/table/TableStore');
-    var Utils = require('drc/utils/Utils');
+    var Search = require('drc/search/Search.min');
+    var Table = require('drc/table/Table.min');
+    var TableStore = require('drc/table/TableStore.min');
+    var Utils = require('drc/utils/Utils.min');
 
     var tableDefinition = {
         url: '/test/table',

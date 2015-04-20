@@ -1,5 +1,3 @@
-'use strict';
-
 //On OSX sed -i requires a different argument signature
 var sedOptions = '-i';
 if (process.platform === 'darwin') {
@@ -12,7 +10,9 @@ var buildCommands = function() {
         'grunt test',
         'grunt compass',
         'chmod 777 dist',
-        'grunt uglify:min'
+        'grunt uglify:min',
+        // Modify require paths to use minified files.
+        "find src\/compiled -name \'*.min.js\' -print0 | xargs -0 sed " + sedOptions + " \"s#\\(require[(][\'|\\\"]drc\/[^\'\\\"]*\\)#\\1.min#g\""
     ];
 };
 
