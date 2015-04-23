@@ -1,3 +1,5 @@
+[![Bower version][bower-image]][bower-url] [![MIT License][license-image]][license-url] [![Build Status][travis-image]][travis-url]
+
 # react-components
 
 ## Just getting your project started?
@@ -70,7 +72,7 @@ $ git checkout master
 * Pull requests should be made to the `master` branch with proper unit tests.
 * Do not include the minified files in your pull request. We build these when we tag a release.
 
-#### We use the following libraries within out project
+#### We use the following libraries within our project
 
 * [React](http://facebook.github.io/react/) JavaScript library for building user interfaces
 * [Flux](https://facebook.github.io/flux/) Application architecture for building user interfaces
@@ -195,3 +197,12 @@ The developers that made this project possible by contributing to the the follow
 [Sass](http://sass-lang.com/), [Require](http://requirejs.org/), [Grunt](http://gruntjs.com/), [Jasmine](http://jasmine.github.io/2.2/introduction.html),
 [Istanbul](https://github.com/gotwarlost/istanbul), [JSHint](http://jshint.com/), [JSCS](http://jscs.info/), [Watch](https://github.com/gruntjs/grunt-contrib-watch),
 [d3](http://d3js.org/), [lodash](https://lodash.com/docs), [jQuery](http://jquery.com/), and [Moment](http://momentjs.com/docs/)
+
+[bower-image]: https://badge.fury.io/bo/react-components.svg
+[bower-url]: http://badge.fury.io/bo/react-components
+
+[license-image]: http://img.shields.io/badge/license-MIT-blue.svg?style=flat
+[license-url]: LICENSE
+
+[travis-url]: https://travis-ci.org/dataminr/react-components
+[travis-image]: https://travis-ci.org/dataminr/react-components.svg?branch=master
